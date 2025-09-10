@@ -17,32 +17,52 @@ export default function Cart() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Dynamic service fee calculation (could be 0, percentage, or fixed amount)
+  const serviceFee = totalAmount > 0 ? Math.max(totalAmount * 0.05, 2) : 0; // 5% with minimum $2
+  const finalTotal = totalAmount + serviceFee;
+
   const handleCheckout = async () => {
+    console.log('🚀 Starting checkout process...', { 
+      totalAmount, 
+      serviceFee, 
+      finalTotal, 
+      itemCount, 
+      items,
+      isAuthenticated 
+    });
+
+    // Allow checkout even for non-authenticated users (guest checkout)
     if (!isAuthenticated) {
+      console.log('🔄 Proceeding with guest checkout...');
+    }
+
+    // Ensure we have items to checkout
+    if (itemCount === 0 || items.length === 0) {
       toast({
-        title: 'Login Required',
-        description: 'Please sign in to proceed with checkout. Your cart will be saved.',
-        duration: 5000,
+        title: 'Cart Empty',
+        description: 'Please add items to your cart before checkout.',
+        variant: 'destructive',
       });
-      navigate('/auth');
       return;
     }
 
-    console.log('🚀 Starting checkout process...', { totalAmount, itemCount, items });
-
     try {
       const result = await paymentService.createCheckoutSession({
-        amount: totalAmount + 5, // Include service fee
+        amount: Math.round(finalTotal * 100), // Convert to cents
         currency: 'usd',
         cartItems: items,
-        metadata: { source: 'cart' },
+        metadata: { 
+          source: 'cart',
+          isAuthenticated: isAuthenticated.toString(),
+          serviceFee: serviceFee.toFixed(2)
+        },
       });
 
       console.log('💳 Checkout session result:', result);
 
       if (result.success && result.url) {
         console.log('✅ Redirecting to Stripe checkout:', result.url);
-        // Redirect to Stripe Checkout
+        // Open Stripe checkout in the same window
         window.location.href = result.url;
       } else {
         console.error('❌ Checkout failed:', result.error);
@@ -189,12 +209,12 @@ export default function Cart() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Service Fee</span>
-                    <span className="font-medium">$5.00</span>
+                    <span className="font-medium">${serviceFee.toFixed(2)}</span>
                   </div>
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-lg font-semibold">
                       <span>Total</span>
-                      <span>${(totalAmount + 5).toFixed(2)}</span>
+                      <span>${finalTotal.toFixed(2)}</span>
                     </div>
                   </div>
                   
@@ -203,21 +223,15 @@ export default function Cart() {
                     disabled={isLoading || itemCount === 0}
                     className="w-full btn-primary mt-6"
                   >
-                    {!isAuthenticated ? (
-                      <>
-                        <Lock className="h-4 w-4 mr-2" />
-                        Sign In to Checkout
-                      </>
-                    ) : (
-                      'Proceed to Checkout'
-                    )}
+                    Proceed to Checkout
                   </Button>
                   
-                  {!isAuthenticated && (
-                    <p className="text-sm text-gray-500 text-center mt-2">
-                      Your cart will be saved when you sign in
-                    </p>
-                  )}
+                  <div className="text-xs text-gray-500 text-center mt-2">
+                    <div className="flex items-center justify-center gap-1">
+                      <Lock className="h-3 w-3" />
+                      Secure payment powered by Stripe
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

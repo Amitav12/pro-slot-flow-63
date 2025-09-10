@@ -22,21 +22,31 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    // Get authenticated user
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header provided");
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    // Try to get authenticated user (optional for guest checkout)
+    let userEmail = "guest@example.com";
+    let userId = null;
+    let isAuthenticated = false;
     
-    if (userError || !userData.user?.email) {
-      throw new Error("User not authenticated or email not available");
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      try {
+        const token = authHeader.replace("Bearer ", "");
+        const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+        
+        if (!userError && userData.user?.email) {
+          userEmail = userData.user.email;
+          userId = userData.user.id;
+          isAuthenticated = true;
+          console.log('👤 User authenticated:', userEmail);
+        }
+      } catch (authError) {
+        console.log('🔄 Auth failed, proceeding with guest checkout');
+      }
     }
 
-    const user = userData.user;
-    console.log('👤 User authenticated:', user.email);
+    if (!isAuthenticated) {
+      console.log('👤 Processing guest checkout');
+    }
 
     // Parse request body
     const { amount, currency = "usd", cartItems, metadata = {} } = await req.json();
@@ -57,18 +67,20 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    // Check if customer exists
-    const customers = await stripe.customers.list({ 
-      email: user.email, 
-      limit: 1 
-    });
-    
+    // Check if customer exists (only for authenticated users)
     let customerId;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      console.log('👤 Found existing customer:', customerId);
-    } else {
-      console.log('👤 No existing customer found, will create new one');
+    if (isAuthenticated) {
+      const customers = await stripe.customers.list({ 
+        email: userEmail, 
+        limit: 1 
+      });
+      
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        console.log('👤 Found existing customer:', customerId);
+      } else {
+        console.log('👤 No existing customer found, will create new one');
+      }
     }
 
     // Convert cart items to Stripe line items
@@ -89,13 +101,15 @@ serve(async (req) => {
     // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
+      customer_email: customerId ? undefined : userEmail,
       line_items: lineItems,
       mode: "payment", // One-time payment
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/cart`,
       metadata: {
-        user_id: user.id,
+        user_id: userId || 'guest',
+        user_email: userEmail,
+        is_authenticated: isAuthenticated.toString(),
         ...metadata,
       },
     });
