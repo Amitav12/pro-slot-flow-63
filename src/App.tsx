@@ -40,6 +40,7 @@ import CheckoutRedirect from './pages/CheckoutRedirect';
 import PaymentSuccess from './pages/PaymentSuccess';
 import Payment from './pages/Payment';
 import { DashboardRouter } from "./components/DashboardRouter";
+import PopularServices from './pages/PopularServices';
 
 const queryClient = new QueryClient();
 
@@ -213,6 +214,9 @@ const App = () => {
                       <Route path="/provider-selection" element={<ProviderSelectionNew />} />
                       <Route path="/date-selection" element={<DateSelection />} />
                       <Route path="/time-selection" element={<TimeSelection />} />
+                      
+                      {/* Popular services page */}
+                      <Route path="/popular-services" element={<PopularServices />} />
                       
                       {/* Legacy routes */}
                       <Route path="/provider-selection/:serviceId" element={<ProviderSelectionNew />} />

@@ -19,7 +19,7 @@ export const useAdminSettings = (key?: string) => {
           .from('admin_settings')
           .select('*')
           .eq('key', key)
-          .single();
+          .maybeSingle();
         
         if (error) throw error;
         return data?.value || {};

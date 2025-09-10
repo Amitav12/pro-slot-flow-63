@@ -17,7 +17,9 @@ import {
   Crown,
   BarChart3,
   CreditCard,
-  Bell
+  Bell,
+  Gift,
+  Star
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminPermissions } from '@/hooks/useAdminPermissions';
@@ -47,6 +49,7 @@ const navigationSections = [
     name: 'Service Management',
     items: [
       { name: 'Service Management', href: '/dashboard/admin?section=services', icon: Wrench },
+      { name: 'Service Status Control', href: '/dashboard/admin?section=service-management', icon: Star },
       { name: 'Category Management', href: '/dashboard/admin?section=categories', icon: FolderTree },
       { name: 'Location Management', href: '/dashboard/admin?section=locations', icon: MapPin },
     ]
@@ -57,6 +60,12 @@ const navigationSections = [
       { name: 'Booking Management', href: '/dashboard/admin?section=bookings', icon: Calendar },
       { name: 'Reports & Analytics', href: '/dashboard/admin?section=reports', icon: BarChart3 },
       { name: 'Payment Management', href: '/dashboard/admin?section=payments', icon: CreditCard },
+    ]
+  },
+  {
+    name: 'Marketing',
+    items: [
+      { name: 'Special Offers', href: '/dashboard/admin?section=special-offers', icon: Gift },
     ]
   },
   {
@@ -90,6 +99,8 @@ export const AdminSidebar = () => {
     'payments': { name: 'Payment Management', href: '/dashboard/admin?section=payments', icon: CreditCard },
     'notifications': { name: 'Notification Center', href: '/dashboard/admin?section=notifications', icon: Bell },
     'settings': { name: 'System Settings', href: '/dashboard/admin?section=settings', icon: Settings },
+    'special-offers': { name: 'Special Offers', href: '/dashboard/admin?section=special-offers', icon: Gift },
+    'service-management': { name: 'Service Status Control', href: '/dashboard/admin?section=service-management', icon: Star },
   };
 
   // Filter navigation sections based on permissions

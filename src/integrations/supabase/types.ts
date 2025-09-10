@@ -652,9 +652,12 @@ export type Database = {
           description: string | null
           duration_minutes: number | null
           gallery_images: Json | null
+          gallery_images_urls: Json | null
           id: string
           image_url: string | null
           is_active: boolean | null
+          is_new: boolean | null
+          is_popular: boolean | null
           license_document_url: string | null
           license_number: string | null
           price: number
@@ -672,9 +675,12 @@ export type Database = {
           description?: string | null
           duration_minutes?: number | null
           gallery_images?: Json | null
+          gallery_images_urls?: Json | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_new?: boolean | null
+          is_popular?: boolean | null
           license_document_url?: string | null
           license_number?: string | null
           price: number
@@ -692,9 +698,12 @@ export type Database = {
           description?: string | null
           duration_minutes?: number | null
           gallery_images?: Json | null
+          gallery_images_urls?: Json | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_new?: boolean | null
+          is_popular?: boolean | null
           license_document_url?: string | null
           license_number?: string | null
           price?: number
