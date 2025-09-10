@@ -4,7 +4,6 @@ import { CategoryGrid } from '@/components/CategoryGrid';
 import QuickActions from '@/components/QuickActions';
 import Recommendations from '@/components/Recommendations';
 import { MostBookedServices } from '@/components/MostBookedServices';
-import { NewServices } from '@/components/NewServices';
 import { VideoCarousel } from '@/components/VideoCarousel';
 import CustomerTestimonials from '@/components/CustomerTestimonials';
 import SafetyBadges from '@/components/SafetyBadges';
@@ -82,7 +81,6 @@ const ModernIndex: React.FC = () => {
       
       {/* Primary Engagement Zone (4-7) */}
       <MostBookedServices onServiceSelect={handleServiceSelect} />
-      <NewServices onServiceSelect={handleServiceSelect} />
       <PromotionalOffers />
       
       {/* Trust & Process Building (8-10) */}
