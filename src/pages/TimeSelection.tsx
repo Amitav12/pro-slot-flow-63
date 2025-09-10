@@ -126,8 +126,8 @@ const TimeSelection: React.FC = () => {
       });
     });
 
-    // Navigate to payment
-    navigate('/payment');
+    // Navigate to cart for checkout
+    navigate('/cart');
   };
 
   const getTotalPrice = () => {

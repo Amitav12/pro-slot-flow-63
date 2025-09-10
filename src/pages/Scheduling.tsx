@@ -124,8 +124,8 @@ const Scheduling: React.FC = () => {
           }
         });
         
-        // Redirect to payment
-        navigate('/payment');
+        // Redirect to cart for checkout
+        navigate('/cart');
       }
     }
   };
