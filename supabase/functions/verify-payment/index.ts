@@ -16,27 +16,33 @@ serve(async (req) => {
   try {
     console.log('🔍 Verify payment function started');
 
-    // Initialize Supabase client
+    // Initialize Supabase clients
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    // Get authenticated user
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Try to get authenticated user (optional for guest payments)
+    let user = null;
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header provided");
+    if (authHeader) {
+      try {
+        const token = authHeader.replace("Bearer ", "");
+        const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+        
+        if (!userError && userData.user) {
+          user = userData.user;
+          console.log('👤 User authenticated:', user.email);
+        }
+      } catch (authError) {
+        console.log('🔄 No auth header, processing guest payment verification');
+      }
     }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    
-    if (userError || !userData.user) {
-      throw new Error("User not authenticated");
-    }
-
-    const user = userData.user;
-    console.log('👤 User authenticated:', user.email);
 
     // Parse request body
     const { sessionId } = await req.json();
@@ -67,14 +73,48 @@ serve(async (req) => {
     console.log('📋 Session status:', session.payment_status);
 
     if (session.payment_status === 'paid') {
-      // Create order record (optional - for tracking purposes)
-      const orderId = `order_${Date.now()}_${user.id.substring(0, 8)}`;
+      console.log('✅ Payment confirmed for session:', sessionId);
       
-      console.log('✅ Payment verified successfully, order ID:', orderId);
+      // Parse metadata from session
+      const cartItems = session.metadata?.cart_items ? JSON.parse(session.metadata.cart_items) : [];
+      const guestInfo = session.metadata?.guest_info ? JSON.parse(session.metadata.guest_info) : {};
+      const userId = session.metadata?.user_id !== 'guest' ? session.metadata?.user_id : null;
+      
+      // Create order record
+      const { data: orderData, error: orderError } = await supabaseAdmin
+        .from('orders')
+        .insert({
+          user_id: userId,
+          total_amount: session.amount_total ? session.amount_total / 100 : 0,
+          currency: session.currency || 'usd',
+          payment_intent_id: session.payment_intent as string,
+          stripe_payment_intent_id: session.payment_intent as string,
+          status: 'confirmed',
+          payment_status: 'paid',
+          cart_items: cartItems,
+          customer_info: guestInfo,
+          booking_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          booking_time: '10:00:00',
+          service_name: cartItems.length > 1 ? `${cartItems.length} Services Booked` : cartItems[0]?.serviceName || 'Service',
+          provider_name: cartItems.length > 1 ? 'Multiple Providers' : cartItems[0]?.providerName || 'Provider',
+          customer_name: guestInfo?.name || session.customer_details?.name || user?.user_metadata?.full_name || 'Customer',
+          customer_phone: guestInfo?.phone || user?.user_metadata?.phone || '',
+          customer_address: guestInfo?.address || session.customer_details?.address?.line1 || 'Address not provided',
+          special_instructions: guestInfo?.instructions || ''
+        })
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error('❌ Error creating order:', orderError);
+        throw orderError;
+      }
+
+      console.log('✅ Order created successfully:', orderData.id);
       
       return new Response(JSON.stringify({
         success: true,
-        orderId: orderId,
+        orderId: orderData.id,
         sessionId: sessionId,
         paymentStatus: session.payment_status,
       }), {

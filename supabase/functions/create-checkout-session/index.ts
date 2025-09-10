@@ -16,13 +16,19 @@ serve(async (req) => {
   try {
     console.log('🚀 Create checkout session function started');
 
-    // Initialize Supabase client
+    // Initialize Supabase clients
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
     // Try to get authenticated user (optional for guest checkout)
+    let user = null;
     let userEmail = "guest@example.com";
     let userId = null;
     let isAuthenticated = false;
@@ -34,6 +40,7 @@ serve(async (req) => {
         const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
         
         if (!userError && userData.user?.email) {
+          user = userData.user;
           userEmail = userData.user.email;
           userId = userData.user.id;
           isAuthenticated = true;
@@ -49,7 +56,7 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { amount, currency = "usd", cartItems, metadata = {} } = await req.json();
+    const { amount, currency = "usd", cartItems, metadata = {}, guestInfo = {} } = await req.json();
     
     if (!amount || !cartItems || cartItems.length === 0) {
       throw new Error("Missing required parameters: amount and cartItems");
@@ -110,11 +117,34 @@ serve(async (req) => {
         user_id: userId || 'guest',
         user_email: userEmail,
         is_authenticated: isAuthenticated.toString(),
+        cart_items: JSON.stringify(cartItems),
+        guest_info: JSON.stringify(guestInfo),
         ...metadata,
       },
     });
 
     console.log('✅ Checkout session created:', session.id);
+
+    // Store payment intent for order creation after successful payment
+    const { error: paymentIntentError } = await supabaseAdmin
+      .from('payment_intents')
+      .insert({
+        id: session.payment_intent as string,
+        amount: amount,
+        currency,
+        status: 'requires_payment_method',
+        user_id: userId,
+        cart_items: cartItems,
+        metadata: {
+          session_id: session.id,
+          guest_info: guestInfo,
+          ...metadata
+        }
+      });
+
+    if (paymentIntentError) {
+      console.error('Failed to store payment intent:', paymentIntentError);
+    }
 
     return new Response(JSON.stringify({ 
       url: session.url,

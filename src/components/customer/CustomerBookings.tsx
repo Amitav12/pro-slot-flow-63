@@ -1,72 +1,107 @@
 
-import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, Star, Filter, Search, Plus, Download, RotateCcw, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Clock, MapPin, Star, Filter, Search, Plus, Download, RotateCcw, X, Eye, Phone, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Order {
+  id: string;
+  service_name: string;
+  provider_name: string;
+  booking_date: string;
+  booking_time: string;
+  status: string;
+  total_amount: number;
+  customer_address: string;
+  special_instructions?: string;
+  cart_items: any[] | string;
+  customer_phone?: string;
+}
 
 export const CustomerBookings = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  const bookings = [
-    {
-      id: 1,
-      service: 'Premium Plumbing Repair',
-      provider: 'John Smith',
-      date: '2025-01-15',
-      time: '10:00 AM',
-      status: 'Completed',
-      amount: '$85',
-      address: '123 Main St, Moncton, NB',
-      rating: 5,
-      category: 'Home Maintenance'
-    },
-    {
-      id: 2,
-      service: 'Deep House Cleaning',
-      provider: 'Maria Garcia',
-      date: '2025-01-18',
-      time: '2:00 PM',
-      status: 'Confirmed',
-      amount: '$120',
-      address: '456 Oak Ave, Moncton, NB',
-      category: 'Cleaning'
-    },
-    {
-      id: 3,
-      service: 'Electrical Installation',
-      provider: 'Mike Johnson',
-      date: '2025-01-12',
-      time: '9:00 AM',
-      status: 'Cancelled',
-      amount: '$150',
-      address: '789 Pine St, Moncton, NB',
-      category: 'Electrical'
-    },
-    {
-      id: 4,
-      service: 'Garden Landscaping',
-      provider: 'Green Thumb Co.',
-      date: '2025-01-22',
-      time: '8:00 AM',
-      status: 'Pending',
-      amount: '$200',
-      address: '321 Elm St, Moncton, NB',
-      category: 'Landscaping'
+  useEffect(() => {
+    if (user) {
+      loadOrders();
     }
-  ];
+  }, [user]);
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      // Transform data to match interface
+      const transformedOrders = (data || []).map((order: any) => ({
+        ...order,
+        cart_items: Array.isArray(order.cart_items) ? order.cart_items : []
+      }));
+      
+      setOrders(transformedOrders);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your bookings",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Booking cancelled successfully"
+      });
+      loadOrders();
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to cancel booking",
+        variant: "destructive"
+      });
+    }
+  };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Completed':
+    switch (status.toLowerCase()) {
+      case 'completed':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'Confirmed':
+      case 'confirmed':
         return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Pending':
+      case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Cancelled':
+      case 'cancelled':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -74,33 +109,33 @@ export const CustomerBookings = () => {
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Completed':
+    switch (status.toLowerCase()) {
+      case 'completed':
         return '✓';
-      case 'Confirmed':
+      case 'confirmed':
         return '●';
-      case 'Pending':
+      case 'pending':
         return '○';
-      case 'Cancelled':
+      case 'cancelled':
         return '✕';
       default:
         return '○';
     }
   };
 
-  const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = booking.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.provider.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || booking.status === statusFilter;
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = order.service_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.provider_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'All' || order.status.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
   const statusCounts = {
-    All: bookings.length,
-    Pending: bookings.filter(b => b.status === 'Pending').length,
-    Confirmed: bookings.filter(b => b.status === 'Confirmed').length,
-    Completed: bookings.filter(b => b.status === 'Completed').length,
-    Cancelled: bookings.filter(b => b.status === 'Cancelled').length,
+    All: orders.length,
+    Pending: orders.filter(o => o.status.toLowerCase() === 'pending').length,
+    Confirmed: orders.filter(o => o.status.toLowerCase() === 'confirmed').length,
+    Completed: orders.filter(o => o.status.toLowerCase() === 'completed').length,
+    Cancelled: orders.filter(o => o.status.toLowerCase() === 'cancelled').length,
   };
 
   return (
@@ -155,11 +190,16 @@ export const CustomerBookings = () => {
         </CardContent>
       </Card>
 
-      {/* Bookings List */}
+      {/* Orders List */}
       <div className="space-y-6">
-        {filteredBookings.length > 0 ? (
-          filteredBookings.map((booking) => (
-            <Card key={booking.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading your bookings...</p>
+          </div>
+        ) : filteredOrders.length > 0 ? (
+          filteredOrders.map((order) => (
+            <Card key={order.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                   <div className="flex items-start space-x-4 flex-1">
@@ -170,73 +210,119 @@ export const CustomerBookings = () => {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                            {booking.service}
+                            {order.service_name}
                           </h3>
                           <p className="text-gray-600 font-medium">
-                            with {booking.provider}
+                            with {order.provider_name}
                           </p>
-                          <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full mt-2">
-                            {booking.category}
-                          </span>
                         </div>
                       </div>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 text-sm text-gray-500">
                         <div className="flex items-center">
                           <Clock className="h-4 w-4 mr-2" />
-                          {new Date(booking.date).toLocaleDateString()} at {booking.time}
+                          {new Date(order.booking_date).toLocaleDateString()} at {order.booking_time}
                         </div>
                         <div className="flex items-center">
                           <MapPin className="h-4 w-4 mr-2" />
-                          {booking.address}
+                          {order.customer_address}
                         </div>
                       </div>
 
-                      {booking.rating && (
-                        <div className="flex items-center mt-3">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < booking.rating
-                                    ? 'text-yellow-400 fill-current'
-                                    : 'text-gray-300'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-sm text-gray-600 ml-2">
-                            Rated {booking.rating}/5
-                          </span>
+                      {order.special_instructions && (
+                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                          <p className="text-sm text-gray-600">
+                            <strong>Instructions:</strong> {order.special_instructions}
+                          </p>
                         </div>
                       )}
                     </div>
                   </div>
 
                   <div className="flex flex-col items-end space-y-4">
-                    <Badge className={`${getStatusColor(booking.status)} border font-medium px-3 py-1`}>
-                      <span className="mr-1">{getStatusIcon(booking.status)}</span>
-                      {booking.status}
+                    <Badge className={`${getStatusColor(order.status)} border font-medium px-3 py-1`}>
+                      <span className="mr-1">{getStatusIcon(order.status)}</span>
+                      {order.status}
                     </Badge>
                     <p className="text-2xl font-bold text-gray-900">
-                      {booking.amount}
+                      ${order.total_amount}
                     </p>
                     
                     <div className="flex flex-wrap gap-2">
-                      {booking.status === 'Confirmed' && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
+                            <Eye className="h-4 w-4 mr-1" />
+                            View Details
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Booking Details</DialogTitle>
+                          </DialogHeader>
+                          {selectedOrder && (
+                            <div className="space-y-6">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <h4 className="font-semibold mb-2">Service Information</h4>
+                                  <p><strong>Service:</strong> {selectedOrder.service_name}</p>
+                                  <p><strong>Provider:</strong> {selectedOrder.provider_name}</p>
+                                  <p><strong>Date:</strong> {new Date(selectedOrder.booking_date).toLocaleDateString()}</p>
+                                  <p><strong>Time:</strong> {selectedOrder.booking_time}</p>
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold mb-2">Payment Information</h4>
+                                  <p><strong>Total Amount:</strong> ${selectedOrder.total_amount}</p>
+                                  <p><strong>Status:</strong> <Badge className={getStatusColor(selectedOrder.status)}>{selectedOrder.status}</Badge></p>
+                                </div>
+                              </div>
+                              
+                              {selectedOrder.cart_items && Array.isArray(selectedOrder.cart_items) && selectedOrder.cart_items.length > 0 && (
+                                <div>
+                                  <h4 className="font-semibold mb-2">Services Included</h4>
+                                  <div className="space-y-2">
+                                    {selectedOrder.cart_items.map((item: any, index: number) => (
+                                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                        <div>
+                                          <p className="font-medium">{item.service_name || item.serviceName || 'Service'}</p>
+                                          <p className="text-sm text-gray-600">Provider: {item.provider_name || item.providerName || 'Provider'}</p>
+                                        </div>
+                                        <p className="font-semibold">${item.price}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {selectedOrder.special_instructions && (
+                                <div>
+                                  <h4 className="font-semibold mb-2">Special Instructions</h4>
+                                  <p className="text-gray-600">{selectedOrder.special_instructions}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </DialogContent>
+                      </Dialog>
+                      
+                      {order.status.toLowerCase() === 'confirmed' && (
                         <>
                           <Button variant="outline" size="sm">
                             <RotateCcw className="h-4 w-4 mr-1" />
                             Reschedule
                           </Button>
-                          <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-red-600 border-red-200 hover:bg-red-50"
+                            onClick={() => handleCancelOrder(order.id)}
+                          >
                             <X className="h-4 w-4 mr-1" />
                             Cancel
                           </Button>
                         </>
                       )}
-                      {booking.status === 'Completed' && (
+                      {order.status.toLowerCase() === 'completed' && (
                         <>
                           <Button variant="outline" size="sm">
                             <Download className="h-4 w-4 mr-1" />
@@ -248,7 +334,7 @@ export const CustomerBookings = () => {
                           </Button>
                         </>
                       )}
-                      {booking.status === 'Pending' && (
+                      {order.status.toLowerCase() === 'pending' && (
                         <Button variant="outline" size="sm" className="text-yellow-600 border-yellow-200 hover:bg-yellow-50">
                           <Clock className="h-4 w-4 mr-1" />
                           Awaiting Confirmation

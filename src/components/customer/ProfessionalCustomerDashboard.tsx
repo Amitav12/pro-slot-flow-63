@@ -97,7 +97,6 @@ const ProfessionalCustomerDashboard: React.FC = () => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'bookings', label: 'My Bookings', icon: Calendar, path: '/dashboard/bookings' },
-    { id: 'favorites', label: 'Favorites', icon: Heart, path: '/dashboard/favorites' },
     { id: 'profile', label: 'Profile', icon: User, path: '/dashboard/profile' },
   ];
 
@@ -105,7 +104,6 @@ const ProfessionalCustomerDashboard: React.FC = () => {
   useEffect(() => {
     const path = location.pathname;
     if (path.includes('/bookings')) setActiveSection('bookings');
-    else if (path.includes('/favorites')) setActiveSection('favorites');
     else if (path.includes('/profile')) setActiveSection('profile');
     else setActiveSection('dashboard');
   }, [location.pathname]);
@@ -124,7 +122,6 @@ const ProfessionalCustomerDashboard: React.FC = () => {
     try {
       await Promise.all([
         loadBookings(),
-        loadFavorites(),
         loadUserProfile(),
       ]);
     } catch (error) {
@@ -136,25 +133,25 @@ const ProfessionalCustomerDashboard: React.FC = () => {
 
   const loadBookings = async () => {
     try {
-      const { data, error } = await (supabase as any)
-        .from('bookings')
+      const { data, error } = await supabase
+        .from('orders')
         .select('*')
-        .eq('customer_id', user?.id)
+        .eq('user_id', user?.id)
         .order('booking_date', { ascending: false });
 
       if (error) throw error;
       
       // Type-safe data handling with proper transformation
-      const bookingsData = (data || []).map((booking: any) => ({
-        id: booking.id,
-        service_name: booking.service_name || 'Unknown Service',
-        provider_name: booking.provider_name || 'Unknown Provider',
-        booking_date: booking.booking_date,
-        booking_time: booking.booking_time,
-        status: booking.status || 'pending',
-        total_amount: booking.total_amount || 0,
-        location: booking.location || 'Not specified',
-        provider_phone: booking.provider_phone || null
+      const bookingsData = (data || []).map((order: any) => ({
+        id: order.id,
+        service_name: order.service_name || 'Unknown Service',
+        provider_name: order.provider_name || 'Unknown Provider',
+        booking_date: order.booking_date,
+        booking_time: order.booking_time,
+        status: order.status || 'pending',
+        total_amount: order.total_amount || 0,
+        location: order.customer_address || 'Not specified',
+        provider_phone: order.customer_phone || null
       }));
       setBookings(bookingsData);
       
@@ -176,32 +173,6 @@ const ProfessionalCustomerDashboard: React.FC = () => {
     }
   };
 
-  const loadFavorites = async () => {
-    try {
-      const { data, error } = await (supabase as any)
-        .from('favorites')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-      
-      // Type-safe data handling with proper transformation
-      const favoritesData = (data || []).map((favorite: any) => ({
-        id: favorite.id,
-        service_id: favorite.provider_id || 'unknown',
-        service_name: 'Service Name', // Would need to join with services table
-        provider_name: 'Provider Name', // Would need to join with providers table
-        category: 'General',
-        rating: 4.5,
-        price_range: '$50-100',
-        location: 'Location'
-      }));
-      setFavorites(favoritesData);
-      setStats(prev => ({ ...prev, totalFavorites: favoritesData.length }));
-    } catch (error) {
-      console.error('Error loading favorites:', error);
-    }
-  };
 
   const loadUserProfile = async () => {
     try {
@@ -384,7 +355,7 @@ const ProfessionalCustomerDashboard: React.FC = () => {
       </div>
       
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-emerald-50 to-emerald-100">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -410,21 +381,6 @@ const ProfessionalCustomerDashboard: React.FC = () => {
               </div>
               <div className="bg-blue-500 p-3 rounded-xl">
                 <CheckCircle className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-pink-50 to-pink-100">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-pink-600 text-sm font-medium uppercase tracking-wide">Favorites</p>
-                <p className="text-3xl font-bold text-pink-900 mt-2">{stats.totalFavorites}</p>
-                <p className="text-pink-600 text-sm mt-1">Saved services</p>
-              </div>
-              <div className="bg-pink-500 p-3 rounded-xl">
-                <Heart className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>

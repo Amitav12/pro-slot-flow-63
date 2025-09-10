@@ -22,11 +22,6 @@ export default function PaymentSuccess() {
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
-    
-    if (!isAuthenticated) {
-      navigate('/auth');
-      return;
-    }
 
     if (!sessionId) {
       setVerificationError('No payment session found');
@@ -35,7 +30,7 @@ export default function PaymentSuccess() {
     }
 
     verifyPayment(sessionId);
-  }, [isAuthenticated, searchParams, navigate]);
+  }, [searchParams, navigate]);
 
   const verifyPayment = async (sessionId: string) => {
     try {

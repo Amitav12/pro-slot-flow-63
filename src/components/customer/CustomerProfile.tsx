@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Edit2, Save, X, Camera, Shield, Bell, CreditCard, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,29 +9,74 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export const CustomerProfile = () => {
   const { profile, user } = useAuth();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: profile?.full_name || user?.user_metadata?.full_name || '',
-    phone: profile?.phone || '',
+    fullName: '',
+    phone: '',
     address: '',
     city: ''
   });
 
-  const handleSave = () => {
-    // TODO: Implement profile update
-    console.log('Saving profile:', formData);
-    setIsEditing(false);
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        fullName: profile.full_name || user?.user_metadata?.full_name || '',
+        phone: profile.phone || '',
+        address: profile.address || '',
+        city: profile.city || ''
+      });
+    }
+  }, [profile, user]);
+
+  const handleSave = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .upsert({
+          user_id: user.id,
+          full_name: formData.fullName,
+          phone: formData.phone,
+          address: formData.address,
+          role: 'customer',
+          onboarding_completed: true,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully"
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setFormData({
       fullName: profile?.full_name || user?.user_metadata?.full_name || '',
       phone: profile?.phone || '',
-      address: '',
-      city: ''
+      address: profile?.address || '',
+      city: profile?.city || ''
     });
     setIsEditing(false);
   };
@@ -66,10 +111,11 @@ export const CustomerProfile = () => {
           <div className="flex gap-3">
             <Button
               onClick={handleSave}
+              disabled={loading}
               className="bg-green-600 hover:bg-green-700"
             >
               <Save className="h-4 w-4 mr-2" />
-              Save Changes
+              {loading ? 'Saving...' : 'Save Changes'}
             </Button>
             <Button
               onClick={handleCancel}
