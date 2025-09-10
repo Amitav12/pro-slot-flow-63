@@ -153,19 +153,23 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Transfer guest cart to authenticated user
   const transferGuestCartToUser = useCallback(async () => {
-    if (!isAuthStable || !userId || items.length === 0) return;
+    // Only proceed when authenticated and we have a userId
+    if (!isAuthStable || !userId) return;
     
     try {
       const guestSessionId = getGuestSessionId();
       
-      // Get guest cart items
-      const { data: guestItems } = await supabase
+      // 1) Transfer DB-based guest cart items
+      const { data: guestItems, error: guestLoadError } = await supabase
         .from('guest_cart_items')
         .select('*')
         .eq('session_id', guestSessionId);
 
+      if (guestLoadError) {
+        console.warn('Error loading guest cart for transfer (will still try localStorage):', guestLoadError);
+      }
+
       if (guestItems && guestItems.length > 0) {
-        // Transfer to user cart
         const userCartItems = guestItems.map(item => ({
           user_id: userId,
           service_id: item.service_id,
@@ -178,22 +182,46 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }));
 
         await supabase.from('cart_items').insert(userCartItems);
-        
-        // Clear guest cart
+
+        // Clear guest cart table
         await supabase
           .from('guest_cart_items')
           .delete()
           .eq('session_id', guestSessionId);
-        
-        localStorage.removeItem('guest_cart');
-        
-        // Reload cart items
-        await loadCartItems();
       }
+
+      // 2) Transfer any localStorage fallback items
+      const localCartRaw = localStorage.getItem('guest_cart');
+      if (localCartRaw) {
+        try {
+          const localCart: any[] = JSON.parse(localCartRaw);
+          if (Array.isArray(localCart) && localCart.length > 0) {
+            const userCartItemsFromLocal = localCart.map(it => ({
+              user_id: userId,
+              service_id: it.serviceId,
+              service_name: it.serviceName,
+              provider_id: it.providerId || null,
+              provider_name: it.providerName || null,
+              price: it.price,
+              quantity: it.quantity || 1,
+              service_details: it.serviceDetails || {}
+            }));
+
+            await supabase.from('cart_items').insert(userCartItemsFromLocal);
+          }
+        } catch (e) {
+          console.warn('Failed parsing localStorage guest_cart during transfer:', e);
+        }
+        // Clear local storage cart regardless
+        localStorage.removeItem('guest_cart');
+      }
+
+      // Reload cart items for the authenticated user
+      await loadCartItems();
     } catch (error) {
       console.error('Error transferring guest cart:', error);
     }
-  }, [isAuthStable, userId, items.length, loadCartItems]);
+  }, [isAuthStable, userId, loadCartItems]);
 
   // Load cart items on mount and auth changes
   useEffect(() => {

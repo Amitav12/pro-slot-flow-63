@@ -13,6 +13,7 @@ interface ProfessionalServiceCardProps {
     description?: string;
     price: number;
     duration?: number;
+    provider_id?: string; // Ensure we have the provider UUID
     service_providers?: {
       business_name?: string;
       rating?: number;
@@ -41,7 +42,7 @@ export const ProfessionalServiceCard: React.FC<ProfessionalServiceCardProps> = (
       await addToCart({
         serviceId: service.id,
         serviceName: service.service_name,
-        providerId: service.service_providers?.business_name || 'provider',
+        providerId: service.provider_id || undefined,
         providerName: service.service_providers?.business_name || service.user_profile?.business_name || 'Professional Service',
         price: service.price,
         serviceDetails: {
