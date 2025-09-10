@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -74,7 +75,7 @@ const AllCategories: React.FC = () => {
 
   if (loading) {
     return (
-      <Layout>
+      <Layout showFooter={false}>
         <div className="container mx-auto px-6 py-8">
           <div className="h-8 bg-gray-200 rounded-lg w-64 mx-auto mb-8 animate-pulse"></div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -92,12 +93,22 @@ const AllCategories: React.FC = () => {
   }
 
   return (
-    <Layout>
+    <Layout showFooter={false}>
       <div className="container mx-auto px-6 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="flex items-center gap-4 mb-8">
+          <Button
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <h1 className="text-4xl font-bold text-gray-900">
             All Service Categories
           </h1>
+        </div>
+        <div className="text-center mb-8">
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Choose from our wide range of professional services
           </p>

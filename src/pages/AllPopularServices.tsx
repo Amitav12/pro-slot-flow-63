@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, TrendingUp, Clock, MapPin } from 'lucide-react';
+import { Star, TrendingUp, Clock, MapPin, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { AddToCartButton } from '@/components/AddToCartButton';
 
@@ -24,6 +25,7 @@ interface PopularService {
 }
 
 const AllPopularServices: React.FC = () => {
+  const navigate = useNavigate();
   const [services, setServices] = useState<PopularService[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,7 +82,7 @@ const AllPopularServices: React.FC = () => {
 
   if (loading) {
     return (
-      <Layout>
+      <Layout showFooter={false}>
         <div className="container mx-auto px-6 py-8">
           <div className="h-8 bg-gray-200 rounded-lg w-64 mx-auto mb-8 animate-pulse"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -94,15 +96,25 @@ const AllPopularServices: React.FC = () => {
   }
 
   return (
-    <Layout>
+    <Layout showFooter={false}>
       <div className="container mx-auto px-6 py-8">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="flex items-center gap-4 mb-8">
+          <Button
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <div className="flex items-center gap-2">
             <Star className="h-8 w-8 text-orange-500 fill-orange-500" />
             <h1 className="text-4xl font-bold text-gray-900">
               Popular Services
             </h1>
           </div>
+        </div>
+        <div className="text-center mb-8">
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Most requested services in your area
           </p>
