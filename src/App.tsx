@@ -41,6 +41,9 @@ import PaymentSuccess from './pages/PaymentSuccess';
 import Payment from './pages/Payment';
 import { DashboardRouter } from "./components/DashboardRouter";
 import PopularServices from './pages/PopularServices';
+import AllCategories from './pages/AllCategories';
+import AllPopularServices from './pages/AllPopularServices';
+import AllNewServices from './pages/AllNewServices';
 
 const queryClient = new QueryClient();
 
@@ -215,7 +218,10 @@ const App = () => {
                       <Route path="/date-selection" element={<DateSelection />} />
                       <Route path="/time-selection" element={<TimeSelection />} />
                       
-                      {/* Popular services page */}
+                      {/* Service listing pages */}
+                      <Route path="/all-categories" element={<AllCategories />} />
+                      <Route path="/all-popular-services" element={<AllPopularServices />} />
+                      <Route path="/all-new-services" element={<AllNewServices />} />
                       <Route path="/popular-services" element={<PopularServices />} />
                       
                       {/* Legacy routes */}

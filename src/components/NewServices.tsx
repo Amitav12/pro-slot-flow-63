@@ -57,7 +57,7 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
           .eq('is_active', true)
           .eq('is_new', true)
           .order('created_at', { ascending: false })
-          .limit(6);
+          .limit(3);
 
         if (error) throw error;
         
@@ -127,12 +127,21 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
     <div className={`py-8 transition-all duration-700 ease-out transform ${
       isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
     }`}>
-      <div className="flex items-center gap-2 mb-6">
-        <Sparkles className="h-6 w-6 text-green-500" />
-        <h2 className="text-2xl font-bold">New Services</h2>
-        <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700">
-          Fresh arrivals
-        </Badge>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-6 w-6 text-green-500" />
+          <h2 className="text-2xl font-bold">New Services</h2>
+          <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700">
+            Fresh arrivals
+          </Badge>
+        </div>
+        <Button 
+          variant="outline" 
+          onClick={() => window.location.href = '/all-new-services'}
+          className="hover:bg-green-600 hover:text-white"
+        >
+          Explore New
+        </Button>
       </div>
       
       <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">

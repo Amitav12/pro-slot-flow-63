@@ -117,15 +117,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreServices }) =
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button 
                 size="lg" 
-                onClick={onExploreServices}
+                onClick={() => window.location.href = '/all-categories'}
                 className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Explore Services
+                Book Your First Service
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
+                onClick={onExploreServices}
                 className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300"
               >
                 How it Works

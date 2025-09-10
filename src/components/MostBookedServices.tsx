@@ -117,7 +117,7 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
         </div>
         <Button 
           variant="outline" 
-          onClick={() => window.location.href = '/popular-services'}
+          onClick={() => window.location.href = '/all-popular-services'}
           className="hover:bg-primary hover:text-white"
         >
           View All

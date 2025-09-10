@@ -177,7 +177,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
         
         {/* Service NB Link Style Categories Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          {serviceNBLinkCategories.map((category, index) => {
+          {serviceNBLinkCategories.slice(0, 6).map((category, index) => {
             const isSelected = selectedCategory === category.id;
             
             return (
@@ -192,7 +192,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                 }}
                 onClick={() => {
                   onCategorySelect(category.id);
-                  navigate(`/services/${category.route}`);
+                  navigate(`/all-categories`);
                 }}
               >
                 <CardContent className="p-6 text-center">
@@ -211,6 +211,18 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
               </Card>
             );
           })}
+        </div>
+
+        {/* View All Button */}
+        <div className="text-center">
+          <Button 
+            variant="outline" 
+            className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
+            onClick={() => navigate('/all-categories')}
+          >
+            View All Categories
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
         </div>
 
       </div>
