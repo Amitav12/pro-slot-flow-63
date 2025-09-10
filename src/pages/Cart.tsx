@@ -204,38 +204,56 @@ export default function Cart() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <Card className="card-premium sticky top-4">
-                <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+              <Card className="bg-background border shadow-lg sticky top-4">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl font-semibold">Order Summary</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal ({itemCount} items)</span>
-                    <span className="font-medium">${totalAmount.toFixed(2)}</span>
+                <CardContent className="space-y-6">
+                  {/* Subtotal */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">
+                      Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+                    </span>
+                    <span className="font-semibold text-lg">${totalAmount.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Service Fee</span>
-                    <span className="font-medium">${serviceFee.toFixed(2)}</span>
+                  
+                  {/* Service Fee */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Service Fee</span>
+                    <span className="font-semibold text-lg">${serviceFee.toFixed(2)}</span>
                   </div>
+                  
+                  {/* Total */}
                   <div className="border-t pt-4">
-                    <div className="flex justify-between text-lg font-semibold">
-                      <span>Total</span>
-                      <span>${finalTotal.toFixed(2)}</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-bold">Total</span>
+                      <span className="text-2xl font-bold text-primary">${finalTotal.toFixed(2)}</span>
                     </div>
                   </div>
                   
-                  <Button 
-                    onClick={handleCheckout}
-                    disabled={isLoading || itemCount === 0 || finalTotal <= 0}
-                    className="w-full btn-primary mt-6"
-                  >
-                    Proceed to Checkout
-                  </Button>
+                  {/* Checkout Button */}
+                  <div className="pt-4">
+                    <Button 
+                      onClick={handleCheckout}
+                      disabled={isLoading || itemCount === 0 || finalTotal <= 0}
+                      className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground border-0 shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                      {isLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        'Proceed to Checkout'
+                      )}
+                    </Button>
+                  </div>
                   
-                  <div className="text-xs text-gray-500 text-center mt-2">
-                    <div className="flex items-center justify-center gap-1">
+                  {/* Security Badge */}
+                  <div className="text-xs text-muted-foreground text-center pt-2">
+                    <div className="flex items-center justify-center gap-1.5">
                       <Lock className="h-3 w-3" />
-                      Secure payment powered by Stripe
+                      <span>Secure payment powered by Stripe</span>
                     </div>
                   </div>
                 </CardContent>
