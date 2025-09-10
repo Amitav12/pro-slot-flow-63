@@ -302,8 +302,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const insertData = {
             user_id: userId,
             service_id: newItem.serviceId,
-            service_name: newItem.serviceName,
-            provider_id: newItem.providerId || null,
+            service_name: newItem.serviceName || 'Service',
+            provider_id: uuidRegex.test(newItem.providerId ?? '') ? newItem.providerId : null,
             provider_name: newItem.providerName || null,
             price: newItem.price,
             quantity: 1,
@@ -358,9 +358,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               .insert({
                 session_id: guestSessionId,
                 service_id: newItem.serviceId,
-                service_name: newItem.serviceName,
-                provider_id: newItem.providerId,
-                provider_name: newItem.providerName,
+                service_name: newItem.serviceName || 'Service',
+                provider_id: (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).test(newItem.providerId ?? '') ? newItem.providerId : null,
+                provider_name: newItem.providerName || null,
                 price: newItem.price,
                 quantity: 1,
                 service_details: newItem.serviceDetails || {}
@@ -404,7 +404,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
       toast({
         title: 'Added to cart',
-        description: `${newItem.serviceName} has been added to your cart`
+        description: `${newItem.serviceName || 'Service'} has been added to your cart`
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
