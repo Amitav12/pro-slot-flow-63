@@ -13,6 +13,8 @@ interface Category {
   icon?: string;
   image_url?: string;
   service_count?: number;
+  bgColor?: string;
+  iconBg?: string;
 }
 
 interface CategoryGridProps {
@@ -29,62 +31,16 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
 
-  // Enhanced Service NB Link style categories with proper routing
-  const serviceNBLinkCategories = [
-    {
-      id: 'home-cleaning',
-      name: 'Home Cleaning',
-      icon: '🏠',
-      subtitle: 'Deep cleaning & more',
-      bgColor: 'bg-blue-50',
-      iconBg: 'bg-blue-100',
-      route: 'cleaning'
-    },
-    {
-      id: 'beauty-wellness',
-      name: 'Beauty & Wellness',
-      icon: '💄',
-      subtitle: 'Salon at home',
-      bgColor: 'bg-pink-50',
-      iconBg: 'bg-pink-100',
-      route: 'beauty'
-    },
-    {
-      id: 'appliance-repair',
-      name: 'Appliance Repair',
-      icon: '🔧',
-      subtitle: 'AC, fridge & more',
-      bgColor: 'bg-green-50',
-      iconBg: 'bg-green-100',
-      route: 'appliance'
-    },
-    {
-      id: 'home-repairs',
-      name: 'Home Repairs',
-      icon: '🛠️',
-      subtitle: 'Plumbing, electrical',
-      bgColor: 'bg-yellow-50',
-      iconBg: 'bg-yellow-100',
-      route: 'repairs'
-    },
-    {
-      id: 'pest-control',
-      name: 'Pest Control',
-      icon: '🐛',
-      subtitle: 'Complete solutions',
-      bgColor: 'bg-red-50',
-      iconBg: 'bg-red-100',
-      route: 'pest'
-    },
-    {
-      id: 'painting-renovation',
-      name: 'Painting & Renovation',
-      icon: '🎨',
-      subtitle: 'Interior & exterior',
-      bgColor: 'bg-purple-50',
-      iconBg: 'bg-purple-100',
-      route: 'painting'
-    }
+  // Color variations for categories
+  const categoryColors = [
+    { bgColor: 'bg-blue-50', iconBg: 'bg-blue-100' },
+    { bgColor: 'bg-pink-50', iconBg: 'bg-pink-100' },
+    { bgColor: 'bg-green-50', iconBg: 'bg-green-100' },
+    { bgColor: 'bg-yellow-50', iconBg: 'bg-yellow-100' },
+    { bgColor: 'bg-red-50', iconBg: 'bg-red-100' },
+    { bgColor: 'bg-purple-50', iconBg: 'bg-purple-100' },
+    { bgColor: 'bg-indigo-50', iconBg: 'bg-indigo-100' },
+    { bgColor: 'bg-orange-50', iconBg: 'bg-orange-100' }
   ];
 
   // Category emoji mapping for database categories
@@ -114,10 +70,12 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
 
         if (error) throw error;
         
-        // Add service count for each category (mock for now)
-        const categoriesWithCount = (data || []).map(category => ({
+        // Add service count and styling for each category
+        const categoriesWithCount = (data || []).map((category, index) => ({
           ...category,
-          service_count: Math.floor(Math.random() * 50) + 10 // Mock count
+          service_count: Math.floor(Math.random() * 50) + 10, // Will be replaced with real count
+          icon: categoryEmojis[category.name] || '🏠',
+          ...categoryColors[index % categoryColors.length]
         }));
         
         setCategories(categoriesWithCount);
@@ -175,9 +133,9 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
           </p>
         </div>
         
-        {/* Service NB Link Style Categories Grid */}
+        {/* Real Categories from Database */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          {serviceNBLinkCategories.slice(0, 6).map((category, index) => {
+          {categories.slice(0, 6).map((category, index) => {
             const isSelected = selectedCategory === category.id;
             
             return (
@@ -185,18 +143,18 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                 key={category.id}
                 className={`group cursor-pointer transition-all duration-500 ease-out hover:shadow-xl hover:-translate-y-2 border-0 transform ${
                   isSelected ? 'ring-2 ring-purple-500 shadow-lg' : 'shadow-md'
-                } ${category.bgColor} opacity-0 translate-y-4 animate-fade-in-up`}
+                } ${category.bgColor || 'bg-blue-50'} opacity-0 translate-y-4 animate-fade-in-up`}
                 style={{
                   animationDelay: `${index * 100}ms`,
                   animationFillMode: 'forwards'
                 }}
                 onClick={() => {
                   onCategorySelect(category.id);
-                  navigate(`/all-categories`);
+                  navigate(`/service-category/${category.id}`);
                 }}
               >
                 <CardContent className="p-6 text-center">
-                  <div className={`w-16 h-16 ${category.iconBg} rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-16 h-16 ${category.iconBg || 'bg-blue-100'} rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform duration-300`}>
                     <span className="text-2xl">{category.icon}</span>
                   </div>
                   
@@ -205,7 +163,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                   </h3>
                   
                   <p className="text-xs text-gray-600">
-                    {category.subtitle}
+                    {category.description || `${category.service_count || 0} services`}
                   </p>
                 </CardContent>
               </Card>

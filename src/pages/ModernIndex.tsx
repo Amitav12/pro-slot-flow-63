@@ -3,6 +3,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { CategoryGrid } from '@/components/CategoryGrid';
 import QuickActions from '@/components/QuickActions';
 import Recommendations from '@/components/Recommendations';
+import { RealServicesList } from '@/components/RealServicesList';
 
 import { VideoCarousel } from '@/components/VideoCarousel';
 import CustomerTestimonials from '@/components/CustomerTestimonials';
@@ -91,8 +92,25 @@ const ModernIndex: React.FC = () => {
       <HowItWorks />
       <PromotionalOffers />
       
-      {/* Personalization & Social Proof (11-14) */}
-      <Recommendations />
+      {/* Real Services from Database */}
+      <RealServicesList 
+        limit={6}
+        showPopularOnly={true}
+        title="Popular Services"
+        subtitle="Most requested services from our verified providers"
+      />
+      
+      {/* All Available Services */}
+      <div className="bg-gray-50">
+        <RealServicesList 
+          limit={9}
+          showPopularOnly={false}
+          title="All Available Services"
+          subtitle="Browse all professional services in your area"
+        />
+      </div>
+      
+      {/* Additional Content */}
       <VideoCarousel />
       <CustomerTestimonials />
       <ServiceGuarantee />

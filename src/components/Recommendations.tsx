@@ -1,13 +1,75 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, TrendingUp, Sparkles, ArrowRight, Heart, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const Recommendations = () => {
   const navigate = useNavigate();
-  const popularServices = [
+  const [popularServices, setPopularServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch real popular services from database
+  useEffect(() => {
+    const fetchPopularServices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('provider_services')
+          .select(`
+            id,
+            service_name,
+            description,
+            price,
+            rating,
+            total_bookings,
+            is_popular,
+            subcategory:subcategories(
+              name,
+              category:categories(name)
+            ),
+            provider:user_profiles!provider_id(
+              business_name,
+              full_name
+            )
+          `)
+          .eq('status', 'approved')
+          .eq('is_active', true)
+          .eq('is_popular', true)
+          .order('total_bookings', { ascending: false })
+          .limit(6);
+
+        if (error) throw error;
+
+        const formattedServices = (data || []).map((service, index) => ({
+          id: service.id,
+          name: service.service_name,
+          category: service.subcategory?.category?.name || 'Service',
+          price: `Starting at $${service.price}`,
+          rating: service.rating || 4.5,
+          reviews: service.total_bookings || 0,
+          badge: index === 0 ? 'Most Popular' : index === 1 ? 'Highly Rated' : 'Top Rated',
+          description: service.description || 'Professional service for your needs',
+          isPopular: true,
+          provider: service.provider?.business_name || service.provider?.full_name || 'Professional'
+        }));
+
+        setPopularServices(formattedServices);
+      } catch (error) {
+        console.error('Error fetching popular services:', error);
+        // Keep fallback data if database fetch fails
+        setPopularServices(fallbackServices);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPopularServices();
+  }, []);
+
+  // Fallback data in case database is empty
+  const fallbackServices = [
     {
       id: 1,
       name: 'House Cleaning',
@@ -75,6 +137,33 @@ const Recommendations = () => {
       isPopular: true
     }
   ];
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <div className="h-8 bg-gray-200 rounded-lg w-64 mb-2 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded-lg w-96 animate-pulse"></div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="bg-white rounded-lg p-6 animate-pulse">
+                  <div className="h-6 bg-gray-200 rounded mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                  <div className="h-8 bg-gray-200 rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const newServices = [
     {
