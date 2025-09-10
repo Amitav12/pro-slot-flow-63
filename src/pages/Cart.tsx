@@ -21,13 +21,23 @@ export default function Cart() {
       toast({
         title: 'Login Required',
         description: 'Please sign in to proceed with checkout. Your cart will be saved.',
+        duration: 5000,
       });
       navigate('/auth');
       return;
     }
 
+    console.log('🚀 Starting checkout process...', { totalAmount, itemCount, items });
+
     try {
       // Create a Stripe Checkout session via Edge Function
+      console.log('📦 Creating checkout session with:', {
+        amount: totalAmount,
+        currency: 'usd',
+        cartItems: items.map(item => ({ id: item.id, serviceName: item.serviceName, price: item.price })),
+        metadata: { source: 'cart' },
+      });
+
       const result = await paymentService.createCheckoutSession({
         amount: totalAmount,
         currency: 'usd',
@@ -35,22 +45,32 @@ export default function Cart() {
         metadata: { source: 'cart' },
       });
 
+      console.log('💳 Checkout session result:', result);
+
       if (result.success && (result as any).url) {
+        console.log('✅ Opening Stripe checkout:', (result as any).url);
         // Open Stripe checkout in a new tab (recommended default)
         window.open((result as any).url, '_blank');
       } else {
+        console.error('❌ Checkout failed:', result.error);
         toast({
           title: 'Checkout Failed',
           description: result.error || 'Unable to start checkout. Please try again.',
           variant: 'destructive',
+          duration: 10000, // Show error for 10 seconds
         });
       }
     } catch (err: any) {
-      console.error('Checkout error:', err);
+      console.error('💥 Checkout error details:', {
+        message: err.message,
+        stack: err.stack,
+        error: err,
+      });
       toast({
-        title: 'Checkout Error',
-        description: err.message || 'Unexpected error. Please try again.',
+        title: 'Payment System Error',
+        description: `Error: ${err.message || 'Unexpected error occurred'}. Please check the console for details.`,
         variant: 'destructive',
+        duration: 15000, // Show error for 15 seconds so user can read it
       });
     }
   };
