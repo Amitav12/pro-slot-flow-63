@@ -119,11 +119,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreServices }) =
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button 
                 size="lg" 
-                onClick={(e) => {
-                  console.log('Hero button clicked - navigating to /all-categories');
-                  e.preventDefault();
-                  e.stopPropagation();
-                  navigate('/all-categories');
+                onClick={() => {
+                  console.log('Hero Book Service button clicked - navigating to /all-categories');
+                  try {
+                    navigate('/all-categories');
+                  } catch (error) {
+                    console.error('Navigation failed, using fallback:', error);
+                    window.location.href = '/all-categories';
+                  }
                 }}
                 className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
               >
@@ -133,7 +136,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreServices }) =
               <Button 
                 size="lg" 
                 variant="outline" 
-                onClick={onExploreServices}
+                onClick={() => {
+                  console.log('Hero How it Works button clicked - scrolling to services');
+                  try {
+                    onExploreServices();
+                  } catch (error) {
+                    console.error('Scroll failed:', error);
+                  }
+                }}
                 className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300"
               >
                 How it Works

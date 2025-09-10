@@ -119,11 +119,14 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
         </div>
         <Button 
           variant="outline" 
-          onClick={(e) => {
+          onClick={() => {
             console.log('Popular Services View All clicked - navigating to /all-popular-services');
-            e.preventDefault();
-            e.stopPropagation();
-            navigate('/all-popular-services');
+            try {
+              navigate('/all-popular-services');
+            } catch (error) {
+              console.error('Navigation failed, using fallback:', error);
+              window.location.href = '/all-popular-services';
+            }
           }}
           className="hover:bg-primary hover:text-white"
         >

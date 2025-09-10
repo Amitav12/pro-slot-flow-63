@@ -40,16 +40,26 @@ export const VideoCarousel: React.FC = () => {
     </section>;
   }
 
-  const videoCategories: VideoCategory[] = (videoData as any)?.videos?.map((video: any, index: number) => ({
-    id: (index + 1).toString(),
-    title: video.title.split(' ')[0],
-    subtitle: video.title.split(' ').slice(1).join(' '),
-    videoThumbnail: video.thumbnail,
-    videoUrl: video.video_url,
-    category: video.title.toLowerCase().replace(/\s+/g, '-')
-  })) || [];
+  const videoCategories: VideoCategory[] = (videoData as any)?.videos?.map((video: any, index: number) => {
+    console.log('Processing video:', video);
+    return {
+      id: (index + 1).toString(),
+      title: video.title?.split(' ')[0] || 'Service',
+      subtitle: video.title?.split(' ').slice(1).join(' ') || '',
+      videoThumbnail: video.thumbnail || '/placeholder.svg',
+      videoUrl: video.video_url || '',
+      category: video.title?.toLowerCase().replace(/\s+/g, '-') || 'service'
+    };
+  }) || [];
+
+  console.log('Video categories processed:', videoCategories);
 
   const handlePlayVideo = (videoUrl: string) => {
+    console.log('handlePlayVideo called with URL:', videoUrl);
+    if (!videoUrl) {
+      console.error('No video URL provided');
+      return;
+    }
     setCurrentVideo(videoUrl);
   };
 
@@ -124,11 +134,18 @@ export const VideoCarousel: React.FC = () => {
                     {/* Play Button */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <button
-                        onClick={(e) => {
+                        onClick={() => {
                           console.log('Video play button clicked for:', category.videoUrl);
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handlePlayVideo(category.videoUrl);
+                          console.log('Video data available:', !!category.videoUrl);
+                          try {
+                            if (category.videoUrl) {
+                              handlePlayVideo(category.videoUrl);
+                            } else {
+                              console.error('No video URL available');
+                            }
+                          } catch (error) {
+                            console.error('Video play failed:', error);
+                          }
                         }}
                         className="bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-4 transition-all duration-300 hover:scale-110 border border-white/30"
                       >
