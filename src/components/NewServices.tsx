@@ -32,7 +32,6 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
   const [services, setServices] = useState<NewService[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
-  const [showAll, setShowAll] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,7 +59,7 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
           .eq('is_active', true)
           .eq('is_new', true)
           .order('created_at', { ascending: false })
-          .limit(12);
+          .limit(6);
 
         if (error) throw error;
         
@@ -126,8 +125,6 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
     return null;
   }
 
-  const displayedServices = showAll ? services : services.slice(0, 3);
-
   return (
     <div className={`transition-all duration-700 ease-out transform ${
       isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
@@ -144,20 +141,25 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
           variant="outline" 
           className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
           onClick={() => {
-            console.log('🟢 NEW SERVICES - Explore New clicked - toggling showAll from', showAll, 'to', !showAll);
-            setShowAll(!showAll);
+            console.log('🟢 NEW SERVICES - Explore New clicked - navigating to /all-new-services');
+            try {
+              navigate('/all-new-services');
+            } catch (error) {
+              console.error('Navigation failed, using fallback:', error);
+              window.location.href = '/all-new-services';
+            }
           }}
         >
-          {showAll ? 'Show Less' : 'Explore New'}
+          Explore New
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayedServices.map((service, index) => (
+      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+        {services.slice(0, 3).map((service, index) => (
           <Card
             key={service.id}
-            className={`group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 opacity-0 translate-x-4 animate-slide-in-left`}
+            className={`flex-shrink-0 w-80 group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 opacity-0 translate-x-4 animate-slide-in-left`}
             style={{
               animationDelay: `${index * 150}ms`,
               animationFillMode: 'forwards'
