@@ -1,206 +1,122 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import Stripe from 'https://esm.sh/stripe@14.21.0'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@14.21.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-interface CreateCheckoutSessionRequest {
-  amount: number
-  currency: string
-  cartItems: any[]
-  customerEmail?: string
-  customerName?: string
-  userId: string
-  metadata?: Record<string, string>
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-      apiVersion: '2023-10-16',
-    })
+    console.log('🚀 Create checkout session function started');
 
-    // Initialize Supabase client with service role key for database operations
+    // Initialize Supabase client
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      {
-        auth: { persistSession: false },
-      }
-    )
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
 
-    // Get the user from the request using anon key client
-    const anonClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    )
-
-    const {
-      data: { user },
-    } = await anonClient.auth.getUser()
-
-    if (!user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
+    // Get authenticated user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("No authorization header provided");
     }
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    
+    if (userError || !userData.user?.email) {
+      throw new Error("User not authenticated or email not available");
+    }
+
+    const user = userData.user;
+    console.log('👤 User authenticated:', user.email);
 
     // Parse request body
-    const {
-      amount,
-      currency = 'usd',
-      cartItems,
-      customerEmail,
-      customerName,
-      userId,
-      metadata = {},
-    }: CreateCheckoutSessionRequest = await req.json()
-
-    // Validate required fields
-    if (!amount || amount <= 0) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid amount' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
-    }
-
-    if (!cartItems || cartItems.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'Cart items are required' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
-    }
-
-    // Create or retrieve Stripe customer
-    let customer
-    const email = customerEmail || user.email
+    const { amount, currency = "usd", cartItems, metadata = {} } = await req.json();
     
-    if (email) {
-      // Check if customer already exists
-      const existingCustomers = await stripe.customers.list({
-        email: email,
-        limit: 1,
-      })
-
-      if (existingCustomers.data.length > 0) {
-        customer = existingCustomers.data[0]
-      } else {
-        // Create new customer
-        customer = await stripe.customers.create({
-          email: email,
-          name: customerName || user.user_metadata?.full_name || undefined,
-          metadata: {
-            userId: userId,
-          },
-        })
-      }
+    if (!amount || !cartItems || cartItems.length === 0) {
+      throw new Error("Missing required parameters: amount and cartItems");
     }
 
-    // Create line items for Stripe Checkout
-    const lineItems = cartItems.map((item) => ({
+    console.log('💰 Processing payment for:', { amount, currency, itemCount: cartItems.length });
+
+    // Initialize Stripe
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeSecretKey) {
+      throw new Error("STRIPE_SECRET_KEY not configured");
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: "2023-10-16",
+    });
+
+    // Check if customer exists
+    const customers = await stripe.customers.list({ 
+      email: user.email, 
+      limit: 1 
+    });
+    
+    let customerId;
+    if (customers.data.length > 0) {
+      customerId = customers.data[0].id;
+      console.log('👤 Found existing customer:', customerId);
+    } else {
+      console.log('👤 No existing customer found, will create new one');
+    }
+
+    // Convert cart items to Stripe line items
+    const lineItems = cartItems.map((item: any) => ({
       price_data: {
-        currency: currency.toLowerCase(),
+        currency: currency,
         product_data: {
           name: item.serviceName,
-          description: `Service by ${item.providerName || 'Professional'}`,
+          description: item.providerName ? `Service by ${item.providerName}` : 'Professional service',
         },
         unit_amount: Math.round(item.price * 100), // Convert to cents
       },
-      quantity: item.quantity,
-    }))
+      quantity: item.quantity || 1,
+    }));
 
-    // Get the origin for success and cancel URLs
-    const origin = req.headers.get('origin') || 'http://localhost:3000'
+    console.log('🛒 Line items prepared:', lineItems.length);
 
     // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
-      customer: customer?.id,
-      customer_email: customer?.id ? undefined : email,
+      customer: customerId,
+      customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
-      mode: 'payment',
-      success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/payment/cancel`,
+      mode: "payment", // One-time payment
+      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get("origin")}/cart`,
       metadata: {
-        userId: userId,
-        cartItemsCount: cartItems.length.toString(),
+        user_id: user.id,
         ...metadata,
       },
-      payment_method_types: ['card'],
-      billing_address_collection: 'required',
-      shipping_address_collection: {
-        allowed_countries: ['US', 'CA', 'GB', 'AU', 'DE', 'FR', 'ES', 'IT', 'NL', 'BE'],
-      },
-    })
+    });
 
-    // Store checkout session in database for tracking using service role client
-    const { error: dbError } = await supabaseClient
-      .from('payment_intents')
-      .insert({
-        id: session.payment_intent as string,
-        user_id: userId,
-        amount: amount,
-        currency: currency,
-        status: 'requires_payment_method',
-        client_secret: session.id, // Store session ID in client_secret field
-        stripe_customer_id: customer?.id,
-        cart_items: cartItems,
-        metadata: {
-          checkout_session_id: session.id,
-          ...metadata
-        },
-        created_at: new Date().toISOString(),
-      })
+    console.log('✅ Checkout session created:', session.id);
 
-    if (dbError) {
-      console.error('Error storing checkout session:', dbError)
-      // Don't fail the request, just log the error
-    }
+    return new Response(JSON.stringify({ 
+      url: session.url,
+      sessionId: session.id 
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
 
-    return new Response(
-      JSON.stringify({
-        sessionId: session.id,
-        url: session.url,
-        paymentIntentId: session.payment_intent,
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    )
   } catch (error) {
-    console.error('Error creating checkout session:', error)
-    
-    return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'An unexpected error occurred' 
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    )
+    console.error("❌ Create checkout session error:", error);
+    return new Response(JSON.stringify({ 
+      error: error.message || "Failed to create checkout session" 
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
   }
-})
+});

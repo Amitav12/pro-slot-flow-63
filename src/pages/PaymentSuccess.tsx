@@ -1,84 +1,84 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
 import { paymentService } from '@/services/paymentService';
-import { 
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  Home,
-  ShoppingBag
-} from 'lucide-react';
 
 export default function PaymentSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { toast } = useToast();
   const { clearCart } = useCart();
   const { isAuthenticated } = useAuth();
-  const { toast } = useToast();
   
   const [isVerifying, setIsVerifying] = useState(true);
-  const [verificationError, setVerificationError] = useState<string>('');
-  const [orderDetails, setOrderDetails] = useState<{
-    orderId: string;
-    totalAmount: number;
-  } | null>(null);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [orderDetails, setOrderDetails] = useState<any>(null);
 
   useEffect(() => {
+    const sessionId = searchParams.get('session_id');
+    
     if (!isAuthenticated) {
       navigate('/auth');
       return;
     }
 
-    const sessionId = searchParams.get('session_id');
     if (!sessionId) {
-      setVerificationError('No session ID found. Please contact support.');
+      setVerificationError('No payment session found');
       setIsVerifying(false);
       return;
     }
 
     verifyPayment(sessionId);
-  }, [searchParams, isAuthenticated, navigate]);
+  }, [isAuthenticated, searchParams, navigate]);
 
   const verifyPayment = async (sessionId: string) => {
     try {
-      setIsVerifying(true);
-      setVerificationError('');
-
-      const result = await paymentService.verifyCheckoutSession(sessionId);
-
+      console.log('🔍 Verifying payment for session:', sessionId);
+      
+      const result = await paymentService.verifyPayment(sessionId);
+      
       if (result.success) {
-        setOrderDetails({
-          orderId: result.orderId || '',
-          totalAmount: 0 // Will be updated from the verification response
-        });
-
-        // Clear the cart
+        console.log('✅ Payment verified successfully');
+        
+        // Clear cart after successful payment
         await clearCart();
-
+        
+        setOrderDetails({
+          orderId: result.orderId,
+          status: 'paid'
+        });
+        
         toast({
           title: 'Payment Successful!',
-          description: 'Your order has been confirmed.',
+          description: 'Your order has been confirmed and your cart has been cleared.',
+          duration: 5000,
         });
       } else {
-        setVerificationError(result.error || 'Failed to verify payment');
+        console.error('❌ Payment verification failed:', result.error);
+        setVerificationError(result.error || 'Payment verification failed');
+        
         toast({
           title: 'Payment Verification Failed',
-          description: result.error || 'Please contact support if payment was charged.',
+          description: result.error || 'Unable to verify payment status',
           variant: 'destructive',
+          duration: 5000,
         });
       }
     } catch (error: any) {
-      setVerificationError(error.message || 'An unexpected error occurred');
+      console.error('💥 Payment verification error:', error);
+      setVerificationError(error.message || 'Unexpected error occurred');
+      
       toast({
         title: 'Verification Error',
-        description: error.message || 'Please contact support.',
+        description: 'Unable to verify payment. Please contact support.',
         variant: 'destructive',
+        duration: 5000,
       });
     } finally {
       setIsVerifying(false);
@@ -88,15 +88,11 @@ export default function PaymentSuccess() {
   if (isVerifying) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            <Card>
-              <CardContent className="p-12 text-center">
-                <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-                <h2 className="text-2xl font-semibold mb-2">Verifying your payment...</h2>
-                <p className="text-gray-600">Please wait while we confirm your order.</p>
-              </CardContent>
-            </Card>
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-md mx-auto text-center">
+            <Loader2 className="h-16 w-16 animate-spin mx-auto mb-6 text-primary" />
+            <h1 className="text-2xl font-bold mb-4">Verifying Payment...</h1>
+            <p className="text-gray-600">Please wait while we confirm your payment.</p>
           </div>
         </div>
       </Layout>
@@ -106,28 +102,18 @@ export default function PaymentSuccess() {
   if (verificationError) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            <Card className="border-red-200 bg-red-50">
-              <CardContent className="p-12 text-center">
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-md mx-auto">
+            <Card className="text-center">
+              <CardContent className="p-8">
                 <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
-                <h1 className="text-3xl font-bold text-red-800 mb-4">Payment Verification Failed</h1>
-                <p className="text-lg text-red-600 mb-6">
-                  {verificationError}
-                </p>
-                <div className="space-y-4">
-                  <Button 
-                    onClick={() => navigate('/orders')} 
-                    variant="outline"
-                    className="w-full sm:w-auto"
-                  >
-                    Check My Orders
+                <h1 className="text-2xl font-bold mb-4 text-red-600">Payment Verification Failed</h1>
+                <p className="text-gray-600 mb-6">{verificationError}</p>
+                <div className="space-y-3">
+                  <Button onClick={() => navigate('/orders')} className="w-full">
+                    View Orders
                   </Button>
-                  <Button 
-                    onClick={() => navigate('/')} 
-                    className="w-full sm:w-auto ml-0 sm:ml-4"
-                  >
-                    <Home className="h-4 w-4 mr-2" />
+                  <Button onClick={() => navigate('/')} variant="outline" className="w-full">
                     Go Home
                   </Button>
                 </div>
@@ -141,46 +127,33 @@ export default function PaymentSuccess() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="p-12 text-center">
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-md mx-auto">
+          <Card className="text-center">
+            <CardContent className="p-8">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-              <h1 className="text-3xl font-bold text-green-800 mb-4">Payment Successful!</h1>
-              <p className="text-lg text-green-600 mb-6">
-                Thank you for your purchase. Your order has been confirmed.
+              <h1 className="text-2xl font-bold mb-4 text-green-600">Payment Successful!</h1>
+              <p className="text-gray-600 mb-6">
+                Thank you for your purchase. Your payment has been processed successfully.
               </p>
               
               {orderDetails && (
-                <div className="bg-white rounded-lg p-6 mb-6 max-w-md mx-auto">
-                  <h3 className="font-semibold text-gray-800 mb-2">Order Details</h3>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Order ID:</span>
-                      <span className="font-mono">{orderDetails.orderId}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Status:</span>
-                      <span className="text-green-600 font-medium">Confirmed</span>
-                    </div>
-                  </div>
+                <div className="bg-gray-50 p-4 rounded-lg mb-6 text-left">
+                  <h3 className="font-semibold mb-2">Order Details:</h3>
+                  <p className="text-sm text-gray-600">
+                    Order ID: {orderDetails.orderId}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Status: {orderDetails.status}
+                  </p>
                 </div>
               )}
               
-              <div className="space-y-4">
-                <Button 
-                  onClick={() => navigate('/orders')} 
-                  className="w-full sm:w-auto"
-                >
-                  <ShoppingBag className="h-4 w-4 mr-2" />
-                  View My Orders
+              <div className="space-y-3">
+                <Button onClick={() => navigate('/orders')} className="w-full">
+                  View Your Orders
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate('/')} 
-                  className="w-full sm:w-auto ml-0 sm:ml-4"
-                >
-                  <Home className="h-4 w-4 mr-2" />
+                <Button onClick={() => navigate('/')} variant="outline" className="w-full">
                   Continue Shopping
                 </Button>
               </div>

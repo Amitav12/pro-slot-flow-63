@@ -10,6 +10,7 @@ import { Trash2, Plus, Minus, ShoppingBag, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { paymentService } from '@/services/paymentService';
 
+
 export default function Cart() {
   const { items, itemCount, totalAmount, removeFromCart, updateQuantity, clearCart, isLoading } = useCart();
   const { isAuthenticated } = useAuth();
@@ -30,16 +31,8 @@ export default function Cart() {
     console.log('🚀 Starting checkout process...', { totalAmount, itemCount, items });
 
     try {
-      // Create a Stripe Checkout session via Edge Function
-      console.log('📦 Creating checkout session with:', {
-        amount: totalAmount,
-        currency: 'usd',
-        cartItems: items.map(item => ({ id: item.id, serviceName: item.serviceName, price: item.price })),
-        metadata: { source: 'cart' },
-      });
-
       const result = await paymentService.createCheckoutSession({
-        amount: totalAmount,
+        amount: totalAmount + 5, // Include service fee
         currency: 'usd',
         cartItems: items,
         metadata: { source: 'cart' },
@@ -47,30 +40,26 @@ export default function Cart() {
 
       console.log('💳 Checkout session result:', result);
 
-      if (result.success && (result as any).url) {
-        console.log('✅ Opening Stripe checkout:', (result as any).url);
-        // Open Stripe checkout in a new tab (recommended default)
-        window.open((result as any).url, '_blank');
+      if (result.success && result.url) {
+        console.log('✅ Redirecting to Stripe checkout:', result.url);
+        // Redirect to Stripe Checkout
+        window.location.href = result.url;
       } else {
         console.error('❌ Checkout failed:', result.error);
         toast({
           title: 'Checkout Failed',
           description: result.error || 'Unable to start checkout. Please try again.',
           variant: 'destructive',
-          duration: 10000, // Show error for 10 seconds
+          duration: 10000,
         });
       }
     } catch (err: any) {
-      console.error('💥 Checkout error details:', {
-        message: err.message,
-        stack: err.stack,
-        error: err,
-      });
+      console.error('💥 Checkout error:', err);
       toast({
         title: 'Payment System Error',
-        description: `Error: ${err.message || 'Unexpected error occurred'}. Please check the console for details.`,
+        description: `Error: ${err.message || 'Unexpected error occurred'}`,
         variant: 'destructive',
-        duration: 15000, // Show error for 15 seconds so user can read it
+        duration: 15000,
       });
     }
   };

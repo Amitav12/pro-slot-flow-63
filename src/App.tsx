@@ -36,14 +36,12 @@ import Scheduling from './pages/Scheduling';
 import ServiceCategory from './pages/ServiceCategory';
 import DateSelection from './pages/DateSelection';
 import TimeSelection from './pages/TimeSelection';
-import CheckoutRedirect from './pages/CheckoutRedirect';
-import PaymentSuccess from './pages/PaymentSuccess';
-import Payment from './pages/Payment';
 import { DashboardRouter } from "./components/DashboardRouter";
 import PopularServices from './pages/PopularServices';
 import AllCategories from './pages/AllCategories';
 import AllPopularServices from './pages/AllPopularServices';
 import AllNewServices from './pages/AllNewServices';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const queryClient = new QueryClient();
 
@@ -139,23 +137,9 @@ const App = () => {
                       <Route path="/favorites" element={<Favorites />} />
                       <Route path="/profile" element={<Profile />} />
                       
-                      {/* Payment routes - require authentication */}
-                      <Route path="/payment" element={
-                        <PaymentProtectedRoute>
-                          <Payment />
-                        </PaymentProtectedRoute>
-                      } />
-                      <Route path="/checkout" element={
-                        <PaymentProtectedRoute>
-                          <CheckoutRedirect />
-                        </PaymentProtectedRoute>
-                      } />
-                      <Route path="/payment/success" element={
-                        <PaymentProtectedRoute>
-                          <PaymentSuccess />
-                        </PaymentProtectedRoute>
-                      } />
-                      <Route path="/payment/cancel" element={<Cart />} />
+                      
+                      {/* Payment success route */}
+                      <Route path="/payment-success" element={<PaymentSuccess />} />
                       
                       {/* Role-based dashboard routing */}
                       <Route path="/dashboard" element={<DashboardRouter />} />
