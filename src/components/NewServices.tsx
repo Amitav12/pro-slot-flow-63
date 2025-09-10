@@ -142,7 +142,7 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
           onClick={(e) => {
             e.preventDefault();
             console.log('🔧 New Services Explore New clicked - navigating to /all-new-services');
-            navigate('/all-new-services');
+            window.location.href = '/all-new-services';
           }}
           className="hover:bg-green-600 hover:text-white"
         >

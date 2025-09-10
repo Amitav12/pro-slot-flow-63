@@ -170,67 +170,6 @@ const Recommendations = () => {
           </div>
         </div>
 
-        {/* New Services */}
-        <div>
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 flex items-center">
-                <Sparkles className="h-8 w-8 text-green-500 mr-3" />
-                New Services
-              </h2>
-              <p className="text-lg text-gray-600">
-                Fresh additions to our platform
-              </p>
-            </div>
-            <Button 
-              variant="outline" 
-              onClick={(e) => {
-                e.preventDefault();
-                console.log('🔧 Recommendations Explore New clicked - navigating to /all-new-services');
-                window.location.href = '/all-new-services';
-              }}
-              className="text-purple-600 border-purple-600 hover:bg-purple-50"
-            >
-              Explore New
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {newServices.map((service) => (
-              <Card key={service.id} className="bg-white border-0 hover:shadow-lg transition-all duration-300 cursor-pointer group relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-gradient-to-l from-green-500 to-emerald-400 text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
-                  NEW
-                </div>
-                <CardContent className="p-6">
-                  <div className="mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-200 rounded-xl flex items-center justify-center mb-4">
-                      <Sparkles className="h-8 w-8 text-green-600" />
-                    </div>
-                    <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
-                      {service.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-3">
-                      {service.description}
-                    </p>
-                    <span className="text-sm text-gray-500 flex items-center">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {service.category}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-lg text-gray-900">
-                      {service.price}
-                    </span>
-                    <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
-                      Learn More
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   );

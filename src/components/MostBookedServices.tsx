@@ -122,7 +122,7 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
           onClick={(e) => {
             e.preventDefault();
             console.log('🔧 Popular Services View All clicked - navigating to /all-popular-services');
-            navigate('/all-popular-services');
+            window.location.href = '/all-popular-services';
           }}
           className="hover:bg-primary hover:text-white"
         >
