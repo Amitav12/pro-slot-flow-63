@@ -119,7 +119,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreServices }) =
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button 
                 size="lg" 
-                onClick={() => navigate('/all-categories')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate('/all-categories');
+                }}
                 className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Book Your First Service

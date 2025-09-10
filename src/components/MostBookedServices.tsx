@@ -119,7 +119,11 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
         </div>
         <Button 
           variant="outline" 
-          onClick={() => navigate('/all-popular-services')}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigate('/all-popular-services');
+          }}
           className="hover:bg-primary hover:text-white"
         >
           View All

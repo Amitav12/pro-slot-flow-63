@@ -139,7 +139,11 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
         </div>
         <Button 
           variant="outline" 
-          onClick={() => navigate('/all-new-services')}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigate('/all-new-services');
+          }}
           className="hover:bg-green-600 hover:text-white"
         >
           Explore New
