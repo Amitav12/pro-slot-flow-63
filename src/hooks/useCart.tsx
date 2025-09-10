@@ -246,6 +246,17 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         newItem: newItem,
         timestamp: new Date().toISOString()
       });
+      
+      console.log('🔍 Detailed item inspection:', {
+        serviceId: newItem.serviceId,
+        serviceIdType: typeof newItem.serviceId,
+        serviceIdLength: newItem.serviceId?.length,
+        providerId: newItem.providerId,
+        providerIdType: typeof newItem.providerId,
+        serviceName: newItem.serviceName,
+        price: newItem.price,
+        priceType: typeof newItem.price
+      });
   
       // Check if item already exists
       const existingItem = items.find(item => 
@@ -276,9 +287,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         // Add new item
         if (isAuthStable && userId) {
-          // Validate that we have a proper serviceId
+          // For authenticated users, validate serviceId is UUID
           if (!newItem.serviceId) {
             throw new Error('Service ID is required');
+          }
+          
+          // Ensure serviceId is a valid UUID format
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+          if (!uuidRegex.test(newItem.serviceId)) {
+            console.error('Invalid serviceId format:', newItem.serviceId);
+            throw new Error('Invalid service ID format');
           }
           
           const insertData = {
@@ -292,7 +310,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             service_details: newItem.serviceDetails || {}
           };
             
-          console.log('📊 Insert data:', insertData);
+          console.log('📊 Insert data for authenticated user:', insertData);
             
           const { data: insertedData, error: insertError } = await supabase
             .from('cart_items')
@@ -306,7 +324,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               code: insertError.code,
               message: insertError.message,
               details: insertError.details,
-              hint: insertError.hint
+              hint: insertError.hint,
+              originalInsertData: insertData
             });
             throw insertError;
           }
