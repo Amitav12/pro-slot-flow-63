@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, TrendingUp, Clock, MapPin } from 'lucide-react';
+import { Star, TrendingUp, Clock, MapPin, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -119,14 +119,19 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
         </div>
         <Button 
           variant="outline" 
-          onClick={(e) => {
-            e.preventDefault();
-            console.log('🔧 Popular Services View All clicked - navigating to /all-popular-services');
-            window.location.href = '/all-popular-services';
+          className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
+          onClick={() => {
+            console.log('Popular Services View All clicked - navigating to /all-popular-services');
+            try {
+              navigate('/all-popular-services');
+            } catch (error) {
+              console.error('Navigation failed, using fallback:', error);
+              window.location.href = '/all-popular-services';
+            }
           }}
-          className="hover:bg-primary hover:text-white"
         >
           View All
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
       

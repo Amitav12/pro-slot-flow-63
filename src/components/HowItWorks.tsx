@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Search, Calendar, UserCheck, CreditCard, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAdminSettings } from '@/hooks/useAdminSettings';
+import { useNavigate } from 'react-router-dom';
 
 interface Step {
   id: number;
@@ -14,6 +15,7 @@ interface Step {
 }
 
 const HowItWorks: React.FC = () => {
+  const navigate = useNavigate();
   // Hard-coded 5-step process - not configurable by admin
   const steps: Step[] = [
     {
@@ -195,8 +197,22 @@ const HowItWorks: React.FC = () => {
             Join thousands of satisfied customers who trust us for their service needs
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+            <Button 
+              size="lg" 
+              className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
+              variant="outline"
+              onClick={() => {
+                console.log('Book Your First Service clicked - navigating to /all-categories');
+                try {
+                  navigate('/all-categories');
+                } catch (error) {
+                  console.error('Navigation failed, using fallback:', error);
+                  window.location.href = '/all-categories';
+                }
+              }}
+            >
               Book Your First Service
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
