@@ -41,7 +41,7 @@ export default function PaymentSuccess() {
       if (result.success) {
         console.log('✅ Payment verified successfully');
         
-        // Clear cart after successful payment
+        // Clear cart after successful payment (both guest and authenticated users)
         await clearCart();
         
         setOrderDetails({

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,7 +6,11 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, Minus, ShoppingBag, Lock } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Trash2, Plus, Minus, ShoppingBag, Lock, User, MapPin, Phone, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { paymentService } from '@/services/paymentService';
 
@@ -16,12 +20,20 @@ export default function Cart() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [showGuestForm, setShowGuestForm] = useState(false);
+  const [guestInfo, setGuestInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    instructions: ''
+  });
 
   // Dynamic service fee calculation (could be 0, percentage, or fixed amount)
   const serviceFee = totalAmount > 0 ? Math.max(totalAmount * 0.05, 2) : 0; // 5% with minimum $2
   const finalTotal = totalAmount + serviceFee;
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (guestData?: typeof guestInfo) => {
     console.log('🚀 Starting checkout process...', { 
       totalAmount, 
       serviceFee, 
@@ -29,7 +41,8 @@ export default function Cart() {
       itemCount, 
       items,
       isAuthenticated,
-      isLoading 
+      isLoading,
+      guestData 
     });
 
     // Ensure we have items to checkout
@@ -39,6 +52,12 @@ export default function Cart() {
         description: 'Please add items to your cart before checkout.',
         variant: 'destructive',
       });
+      return;
+    }
+
+    // For guest users, collect required information
+    if (!isAuthenticated && !guestData) {
+      setShowGuestForm(true);
       return;
     }
 
@@ -57,6 +76,7 @@ export default function Cart() {
         amount: Math.round(finalTotal * 100), // Convert to cents
         currency: 'usd',
         cartItems: items,
+        guestInfo: guestData || undefined,
         metadata: { 
           source: 'cart',
           isAuthenticated: isAuthenticated.toString(),
@@ -88,6 +108,48 @@ export default function Cart() {
         duration: 15000,
       });
     }
+  };
+
+  const handleGuestCheckout = () => {
+    // Validate required fields
+    if (!guestInfo.name.trim()) {
+      toast({
+        title: 'Name Required',
+        description: 'Please enter your full name.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!guestInfo.email.trim()) {
+      toast({
+        title: 'Email Required',
+        description: 'Please enter your email address.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!guestInfo.phone.trim()) {
+      toast({
+        title: 'Phone Required',
+        description: 'Please enter your phone number.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!guestInfo.address.trim()) {
+      toast({
+        title: 'Address Required',
+        description: 'Please enter your address for service delivery.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setShowGuestForm(false);
+    handleCheckout(guestInfo);
   };
 
   if (itemCount === 0) {
@@ -231,10 +293,10 @@ export default function Cart() {
                     </div>
                   </div>
                   
-                  {/* Checkout Button */}
+                   {/* Checkout Button */}
                   <div className="pt-4">
                     <Button 
-                      onClick={handleCheckout}
+                      onClick={() => handleCheckout()}
                       disabled={isLoading || itemCount === 0 || finalTotal <= 0}
                       className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground border-0 shadow-lg hover:shadow-xl transition-all duration-200"
                     >
@@ -244,7 +306,7 @@ export default function Cart() {
                           Processing...
                         </>
                       ) : (
-                        'Proceed to Checkout'
+                        isAuthenticated ? 'Proceed to Checkout' : 'Checkout as Guest'
                       )}
                     </Button>
                   </div>
@@ -261,6 +323,104 @@ export default function Cart() {
             </div>
           </div>
         </div>
+
+        {/* Guest Information Dialog */}
+        <Dialog open={showGuestForm} onOpenChange={setShowGuestForm}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Guest Checkout Information</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label htmlFor="guest-name">Full Name *</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="guest-name"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={guestInfo.name}
+                    onChange={(e) => setGuestInfo({...guestInfo, name: e.target.value})}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="guest-email">Email Address *</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="guest-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={guestInfo.email}
+                    onChange={(e) => setGuestInfo({...guestInfo, email: e.target.value})}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="guest-phone">Phone Number *</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="guest-phone"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={guestInfo.phone}
+                    onChange={(e) => setGuestInfo({...guestInfo, phone: e.target.value})}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="guest-address">Service Address *</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
+                  <Textarea
+                    id="guest-address"
+                    placeholder="Enter your complete address for service delivery"
+                    value={guestInfo.address}
+                    onChange={(e) => setGuestInfo({...guestInfo, address: e.target.value})}
+                    className="pl-10 resize-none"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="guest-instructions">Special Instructions (Optional)</Label>
+                <Textarea
+                  id="guest-instructions"
+                  placeholder="Any special instructions for the service provider"
+                  value={guestInfo.instructions}
+                  onChange={(e) => setGuestInfo({...guestInfo, instructions: e.target.value})}
+                  className="resize-none"
+                  rows={2}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowGuestForm(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleGuestCheckout}
+                  className="flex-1"
+                >
+                  Continue to Payment
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

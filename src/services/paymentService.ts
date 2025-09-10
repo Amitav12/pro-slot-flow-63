@@ -11,6 +11,13 @@ interface CreateCheckoutRequest {
   amount: number;
   currency?: string;
   cartItems: CartItem[];
+  guestInfo?: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    instructions?: string;
+  };
   metadata?: Record<string, string>;
 }
 
@@ -27,6 +34,7 @@ export class PaymentService {
           amount: request.amount,
           currency: request.currency || 'usd',
           cartItems: request.cartItems,
+          guestInfo: request.guestInfo,
           metadata: request.metadata || {},
         },
       });
