@@ -10,7 +10,7 @@ import SafetyBadges from '@/components/SafetyBadges';
 import PromotionalOffers from '@/components/PromotionalOffers';
 import HowItWorks from '@/components/HowItWorks';
 import ServiceGuarantee from '@/components/ServiceGuarantee';
-import { PopularServices } from '@/components/PopularServices';
+
 import { NewServices } from '@/components/NewServices';
 
 interface Service {
@@ -89,7 +89,6 @@ const ModernIndex: React.FC = () => {
       
       {/* Primary Engagement Zone (4-7) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <PopularServices />
         <NewServices onServiceSelect={handleServiceSelect} />
       </div>
       <HowItWorks />
