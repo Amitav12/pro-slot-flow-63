@@ -85,8 +85,10 @@ const ModernIndex: React.FC = () => {
       />
       
       {/* Primary Engagement Zone (4-7) */}
-      <MostBookedServices onServiceSelect={handleServiceSelect} />
-      <NewServices onServiceSelect={handleServiceSelect} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <MostBookedServices onServiceSelect={handleServiceSelect} />
+        <NewServices onServiceSelect={handleServiceSelect} />
+      </div>
       <HowItWorks />
       <PromotionalOffers />
       

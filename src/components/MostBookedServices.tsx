@@ -106,7 +106,7 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
   }
 
   return (
-    <div className={`py-8 transition-all duration-700 ease-out transform ${
+    <div className={`mb-12 transition-all duration-700 ease-out transform ${
       isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
     }`}>
       <div className="flex items-center justify-between mb-6">
@@ -120,15 +120,7 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
         <Button 
           variant="outline" 
           className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
-          onClick={() => {
-            console.log('Popular Services View All clicked - navigating to /all-popular-services');
-            try {
-              navigate('/all-popular-services');
-            } catch (error) {
-              console.error('Navigation failed, using fallback:', error);
-              window.location.href = '/all-popular-services';
-            }
-          }}
+          onClick={() => navigate('/services')}
         >
           View All
           <ArrowRight className="ml-2 h-4 w-4" />
