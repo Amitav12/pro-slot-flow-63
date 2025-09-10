@@ -141,7 +141,7 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
           variant="outline" 
           className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
           onClick={() => {
-            console.log('🟢 NEW SERVICES - Explore New clicked - navigating to /all-new-services');
+            console.log('New Services Explore New clicked - navigating to /all-new-services');
             try {
               navigate('/all-new-services');
             } catch (error) {
