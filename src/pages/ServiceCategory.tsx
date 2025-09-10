@@ -47,7 +47,7 @@ const ServiceCategory: React.FC = () => {
           .from('categories')
           .select('name')
           .eq('id', category)
-          .single();
+          .maybeSingle();
 
         if (categoryError) throw categoryError;
         setCategoryName(categoryData?.name || '');

@@ -78,7 +78,7 @@ const AllCategories: React.FC = () => {
   }, []);
 
   const handleCategorySelect = (category: Category) => {
-    navigate(`/services/${category.name.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`);
+    navigate(`/services/${category.id}`);
   };
 
   if (loading) {
