@@ -39,6 +39,7 @@ import { BookingManager } from './BookingManager';
 import { SettingsManager } from './SettingsManager';
 import SpecialOffersManager from './SpecialOffersManager';
 import ServiceManagementPanel from './ServiceManagementPanel';
+import { PopularServicesManager } from './PopularServicesManager';
 
 // Section components mapping
 const sectionComponents: Record<string, React.ComponentType> = {
@@ -47,6 +48,7 @@ const sectionComponents: Record<string, React.ComponentType> = {
   services: ServiceApprovalManager,
   'service-management': ServiceManagementPanel,
   'special-offers': SpecialOffersManager,
+  'popular-services': PopularServicesManager,
   bookings: BookingManager,
   categories: CategoryManager,
   locations: LocationManagement,
@@ -64,6 +66,7 @@ const sectionIcons: Record<string, React.ReactNode> = {
   services: <Package className="h-4 w-4" />,
   'service-management': <Star className="h-4 w-4" />,
   'special-offers': <Gift className="h-4 w-4" />,
+  'popular-services': <Star className="h-4 w-4" />,
   bookings: <Calendar className="h-4 w-4" />,
   categories: <Package className="h-4 w-4" />,
   locations: <MapPin className="h-4 w-4" />,

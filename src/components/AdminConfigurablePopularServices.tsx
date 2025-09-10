@@ -63,7 +63,7 @@ export const AdminConfigurablePopularServices: React.FC<AdminConfigurablePopular
             service_ids: []
           });
         } else {
-          const popularConfig = configData.value as PopularServicesConfig;
+          const popularConfig = configData.value as unknown as PopularServicesConfig;
           setConfig(popularConfig);
           
           // If admin has configured specific service IDs, fetch those services
