@@ -38,13 +38,18 @@ export const useAuthProvider = () => {
     };
 
     const fetchProfile = async (userId: string) => {
-      const { data: profileData } = await supabase
-        .from('user_profiles')
-        .select('*')
-      .eq('user_id' as any, userId as any)
-      .single();
-    
-    setProfile((profileData as any));
+      try {
+        const { data: profileData } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+      
+        setProfile(profileData);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        setProfile(null);
+      }
     };
 
     getSession();
