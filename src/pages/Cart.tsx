@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Minus, ShoppingBag, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { paymentService } from '@/services/paymentService';
 
 export default function Cart() {
   const { items, itemCount, totalAmount, removeFromCart, updateQuantity, clearCart, isLoading } = useCart();
@@ -15,7 +16,7 @@ export default function Cart() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!isAuthenticated) {
       toast({
         title: 'Login Required',
@@ -25,20 +26,33 @@ export default function Cart() {
       return;
     }
 
-    // Check if Stripe is properly configured
-    const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-    if (!stripeKey || stripeKey.includes('51234567890abcdef')) {
+    try {
+      // Create a Stripe Checkout session via Edge Function
+      const result = await paymentService.createCheckoutSession({
+        amount: totalAmount,
+        currency: 'usd',
+        cartItems: items,
+        metadata: { source: 'cart' },
+      });
+
+      if (result.success && (result as any).url) {
+        // Open Stripe checkout in a new tab (recommended default)
+        window.open((result as any).url, '_blank');
+      } else {
+        toast({
+          title: 'Checkout Failed',
+          description: result.error || 'Unable to start checkout. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      console.error('Checkout error:', err);
       toast({
-        title: 'Payment System Not Configured',
-        description: 'Stripe payment system is not properly set up. Please contact support.',
+        title: 'Checkout Error',
+        description: err.message || 'Unexpected error. Please try again.',
         variant: 'destructive',
       });
-      console.error('❌ Stripe publishable key not configured properly:', stripeKey);
-      return;
     }
-
-    console.log('🚀 Navigating to payment page...');
-    navigate('/payment');
   };
 
   if (itemCount === 0) {
