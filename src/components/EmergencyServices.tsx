@@ -16,6 +16,7 @@ interface EmergencyService {
 }
 
 const EmergencyServices: React.FC = () => {
+  const { data: emergencySettings } = useAdminSettings('emergency_services');
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {

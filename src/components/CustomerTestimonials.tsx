@@ -124,16 +124,19 @@ const CustomerTestimonials: React.FC = () => {
         {/* Trust Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
           <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600 mb-2">{(siteStats as any)?.customers?.toLocaleString() || '50K'}+</div>
-            <p className="text-gray-600 text-sm">Happy Customers</p>
+            <div className="text-3xl font-bold text-purple-600 mb-2">{(siteStats as any)?.happy_customers || '50K'}+</div>
+            <p className="text-gray-600 text-sm">{(siteStats as any)?.happy_customers_label || 'Happy Customers'}</p>
+            <p className="text-xs text-gray-500 mt-1">{(siteStats as any)?.happy_customers_subtitle || 'Served with excellence'}</p>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-orange-500 mb-2">{(siteStats as any)?.rating || '4.8'}</div>
-            <p className="text-gray-600 text-sm">Average Rating</p>
+            <div className="text-3xl font-bold text-orange-500 mb-2">{(siteStats as any)?.average_rating || '4.9/5'}</div>
+            <p className="text-gray-600 text-sm">{(siteStats as any)?.average_rating_label || 'Average Rating'}</p>
+            <p className="text-xs text-gray-500 mt-1">{(siteStats as any)?.average_rating_subtitle || 'From verified reviews'}</p>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">{(siteStats as any)?.providers?.toLocaleString() || '2.5K'}+</div>
-            <p className="text-gray-600 text-sm">Service Providers</p>
+            <div className="text-3xl font-bold text-green-600 mb-2">{(siteStats as any)?.redo_rate || '< 1%'}</div>
+            <p className="text-gray-600 text-sm">{(siteStats as any)?.redo_rate_label || 'Redo Rate'}</p>
+            <p className="text-xs text-gray-500 mt-1">{(siteStats as any)?.redo_rate_subtitle || 'Exceptional first-time success'}</p>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600 mb-2">{(siteStats as any)?.cities || '50'}+</div>

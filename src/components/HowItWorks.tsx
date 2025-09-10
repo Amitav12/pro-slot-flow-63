@@ -14,47 +14,70 @@ interface Step {
 }
 
 const HowItWorks: React.FC = () => {
-  const { data: howItWorksData, isLoading } = useAdminSettings('how_it_works');
+  // Hard-coded 5-step process - not configurable by admin
+  const steps: Step[] = [
+    {
+      id: 1,
+      icon: <Search className="h-8 w-8" />,
+      title: "Browse & Select",
+      description: "Choose from hundreds of verified services",
+      details: [
+        "Browse service categories",
+        "Compare prices & reviews", 
+        "Select your preferred service"
+      ],
+      color: "text-blue-600"
+    },
+    {
+      id: 2,
+      icon: <Calendar className="h-8 w-8" />,
+      title: "Book & Schedule", 
+      description: "Pick your convenient date and time",
+      details: [
+        "Choose available time slots",
+        "Add service location",
+        "Specify requirements"
+      ],
+      color: "text-green-600"
+    },
+    {
+      id: 3,
+      icon: <CreditCard className="h-8 w-8" />,
+      title: "Secure Payment",
+      description: "Pay safely after service completion", 
+      details: [
+        "Multiple payment options",
+        "Secure transactions",
+        "Digital receipts"
+      ],
+      color: "text-pink-600"
+    },
+    {
+      id: 4,
+      icon: <UserCheck className="h-8 w-8" />,
+      title: "Professional Arrives",
+      description: "Verified expert comes to your location",
+      details: [
+        "Real-time tracking",
+        "Professional introduction", 
+        "Service begins on time"
+      ],
+      color: "text-purple-600"
+    },
+    {
+      id: 5,
+      icon: <CheckCircle className="h-8 w-8" />,
+      title: "Service Complete",
+      description: "Quality work delivered with satisfaction",
+      details: [
+        "Service completion",
+        "Quality inspection",
+        "Rate & review"
+      ],
+      color: "text-orange-600"
+    }
+  ];
 
-  if (isLoading) {
-    return <section className="py-16 bg-white">
-      <div className="container mx-auto px-6">
-        <div className="animate-pulse text-center mb-16">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
-          <div className="h-6 bg-gray-200 rounded w-1/2 mx-auto"></div>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="text-center">
-              <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-full"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>;
-  }
-
-  const getIconComponent = (iconName: string) => {
-    const icons = { Search, Calendar, UserCheck, CreditCard, CheckCircle };
-    const IconComponent = icons[iconName as keyof typeof icons] || Search;
-    return <IconComponent className="h-8 w-8" />;
-  };
-
-  const getColorClass = (step: number) => {
-    const colors = ['text-blue-600', 'text-green-600', 'text-pink-600', 'text-purple-600', 'text-orange-600'];
-    return colors[(step - 1) % colors.length];
-  };
-
-  const steps: Step[] = (howItWorksData as any)?.steps?.map((step: any) => ({
-    id: step.step,
-    icon: getIconComponent(step.icon),
-    title: step.title,
-    description: step.description,
-    details: step.details || [],
-    color: getColorClass(step.step)
-  })) || [];
 
   return (
     <section className="py-16 bg-white">
@@ -66,10 +89,10 @@ const HowItWorks: React.FC = () => {
             Simple Process
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            {(howItWorksData as any)?.title || 'How It Works'}
+            How It Works
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {(howItWorksData as any)?.subtitle || 'Get professional services in just 5 simple steps. It\'s that easy!'}
+            Get professional services in just 5 simple steps. It's that easy!
           </p>
         </div>
 
@@ -174,9 +197,6 @@ const HowItWorks: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
               Book Your First Service
-            </Button>
-            <Button size="lg" variant="outline">
-              Browse All Services
             </Button>
           </div>
         </div>
