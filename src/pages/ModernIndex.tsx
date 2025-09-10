@@ -3,13 +3,14 @@ import { HeroSection } from '@/components/HeroSection';
 import { CategoryGrid } from '@/components/CategoryGrid';
 import QuickActions from '@/components/QuickActions';
 import Recommendations from '@/components/Recommendations';
-import { MostBookedServices } from '@/components/MostBookedServices';
+
 import { VideoCarousel } from '@/components/VideoCarousel';
 import CustomerTestimonials from '@/components/CustomerTestimonials';
 import SafetyBadges from '@/components/SafetyBadges';
 import PromotionalOffers from '@/components/PromotionalOffers';
 import HowItWorks from '@/components/HowItWorks';
 import ServiceGuarantee from '@/components/ServiceGuarantee';
+import { AdminConfigurablePopularServices } from '@/components/AdminConfigurablePopularServices';
 import { NewServices } from '@/components/NewServices';
 
 interface Service {
@@ -88,7 +89,7 @@ const ModernIndex: React.FC = () => {
       
       {/* Primary Engagement Zone (4-7) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <MostBookedServices onServiceSelect={handleServiceSelect} />
+        <AdminConfigurablePopularServices onServiceSelect={handleServiceSelect} />
         <NewServices onServiceSelect={handleServiceSelect} />
       </div>
       <HowItWorks />
