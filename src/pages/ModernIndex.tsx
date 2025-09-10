@@ -92,13 +92,6 @@ const ModernIndex: React.FC = () => {
       <HowItWorks />
       <PromotionalOffers />
       
-      {/* Real Services from Database */}
-      <RealServicesList 
-        limit={6}
-        showPopularOnly={true}
-        title="Popular Services"
-        subtitle="Most requested services from our verified providers"
-      />
       
       {/* Additional Content */}
       <VideoCarousel />

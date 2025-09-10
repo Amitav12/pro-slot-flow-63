@@ -16,13 +16,13 @@ interface ProviderService {
   status: string;
   is_active: boolean;
   is_popular: boolean;
-  subcategory?: {
+  subcategories?: {
     name: string;
-    category?: {
+    categories?: {
       name: string;
     };
   };
-  provider?: {
+  user_profiles?: {
     business_name?: string;
     full_name?: string;
     rating?: number;
@@ -62,11 +62,11 @@ export const RealServicesList: React.FC<RealServicesListProps> = ({
             status,
             is_active,
             is_popular,
-            subcategory:subcategories(
+            subcategories!inner(
               name,
-              category:categories(name)
+              categories!inner(name)
             ),
-            provider:user_profiles!provider_id(
+            user_profiles!provider_id(
               business_name,
               full_name
             )
@@ -164,7 +164,7 @@ export const RealServicesList: React.FC<RealServicesListProps> = ({
                   <div className="flex items-center space-x-1 text-yellow-500">
                     <Star className="h-4 w-4 fill-current" />
                     <span className="text-sm font-medium text-gray-700">
-                      {service.rating || service.provider?.rating || 4.5}
+                      {service.rating || service.user_profiles?.rating || 4.5}
                     </span>
                   </div>
                 </div>
@@ -180,7 +180,7 @@ export const RealServicesList: React.FC<RealServicesListProps> = ({
                   <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                     <span className="flex items-center">
                       <MapPin className="h-4 w-4 mr-1" />
-                      {service.subcategory?.category?.name || 'Service'}
+                      {service.subcategories?.categories?.name || 'Service'}
                     </span>
                     {service.duration_minutes && (
                       <span className="flex items-center">
@@ -191,9 +191,9 @@ export const RealServicesList: React.FC<RealServicesListProps> = ({
                   </div>
 
                   <div className="text-sm text-gray-600 mb-4">
-                    <strong>Provider:</strong> {service.provider?.business_name || service.provider?.full_name || 'Professional Service Provider'}
-                    {service.provider?.years_of_experience && (
-                      <span className="text-gray-500"> • {service.provider.years_of_experience} years exp.</span>
+                    <strong>Provider:</strong> {service.user_profiles?.business_name || service.user_profiles?.full_name || 'Professional Service Provider'}
+                    {service.user_profiles?.years_of_experience && (
+                      <span className="text-gray-500"> • {service.user_profiles.years_of_experience} years exp.</span>
                     )}
                   </div>
                 </div>
