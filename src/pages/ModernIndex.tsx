@@ -100,16 +100,6 @@ const ModernIndex: React.FC = () => {
         subtitle="Most requested services from our verified providers"
       />
       
-      {/* All Available Services */}
-      <div className="bg-gray-50">
-        <RealServicesList 
-          limit={9}
-          showPopularOnly={false}
-          title="All Available Services"
-          subtitle="Browse all professional services in your area"
-        />
-      </div>
-      
       {/* Additional Content */}
       <VideoCarousel />
       <CustomerTestimonials />

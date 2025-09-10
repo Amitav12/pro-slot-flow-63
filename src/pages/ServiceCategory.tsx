@@ -7,258 +7,24 @@ import { Badge } from '@/components/ui/badge';
 import { Star, Clock, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Service {
   id: string;
-  name: string;
-  description: string;
+  service_name: string;
+  description?: string;
   price: number;
-  duration: number;
+  duration_minutes: number;
   rating: number;
   image_url?: string;
-  category: string;
+  subcategory?: {
+    name: string;
+    category: {
+      name: string;
+    };
+  };
 }
 
-const mockServices: Record<string, Service[]> = {
-  beauty: [
-    {
-      id: 'facial-1',
-      name: 'Hydrating Facial',
-      description: 'Deep cleansing and moisturizing facial treatment',
-      price: 1500,
-      duration: 60,
-      rating: 4.8,
-      image_url: '/api/placeholder/300/200',
-      category: 'beauty'
-    },
-    {
-      id: 'facial-2', 
-      name: 'Anti-Aging Facial',
-      description: 'Advanced anti-aging treatment with premium products',
-      price: 2500,
-      duration: 90,
-      rating: 4.9,
-      image_url: '/api/placeholder/300/200',
-      category: 'beauty'
-    },
-    {
-      id: 'cleanup-1',
-      name: 'Deep Cleanup',
-      description: 'Professional deep cleaning and extraction',
-      price: 1200,
-      duration: 45,
-      rating: 4.7,
-      image_url: '/api/placeholder/300/200',
-      category: 'beauty'
-    }
-  ],
-  cleaning: [
-    {
-      id: 'deep-clean-1',
-      name: 'Deep House Cleaning',
-      description: 'Complete deep cleaning of your entire home',
-      price: 2000,
-      duration: 180,
-      rating: 4.8,
-      image_url: '/api/placeholder/300/200',
-      category: 'cleaning'
-    },
-    {
-      id: 'kitchen-clean-1',
-      name: 'Kitchen Deep Clean',
-      description: 'Thorough kitchen cleaning including appliances',
-      price: 1200,
-      duration: 120,
-      rating: 4.7,
-      image_url: '/api/placeholder/300/200',
-      category: 'cleaning'
-    },
-    {
-      id: 'bathroom-clean-1',
-      name: 'Bathroom Sanitization',
-      description: 'Complete bathroom cleaning and sanitization',
-      price: 800,
-      duration: 90,
-      rating: 4.9,
-      image_url: '/api/placeholder/300/200',
-      category: 'cleaning'
-    }
-  ],
-  appliance: [
-    {
-      id: 'ac-repair-1',
-      name: 'AC Service & Repair',
-      description: 'Complete AC maintenance and repair service',
-      price: 1500,
-      duration: 120,
-      rating: 4.8,
-      image_url: '/api/placeholder/300/200',
-      category: 'appliance'
-    },
-    {
-      id: 'fridge-repair-1',
-      name: 'Refrigerator Repair',
-      description: 'Professional refrigerator diagnosis and repair',
-      price: 1200,
-      duration: 90,
-      rating: 4.7,
-      image_url: '/api/placeholder/300/200',
-      category: 'appliance'
-    },
-    {
-      id: 'washing-repair-1',
-      name: 'Washing Machine Service',
-      description: 'Complete washing machine service and repair',
-      price: 1000,
-      duration: 75,
-      rating: 4.6,
-      image_url: '/api/placeholder/300/200',
-      category: 'appliance'
-    }
-  ],
-  repairs: [
-    {
-      id: 'plumbing-1',
-      name: 'Plumbing Services',
-      description: 'Professional plumbing repair and installation',
-      price: 800,
-      duration: 60,
-      rating: 4.8,
-      image_url: '/api/placeholder/300/200',
-      category: 'repairs'
-    },
-    {
-      id: 'electrical-1',
-      name: 'Electrical Work',
-      description: 'Safe and reliable electrical repairs',
-      price: 1000,
-      duration: 90,
-      rating: 4.9,
-      image_url: '/api/placeholder/300/200',
-      category: 'repairs'
-    },
-    {
-      id: 'carpentry-1',
-      name: 'Carpentry Services',
-      description: 'Custom carpentry and furniture repair',
-      price: 1500,
-      duration: 120,
-      rating: 4.7,
-      image_url: '/api/placeholder/300/200',
-      category: 'repairs'
-    }
-  ],
-  pest: [
-    {
-      id: 'general-pest-1',
-      name: 'General Pest Control',
-      description: 'Complete pest control for common household pests',
-      price: 1200,
-      duration: 90,
-      rating: 4.8,
-      image_url: '/api/placeholder/300/200',
-      category: 'pest'
-    },
-    {
-      id: 'termite-1',
-      name: 'Termite Treatment',
-      description: 'Professional termite inspection and treatment',
-      price: 2500,
-      duration: 180,
-      rating: 4.9,
-      image_url: '/api/placeholder/300/200',
-      category: 'pest'
-    }
-  ],
-  painting: [
-    {
-      id: 'interior-paint-1',
-      name: 'Interior Painting',
-      description: 'Professional interior wall painting service',
-      price: 3000,
-      duration: 480,
-      rating: 4.8,
-      image_url: '/api/placeholder/300/200',
-      category: 'painting'
-    },
-    {
-      id: 'exterior-paint-1',
-      name: 'Exterior Painting',
-      description: 'Weather-resistant exterior painting service',
-      price: 5000,
-      duration: 720,
-      rating: 4.7,
-      image_url: '/api/placeholder/300/200',
-      category: 'painting'
-    }
-  ],
-  spa: [
-    {
-      id: 'spa-1',
-      name: 'Relaxation Spa Package',
-      description: 'Full body massage and aromatherapy session',
-      price: 3500,
-      duration: 120,
-      rating: 4.9,
-      image_url: '/api/placeholder/300/200',
-      category: 'spa'
-    },
-    {
-      id: 'spa-2',
-      name: 'Detox Spa Treatment',
-      description: 'Detoxifying body wrap and massage',
-      price: 4000,
-      duration: 150,
-      rating: 4.8,
-      image_url: '/api/placeholder/300/200',
-      category: 'spa'
-    }
-  ],
-  massage: [
-    {
-      id: 'massage-1',
-      name: 'Deep Tissue Massage',
-      description: 'Therapeutic deep tissue massage for men',
-      price: 2000,
-      duration: 60,
-      rating: 4.8,
-      image_url: '/api/placeholder/300/200',
-      category: 'massage'
-    },
-    {
-      id: 'massage-2',
-      name: 'Sports Massage',
-      description: 'Professional sports massage and recovery',
-      price: 2500,
-      duration: 75,
-      rating: 4.9,
-      image_url: '/api/placeholder/300/200',
-      category: 'massage'
-    }
-  ],
-  waxing: [
-    {
-      id: 'wax-1',
-      name: 'Full Body Waxing',
-      description: 'Complete body waxing with roll-on technique',
-      price: 1800,
-      duration: 90,
-      rating: 4.7,
-      image_url: '/api/placeholder/300/200',
-      category: 'waxing'
-    },
-    {
-      id: 'wax-2',
-      name: 'Facial Waxing',
-      description: 'Gentle facial hair removal',
-      price: 800,
-      duration: 30,
-      rating: 4.8,
-      image_url: '/api/placeholder/300/200',
-      category: 'waxing'
-    }
-  ]
-};
 
 const ServiceCategory: React.FC = () => {
   const { category } = useParams<{ category: string }>();
@@ -266,13 +32,61 @@ const ServiceCategory: React.FC = () => {
   const { addToCart } = useCart();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [categoryName, setCategoryName] = useState<string>('');
 
   useEffect(() => {
-    if (category && mockServices[category]) {
-      setServices(mockServices[category]);
-    } else {
-      setServices([]);
-    }
+    const fetchServicesForCategory = async () => {
+      if (!category) return;
+
+      try {
+        setLoading(true);
+        
+        // First get the category details
+        const { data: categoryData, error: categoryError } = await supabase
+          .from('categories')
+          .select('name')
+          .eq('id', category)
+          .single();
+
+        if (categoryError) throw categoryError;
+        setCategoryName(categoryData?.name || '');
+
+        // Fetch services for this category
+        const { data: servicesData, error: servicesError } = await supabase
+          .from('provider_services')
+          .select(`
+            id,
+            service_name,
+            description,
+            price,
+            duration_minutes,
+            rating,
+            image_url,
+            subcategory:subcategories(
+              name,
+              category:categories(name)
+            )
+          `)
+          .eq('status', 'approved')
+          .eq('is_active', true)
+          .eq('subcategories.category_id', category);
+
+        if (servicesError) throw servicesError;
+        setServices(servicesData || []);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        toast({
+          title: "Error loading services",
+          description: "Failed to load services for this category",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServicesForCategory();
   }, [category]);
 
   const handleServiceToggle = (serviceId: string) => {
@@ -296,23 +110,12 @@ const ServiceCategory: React.FC = () => {
     navigate('/provider-selection', { 
       state: { 
         selectedServices: selectedServiceData,
-        category 
+        categoryId: category,
+        categoryName: categoryName
       } 
     });
   };
 
-  const categoryTitles: Record<string, string> = {
-    beauty: 'Beauty & Wellness Services',
-    spa: 'Spa Services', 
-    massage: 'Massage Services',
-    waxing: 'Waxing Services',
-    cleaning: 'Home Cleaning Services',
-    appliance: 'Appliance Repair Services',
-    repairs: 'Home Repair Services',
-    pest: 'Pest Control Services',
-    painting: 'Painting & Renovation Services',
-    all: 'All Services'
-  };
 
   return (
     <Layout>
@@ -329,7 +132,7 @@ const ServiceCategory: React.FC = () => {
               </button>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  {category ? categoryTitles[category] || 'Services' : 'Services'}
+                  {categoryName ? `${categoryName} Services` : 'Services'}
                 </h1>
                 <p className="text-muted-foreground">
                   Select the services you'd like to book
@@ -341,7 +144,23 @@ const ServiceCategory: React.FC = () => {
 
         {/* Services Grid */}
         <div className="container mx-auto px-4 py-8">
-          {services.length === 0 ? (
+          {loading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, index) => (
+                <Card key={index} className="animate-pulse">
+                  <div className="aspect-video bg-gray-200 rounded-t-lg"></div>
+                  <CardContent className="p-4">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-3"></div>
+                    <div className="flex justify-between items-center">
+                      <div className="h-6 bg-gray-200 rounded w-20"></div>
+                      <div className="h-8 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : services.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground text-lg">
                 No services found for this category.
@@ -370,7 +189,7 @@ const ServiceCategory: React.FC = () => {
                     <div className="aspect-video relative overflow-hidden rounded-t-lg">
                       <img
                         src={service.image_url}
-                        alt={service.name}
+                        alt={service.service_name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -388,26 +207,26 @@ const ServiceCategory: React.FC = () => {
                     
                     <CardContent className="p-4">
                       <h3 className="font-semibold text-lg text-foreground mb-2">
-                        {service.name}
+                        {service.service_name}
                       </h3>
                       <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                        {service.description}
+                        {service.description || 'Professional service'}
                       </p>
                       
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-1">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="font-medium text-sm">{service.rating}</span>
+                          <span className="font-medium text-sm">{service.rating || 0}</span>
                         </div>
                         <div className="flex items-center gap-1 text-muted-foreground">
                           <Clock className="h-4 w-4" />
-                          <span className="text-sm">{service.duration} min</span>
+                          <span className="text-sm">{service.duration_minutes} min</span>
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-foreground">
-                          ₹{service.price}
+                          ${service.price}
                         </span>
                         <Button
                           size="sm"
@@ -434,7 +253,7 @@ const ServiceCategory: React.FC = () => {
                         {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} selected
                       </p>
                       <p className="font-semibold">
-                        Total: ₹{services
+                        Total: ${services
                           .filter(s => selectedServices.includes(s.id))
                           .reduce((sum, s) => sum + s.price, 0)
                         }

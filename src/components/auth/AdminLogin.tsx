@@ -49,7 +49,7 @@ export const AdminLogin: React.FC = () => {
         const { data: profile, error: profileError } = await supabase
           .from('user_profiles')
           .select('role, is_blocked')
-          .eq('user_id' as any, data.user.id as any)
+          .eq('user_id', data.user.id)
           .single();
 
         if (profileError) {

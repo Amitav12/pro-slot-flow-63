@@ -150,7 +150,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                 }}
                 onClick={() => {
                   onCategorySelect(category.id);
-                  navigate(`/service-category/${category.id}`);
+                  navigate(`/services/${category.id}`);
                 }}
               >
                 <CardContent className="p-6 text-center">

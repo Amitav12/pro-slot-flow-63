@@ -214,7 +214,9 @@ const App = () => {
                       
                       {/* Service booking flow routes */}
                       <Route path="/services/:category" element={<ServiceCategory />} />
+                      <Route path="/service-category/:category" element={<ServiceCategory />} />
                       <Route path="/provider-selection" element={<ProviderSelectionNew />} />
+                      <Route path="/provider-selection-new" element={<ProviderSelectionNew />} />
                       <Route path="/date-selection" element={<DateSelection />} />
                       <Route path="/time-selection" element={<TimeSelection />} />
                       
