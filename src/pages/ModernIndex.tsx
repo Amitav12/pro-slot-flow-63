@@ -10,6 +10,7 @@ import SafetyBadges from '@/components/SafetyBadges';
 import PromotionalOffers from '@/components/PromotionalOffers';
 import HowItWorks from '@/components/HowItWorks';
 import ServiceGuarantee from '@/components/ServiceGuarantee';
+import { NewServices } from '@/components/NewServices';
 
 interface Service {
   id: string;
@@ -67,7 +68,11 @@ const ModernIndex: React.FC = () => {
 
   const handleExploreServices = () => {
     // Scroll to services section
-    console.log('Exploring services');
+    console.log('Exploring services - scroll to services section');
+    const servicesSection = document.querySelector('[data-section="services"]');
+    if (servicesSection) {
+      servicesSection.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -81,6 +86,7 @@ const ModernIndex: React.FC = () => {
       
       {/* Primary Engagement Zone (4-7) */}
       <MostBookedServices onServiceSelect={handleServiceSelect} />
+      <NewServices onServiceSelect={handleServiceSelect} />
       <PromotionalOffers />
       
       {/* Trust & Process Building (8-10) */}

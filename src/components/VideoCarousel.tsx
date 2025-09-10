@@ -125,6 +125,8 @@ export const VideoCarousel: React.FC = () => {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <button
                         onClick={(e) => {
+                          console.log('Video play button clicked for:', category.videoUrl);
+                          e.preventDefault();
                           e.stopPropagation();
                           handlePlayVideo(category.videoUrl);
                         }}

@@ -120,6 +120,7 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
         <Button 
           variant="outline" 
           onClick={(e) => {
+            console.log('Popular Services View All clicked - navigating to /all-popular-services');
             e.preventDefault();
             e.stopPropagation();
             navigate('/all-popular-services');

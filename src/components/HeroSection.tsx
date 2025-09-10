@@ -120,6 +120,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreServices }) =
               <Button 
                 size="lg" 
                 onClick={(e) => {
+                  console.log('Hero button clicked - navigating to /all-categories');
                   e.preventDefault();
                   e.stopPropagation();
                   navigate('/all-categories');

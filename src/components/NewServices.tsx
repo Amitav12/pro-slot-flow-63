@@ -140,6 +140,7 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
         <Button 
           variant="outline" 
           onClick={(e) => {
+            console.log('New Services Explore New clicked - navigating to /all-new-services');
             e.preventDefault();
             e.stopPropagation();
             navigate('/all-new-services');
