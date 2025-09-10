@@ -120,7 +120,10 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
         <Button 
           variant="outline" 
           className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
-          onClick={() => navigate('/services')}
+          onClick={() => {
+            console.log('🔴 POPULAR SERVICES - View All clicked - navigating to /services');
+            navigate('/services');
+          }}
         >
           View All
           <ArrowRight className="ml-2 h-4 w-4" />

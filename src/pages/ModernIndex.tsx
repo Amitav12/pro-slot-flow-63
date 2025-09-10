@@ -75,6 +75,8 @@ const ModernIndex: React.FC = () => {
     }
   };
 
+  console.log('🏠 ModernIndex component rendering...');
+
   return (
     <Layout>
       {/* Above the Fold Priority (First 3) */}

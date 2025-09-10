@@ -143,7 +143,10 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
         <Button 
           variant="outline" 
           className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
-          onClick={() => setShowAll(!showAll)}
+          onClick={() => {
+            console.log('🟢 NEW SERVICES - Explore New clicked - toggling showAll from', showAll, 'to', !showAll);
+            setShowAll(!showAll);
+          }}
         >
           {showAll ? 'Show Less' : 'Explore New'}
           <ArrowRight className="ml-2 h-4 w-4" />
