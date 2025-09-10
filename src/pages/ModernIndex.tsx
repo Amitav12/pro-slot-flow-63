@@ -11,7 +11,7 @@ import PromotionalOffers from '@/components/PromotionalOffers';
 import HowItWorks from '@/components/HowItWorks';
 import ServiceGuarantee from '@/components/ServiceGuarantee';
 
-import { NewServices } from '@/components/NewServices';
+
 
 interface Service {
   id: string;
@@ -88,9 +88,6 @@ const ModernIndex: React.FC = () => {
       />
       
       {/* Primary Engagement Zone (4-7) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <NewServices onServiceSelect={handleServiceSelect} />
-      </div>
       <HowItWorks />
       <PromotionalOffers />
       
