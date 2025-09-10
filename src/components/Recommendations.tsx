@@ -182,7 +182,15 @@ const Recommendations = () => {
                 Fresh additions to our platform
               </p>
             </div>
-            <Button variant="outline" className="text-purple-600 border-purple-600 hover:bg-purple-50">
+            <Button 
+              variant="outline" 
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('🔧 Recommendations Explore New clicked - navigating to /all-new-services');
+                window.location.href = '/all-new-services';
+              }}
+              className="text-purple-600 border-purple-600 hover:bg-purple-50"
+            >
               Explore New
             </Button>
           </div>

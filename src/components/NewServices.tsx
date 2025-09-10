@@ -139,14 +139,10 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
         </div>
         <Button 
           variant="outline" 
-          onClick={() => {
-            console.log('New Services Explore New clicked - navigating to /all-new-services');
-            try {
-              navigate('/all-new-services');
-            } catch (error) {
-              console.error('Navigation failed, using fallback:', error);
-              window.location.href = '/all-new-services';
-            }
+          onClick={(e) => {
+            e.preventDefault();
+            console.log('🔧 New Services Explore New clicked - navigating to /all-new-services');
+            navigate('/all-new-services');
           }}
           className="hover:bg-green-600 hover:text-white"
         >
