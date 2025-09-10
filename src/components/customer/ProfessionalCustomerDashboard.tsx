@@ -95,18 +95,27 @@ const ProfessionalCustomerDashboard: React.FC = () => {
   });
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { id: 'bookings', label: 'My Bookings', icon: Calendar, path: '/dashboard/bookings' },
-    { id: 'profile', label: 'Profile', icon: User, path: '/dashboard/profile' },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/customer?section=dashboard' },
+    { id: 'bookings', label: 'My Bookings', icon: Calendar, path: '/customer?section=bookings' },
+    { id: 'profile', label: 'Profile', icon: User, path: '/customer?section=profile' },
   ];
 
-  // Set active section based on current path
+  // Set active section based on current path or query parameter
   useEffect(() => {
     const path = location.pathname;
-    if (path.includes('/bookings')) setActiveSection('bookings');
-    else if (path.includes('/profile')) setActiveSection('profile');
-    else setActiveSection('dashboard');
-  }, [location.pathname]);
+    const searchParams = new URLSearchParams(location.search);
+    const section = searchParams.get('section');
+    
+    if (section) {
+      setActiveSection(section);
+    } else if (path.includes('/bookings')) {
+      setActiveSection('bookings');
+    } else if (path.includes('/profile')) {
+      setActiveSection('profile');
+    } else {
+      setActiveSection('dashboard');
+    }
+  }, [location.pathname, location.search]);
 
   // Load data on component mount
   useEffect(() => {
@@ -801,7 +810,7 @@ const ProfessionalCustomerDashboard: React.FC = () => {
                   key={item.id}
                   onClick={() => {
                     setActiveSection(item.id);
-                    navigate(item.path);
+                    navigate(`/customer?section=${item.id}`);
                     setSidebarOpen(false);
                   }}
                   className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
