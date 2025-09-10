@@ -42,7 +42,7 @@ const getGuestSessionId = (): string => {
 };
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -63,7 +63,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     
     try {
-      console.log('Loading cart items. Authenticated:', isAuthStable, 'User ID:', userId);
+      console.log('🔄 Loading cart items. Authenticated:', isAuthStable, 'User ID:', userId, 'Time:', new Date().toISOString());
       
       if (isAuthStable && userId) {
         // Load from authenticated user cart
@@ -223,10 +223,18 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [isAuthStable, userId, loadCartItems]);
 
-  // Load cart items on mount and auth changes
+  // Load cart items on mount and auth changes, but wait for auth to finish loading
   useEffect(() => {
-    loadCartItems();
-  }, [loadCartItems]);
+    if (!authLoading) {
+      console.log('🚀 Auth loading finished, loading cart items...');
+      // Add a small delay to ensure auth state is properly initialized
+      const timer = setTimeout(() => {
+        loadCartItems();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loadCartItems, authLoading]);
 
   // Transfer guest cart when user logs in
   useEffect(() => {
