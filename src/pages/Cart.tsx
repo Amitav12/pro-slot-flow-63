@@ -28,13 +28,9 @@ export default function Cart() {
       finalTotal, 
       itemCount, 
       items,
-      isAuthenticated 
+      isAuthenticated,
+      isLoading 
     });
-
-    // Allow checkout even for non-authenticated users (guest checkout)
-    if (!isAuthenticated) {
-      console.log('🔄 Proceeding with guest checkout...');
-    }
 
     // Ensure we have items to checkout
     if (itemCount === 0 || items.length === 0) {
@@ -42,6 +38,16 @@ export default function Cart() {
         title: 'Cart Empty',
         description: 'Please add items to your cart before checkout.',
         variant: 'destructive',
+      });
+      return;
+    }
+
+    // Prevent checkout if cart is currently loading
+    if (isLoading) {
+      toast({
+        title: 'Please Wait',
+        description: 'Cart is loading, please try again in a moment.',
+        variant: 'default',
       });
       return;
     }
@@ -220,7 +226,7 @@ export default function Cart() {
                   
                   <Button 
                     onClick={handleCheckout}
-                    disabled={isLoading || itemCount === 0}
+                    disabled={isLoading || itemCount === 0 || finalTotal <= 0}
                     className="w-full btn-primary mt-6"
                   >
                     Proceed to Checkout
