@@ -22,10 +22,23 @@ export default function Cart() {
         description: 'Please sign in to proceed with checkout. Your cart will be saved.',
       });
       navigate('/auth');
-    } else {
-      // Navigate to payment page
-      navigate('/payment');
+      return;
     }
+
+    // Check if Stripe is properly configured
+    const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+    if (!stripeKey || stripeKey.includes('51234567890abcdef')) {
+      toast({
+        title: 'Payment System Not Configured',
+        description: 'Stripe payment system is not properly set up. Please contact support.',
+        variant: 'destructive',
+      });
+      console.error('❌ Stripe publishable key not configured properly:', stripeKey);
+      return;
+    }
+
+    console.log('🚀 Navigating to payment page...');
+    navigate('/payment');
   };
 
   if (itemCount === 0) {
