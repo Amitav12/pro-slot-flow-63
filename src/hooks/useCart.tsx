@@ -248,9 +248,14 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         // Add new item
         if (isAuthStable && userId) {
+          // Validate that we have a proper serviceId
+          if (!newItem.serviceId) {
+            throw new Error('Service ID is required');
+          }
+          
           const insertData = {
             user_id: userId,
-            service_id: newItem.serviceId || crypto.randomUUID(),
+            service_id: newItem.serviceId,
             service_name: newItem.serviceName,
             provider_id: newItem.providerId || null,
             provider_name: newItem.providerName || null,
@@ -296,11 +301,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const guestSessionId = getGuestSessionId();
           
           try {
+            // Validate that we have a proper serviceId for guest users too
+            if (!newItem.serviceId) {
+              throw new Error('Service ID is required');
+            }
+            
             const { data: guestData, error: guestError } = await supabase
               .from('guest_cart_items')
               .insert({
                 session_id: guestSessionId,
-                service_id: newItem.serviceId || crypto.randomUUID(),
+                service_id: newItem.serviceId,
                 service_name: newItem.serviceName,
                 provider_id: newItem.providerId,
                 provider_name: newItem.providerName,
