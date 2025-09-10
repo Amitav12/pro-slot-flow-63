@@ -23,8 +23,8 @@ export default function Cart() {
       });
       navigate('/auth');
     } else {
-      // Navigate to checkout page (Stripe Checkout redirect)
-      navigate('/checkout');
+      // Navigate to payment page
+      navigate('/payment');
     }
   };
 

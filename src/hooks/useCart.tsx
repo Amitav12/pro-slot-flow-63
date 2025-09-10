@@ -250,7 +250,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (isAuthStable && userId) {
           const insertData = {
             user_id: userId,
-            service_id: newItem.serviceId,
+            service_id: newItem.serviceId || crypto.randomUUID(),
             service_name: newItem.serviceName,
             provider_id: newItem.providerId || null,
             provider_name: newItem.providerName || null,
@@ -300,7 +300,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               .from('guest_cart_items')
               .insert({
                 session_id: guestSessionId,
-                service_id: newItem.serviceId,
+                service_id: newItem.serviceId || crypto.randomUUID(),
                 service_name: newItem.serviceName,
                 provider_id: newItem.providerId,
                 provider_name: newItem.providerName,
