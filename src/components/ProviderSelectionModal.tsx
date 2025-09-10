@@ -47,46 +47,31 @@ export const ProviderSelectionModal: React.FC<ProviderSelectionModalProps> = ({
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      // First get the service to find all providers offering it
-      const { data: serviceData, error: serviceError } = await supabase
-        .from('provider_services')
-        .select('provider_id')
-        .eq('id', serviceId);
+      // Get all approved providers
+      const { data: providersData, error: providersError } = await supabase
+        .from('service_providers')
+        .select('*')
+        .eq('status', 'approved')
+        .order('rating', { ascending: false });
 
-      if (serviceError) throw serviceError;
+      if (providersError) throw providersError;
 
-      if (serviceData && serviceData.length > 0) {
-        // Get all providers for this service type
-        const { data: providersData, error: providersError } = await supabase
-          .from('service_providers')
-          .select(`
-            *,
-            user_profiles!service_providers_user_id_fkey(
-              id,
-              business_name,
-              full_name
-            )
-          `)
-          .eq('status', 'approved')
-          .order('rating', { ascending: false });
+      const formattedProviders: Provider[] = providersData?.map(provider => ({
+        id: provider.id,
+        business_name: provider.business_name || 'Professional Service Provider',
+        rating: provider.rating || 0,
+        years_of_experience: provider.years_of_experience || 0,
+        total_reviews: provider.total_reviews || 0,
+        total_completed_jobs: provider.total_completed_jobs || 0,
+        profile_image_url: provider.profile_image_url || undefined,
+        specializations: Array.isArray(provider.specializations) ? 
+          (provider.specializations as any[]).filter(s => typeof s === 'string') : [],
+        certifications: Array.isArray(provider.certifications) ? 
+          (provider.certifications as any[]).filter(c => typeof c === 'string') : [],
+        response_time_minutes: provider.response_time_minutes || 15
+      })) || [];
 
-        if (providersError) throw providersError;
-
-        const formattedProviders: Provider[] = providersData?.map(provider => ({
-          id: provider.id,
-          business_name: provider.user_profiles?.business_name || provider.user_profiles?.full_name || 'Professional Service Provider',
-          rating: provider.rating || 0,
-          years_of_experience: provider.years_of_experience || 0,
-          total_reviews: provider.total_reviews || 0,
-          total_completed_jobs: provider.total_completed_jobs || 0,
-          profile_image_url: provider.profile_image_url,
-          specializations: Array.isArray(provider.specializations) ? provider.specializations : [],
-          certifications: Array.isArray(provider.certifications) ? provider.certifications : [],
-          response_time_minutes: provider.response_time_minutes || 15
-        })) || [];
-
-        setProviders(formattedProviders);
-      }
+      setProviders(formattedProviders);
     } catch (error) {
       console.error('Error fetching providers:', error);
     } finally {

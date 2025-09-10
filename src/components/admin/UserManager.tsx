@@ -67,11 +67,11 @@ export const UserManager = () => {
   }, [queryClient]);
 
   const updateUserMutation = useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<UserProfile> }) => {
+    mutationFn: async ({ id, updates }: { id: string; updates: Record<string, any> }) => {
       const { data, error } = await supabase
         .from('user_profiles')
-        .update(updates as any)
-        .eq('id' as any, id as any)
+        .update(updates)
+        .eq('id', id)
         .select()
         .single();
       

@@ -71,8 +71,8 @@ export const categoriesService = {
   async update(id: string, updates: Partial<CreateCategoryData>): Promise<Category> {
     const { data, error } = await supabase
       .from('categories')
-      .update(updates as any)
-      .eq('id' as any, id as any)
+      .update(updates)
+      .eq('id', id)
       .select()
       .single();
     
@@ -85,17 +85,17 @@ export const categoriesService = {
     const { error } = await supabase
       .from('categories')
       .delete()
-      .eq('id' as any, id as any);
+      .eq('id', id);
     
     if (error) throw error;
   },
 
   // Toggle active status
-  async toggleStatus(id: string, is_active: boolean): Promise<Category> {
+  async toggleStatus(id: string, is_active: boolean): Promise<any> {
     const { data, error } = await supabase
       .from('categories')
-      .update({ is_active } as any)
-      .eq('id' as any, id as any)
+      .update({ is_active })
+      .eq('id', id)
       .select()
       .single();
     

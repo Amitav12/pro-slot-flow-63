@@ -13,32 +13,34 @@ interface AdminSetting {
 export const useAdminSettings = (key?: string) => {
   return useQuery({
     queryKey: key ? ['admin-settings', key] : ['admin-settings'],
-    queryFn: async () => {
-      const query = supabase.from('admin_settings').select('*');
-      
+    queryFn: async (): Promise<any> => {
       if (key) {
-        query.eq('key', key).single();
+        const { data, error } = await supabase
+          .from('admin_settings')
+          .select('*')
+          .eq('key', key)
+          .single();
+        
+        if (error) throw error;
+        return data?.value || {};
       } else {
-        query.order('key');
+        const { data, error } = await supabase
+          .from('admin_settings')
+          .select('*')
+          .order('key');
+        
+        if (error) throw error;
+        
+        // Convert array to object with keys as properties
+        const settings: Record<string, any> = {};
+        if (Array.isArray(data)) {
+          data.forEach((setting: any) => {
+            settings[setting.key] = setting.value;
+          });
+        }
+        
+        return settings;
       }
-      
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      
-      if (key) {
-        return (data as AdminSetting)?.value || {};
-      }
-      
-      // Convert array to object with keys as properties
-      const settings: Record<string, any> = {};
-      if (Array.isArray(data)) {
-        (data as AdminSetting[]).forEach((setting) => {
-          settings[setting.key] = setting.value;
-        });
-      }
-      
-      return settings;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime)

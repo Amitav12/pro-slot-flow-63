@@ -216,7 +216,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthenticated: isAuthStable,
         userId: userId,
         newItem: newItem,
-        supabaseUrl: supabase.supabaseUrl,
         timestamp: new Date().toISOString()
       });
   
