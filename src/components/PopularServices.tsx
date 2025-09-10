@@ -15,11 +15,6 @@ interface PopularService {
   total_bookings: number;
   duration_minutes: number;
   image_url?: string;
-  provider?: {
-    id: string;
-    business_name: string;
-    rating: number;
-  };
   subcategories?: {
     name: string;
   };
@@ -32,82 +27,67 @@ interface PopularServicesConfig {
   service_ids: string[];
 }
 
-interface AdminConfigurablePopularServicesProps {
-  onServiceSelect: (service: PopularService) => void;
-}
-
-export const AdminConfigurablePopularServices: React.FC<AdminConfigurablePopularServicesProps> = ({ onServiceSelect }) => {
+export const PopularServices: React.FC = () => {
   const [services, setServices] = useState<PopularService[]>([]);
   const [config, setConfig] = useState<PopularServicesConfig | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPopularServicesConfig = async () => {
+    const fetchPopularServices = async () => {
       try {
-        // First, get the admin configuration
-        const { data: configData, error: configError } = await supabase
+        // Get admin configuration
+        const { data: configData } = await supabase
           .from('admin_settings')
           .select('value')
           .eq('key', 'popular_services')
           .single();
 
-        if (configError) {
-          console.log('No popular services config found, using defaults');
-          // Set default config if none exists
+        if (!configData?.value) {
           setConfig({
             title: 'Popular Services',
             subtitle: 'Most requested services in your area',
             show_section: true,
             service_ids: []
           });
-        } else {
-          const popularConfig = configData.value as unknown as PopularServicesConfig;
-          setConfig(popularConfig);
-          
-          // If admin has configured specific service IDs, fetch those services
-          if (popularConfig.service_ids && popularConfig.service_ids.length > 0) {
-            const { data: servicesData, error: servicesError } = await supabase
-              .from('provider_services')
-              .select(`
-                id,
-                service_name,
-                description,
-                price,
-                rating,
-                total_bookings,
-                duration_minutes,
-                image_url,
-                subcategories:subcategory_id (
-                  name
-                )
-              `)
-              .in('id', popularConfig.service_ids)
-              .eq('status', 'approved')
-              .eq('is_active', true);
-
-            if (servicesError) throw servicesError;
-            setServices(servicesData || []);
-          }
+          setLoading(false);
+          return;
         }
-        
-        // Add a small delay to ensure smooth transition
-        setTimeout(() => {
-          setIsVisible(true);
-        }, 100);
+
+        const popularConfig = configData.value as unknown as PopularServicesConfig;
+        setConfig(popularConfig);
+
+        if (popularConfig.service_ids?.length > 0) {
+          const { data: servicesData } = await supabase
+            .from('provider_services')
+            .select(`
+              id,
+              service_name,
+              description,
+              price,
+              rating,
+              total_bookings,
+              duration_minutes,
+              image_url,
+              subcategories:subcategory_id (
+                name
+              )
+            `)
+            .in('id', popularConfig.service_ids)
+            .eq('status', 'approved')
+            .eq('is_active', true)
+            .limit(6);
+
+          setServices(servicesData || []);
+        }
       } catch (error) {
         console.error('Error fetching popular services:', error);
-        // Still show content even if fetch fails
-        setTimeout(() => {
-          setIsVisible(true);
-        }, 100);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPopularServicesConfig();
+    fetchPopularServices();
   }, []);
 
   const formatPrice = (price: number) => {
@@ -124,45 +104,24 @@ export const AdminConfigurablePopularServices: React.FC<AdminConfigurablePopular
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
   };
 
-  // Don't render anything until content is ready
-  if (loading || !isVisible) {
-    return null;
-  }
-
-  // Don't render if admin has disabled the section
-  if (!config?.show_section) {
-    return null;
-  }
-
-  // Don't render if no services to show
-  if (services.length === 0) {
+  if (loading || !config?.show_section || services.length === 0) {
     return null;
   }
 
   return (
-    <div className={`mb-12 transition-all duration-700 ease-out transform ${
-      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-    }`}>
+    <div className="mb-12">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <Star className="h-6 w-6 text-orange-500 fill-orange-500" />
-          <h2 className="text-2xl font-bold">{config?.title || 'Popular Services'}</h2>
+          <h2 className="text-2xl font-bold">{config.title}</h2>
           <Badge variant="secondary" className="ml-2">
-            {config?.subtitle || 'Most requested services in your area'}
+            {config.subtitle}
           </Badge>
         </div>
         <Button 
           variant="outline" 
-          className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
-          onClick={() => {
-            console.log('Popular Services View All clicked - navigating to /all-popular-services');
-            try {
-              navigate('/all-popular-services');
-            } catch (error) {
-              console.error('Navigation failed, using fallback:', error);
-              window.location.href = '/all-popular-services';
-            }
-          }}
+          className="border-purple-600 text-purple-600 hover:bg-purple-50"
+          onClick={() => navigate('/all-popular-services')}
         >
           View All
           <ArrowRight className="ml-2 h-4 w-4" />
@@ -173,15 +132,9 @@ export const AdminConfigurablePopularServices: React.FC<AdminConfigurablePopular
         {services.map((service, index) => (
           <Card
             key={service.id}
-            className={`flex-shrink-0 w-80 group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 opacity-0 translate-x-4 animate-slide-in-left`}
-            style={{
-              animationDelay: `${index * 150}ms`,
-              animationFillMode: 'forwards'
-            }}
-            onClick={() => onServiceSelect(service)}
+            className="flex-shrink-0 w-80 group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
           >
             <CardContent className="p-0">
-              {/* Service Image/Video */}
               <div className="relative h-40 overflow-hidden rounded-t-lg">
                 {service.image_url ? (
                   <img
@@ -197,19 +150,16 @@ export const AdminConfigurablePopularServices: React.FC<AdminConfigurablePopular
                   </div>
                 )}
                 
-                {/* Trending Badge */}
                 <Badge className="absolute top-2 right-2 bg-orange-500 text-white">
                   <TrendingUp className="h-3 w-3 mr-1" />
-                  #{services.indexOf(service) + 1}
+                  #{index + 1}
                 </Badge>
                 
-                {/* Bookings Count */}
                 <Badge variant="secondary" className="absolute bottom-2 left-2">
                   {service.total_bookings} bookings
                 </Badge>
               </div>
 
-              {/* Service Info */}
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-lg line-clamp-1">

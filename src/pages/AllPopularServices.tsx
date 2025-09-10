@@ -32,30 +32,38 @@ const AllPopularServices: React.FC = () => {
   useEffect(() => {
     const fetchPopularServices = async () => {
       try {
-        const { data, error } = await supabase
-          .from('provider_services')
-          .select(`
-            id,
-            service_name,
-            description,
-            price,
-            rating,
-            total_bookings,
-            duration_minutes,
-            image_url,
-            video_url,
-            provider_id,
-            subcategories:subcategory_id (
-              name
-            )
-          `)
-          .eq('status', 'approved')
-          .eq('is_active', true)
-          .eq('is_popular', true)
-          .order('total_bookings', { ascending: false });
+        // Get admin configuration for popular services
+        const { data: configData } = await supabase
+          .from('admin_settings')
+          .select('value')
+          .eq('key', 'popular_services')
+          .single();
 
-        if (error) throw error;
-        setServices(data || []);
+        if (configData?.value && (configData.value as any)?.service_ids?.length > 0) {
+          const { data: servicesData, error } = await supabase
+            .from('provider_services')
+            .select(`
+              id,
+              service_name,
+              description,
+              price,
+              rating,
+              total_bookings,
+              duration_minutes,
+              image_url,
+              provider_id,
+              subcategories:subcategory_id (
+                name
+              )
+            `)
+            .in('id', (configData.value as any).service_ids)
+            .eq('status', 'approved')
+            .eq('is_active', true);
+
+          if (!error) {
+            setServices(servicesData || []);
+          }
+        }
       } catch (error) {
         console.error('Error fetching popular services:', error);
       } finally {
