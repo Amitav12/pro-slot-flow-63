@@ -3,8 +3,10 @@ import { Star, TrendingUp, Sparkles, ArrowRight, Heart, MapPin } from 'lucide-re
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
 const Recommendations = () => {
+  const navigate = useNavigate();
   const popularServices = [
     {
       id: 1,
@@ -119,8 +121,21 @@ const Recommendations = () => {
                 Most requested services in your area
               </p>
             </div>
-            <Button variant="outline" className="text-purple-600 border-purple-600 hover:bg-purple-50">
+            <Button 
+              variant="outline" 
+              className="text-purple-600 border-purple-600 hover:bg-purple-50"
+              onClick={() => {
+                console.log('Recommendations View All clicked - navigating to /all-popular-services');
+                try {
+                  navigate('/all-popular-services');
+                } catch (error) {
+                  console.error('Navigation failed, using fallback:', error);
+                  window.location.href = '/all-popular-services';
+                }
+              }}
+            >
               View All
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
 
