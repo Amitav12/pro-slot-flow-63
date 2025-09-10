@@ -65,12 +65,13 @@ export const PopularServicesManager: React.FC = () => {
       if (servicesError) throw servicesError;
       setAvailableServices(servicesData || []);
 
-      // Fetch currently selected services
-      if (config.service_ids.length > 0) {
+      // Fetch currently selected services after config is set
+      const currentConfig = configData?.value as unknown as PopularServicesConfig || config;
+      if (currentConfig.service_ids?.length > 0) {
         const { data: selectedData, error: selectedError } = await supabase
           .from('provider_services')
           .select('id, service_name, description, price')
-          .in('id', config.service_ids);
+          .in('id', currentConfig.service_ids);
 
         if (!selectedError) {
           setSelectedServices(selectedData || []);

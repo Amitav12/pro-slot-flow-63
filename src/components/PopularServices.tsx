@@ -104,7 +104,7 @@ export const PopularServices: React.FC = () => {
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
   };
 
-  if (loading || !config?.show_section || services.length === 0) {
+  if (loading || !config?.show_section) {
     return null;
   }
 
