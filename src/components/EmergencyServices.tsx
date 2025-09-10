@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Phone, Clock, Zap, AlertTriangle, Wrench, Droplets, Flame, Shield } from 'lucide-react';
+import { useAdminSettings } from '@/hooks/useAdminSettings';
 
 interface EmergencyService {
   id: number;
@@ -92,10 +93,10 @@ const EmergencyServices: React.FC = () => {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold mb-1">
-                    Emergency Services Available
+                    {(emergencySettings as any)?.title || 'Need immediate assistance?'}
                   </h2>
                   <p className="text-lg opacity-90">
-                    Need urgent help? We're here 24/7 for emergencies
+                    {(emergencySettings as any)?.subtitle || 'Our 24/7 emergency services are ready to help'}
                   </p>
                 </div>
               </div>

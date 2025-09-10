@@ -213,17 +213,6 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
           })}
         </div>
 
-        {/* View All Button */}
-        <div className="text-center">
-          <Button 
-            variant="outline" 
-            className="border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3 transition-all duration-300 ease-out transform hover:scale-105"
-            onClick={() => navigate('/services/all')}
-          >
-            Browse all services
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
       </div>
     </section>
   );
