@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, TrendingUp, Clock, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface MostBookedService {
   id: string;
@@ -33,6 +34,7 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
   const [services, setServices] = useState<MostBookedService[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMostBookedServices = async () => {
@@ -117,7 +119,7 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({ onServic
         </div>
         <Button 
           variant="outline" 
-          onClick={() => window.location.href = '/all-popular-services'}
+          onClick={() => navigate('/all-popular-services')}
           className="hover:bg-primary hover:text-white"
         >
           View All

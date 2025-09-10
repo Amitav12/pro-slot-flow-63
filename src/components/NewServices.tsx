@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Star, Clock, Sparkles, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { AddToCartButton } from '@/components/AddToCartButton';
+import { useNavigate } from 'react-router-dom';
 
 interface NewService {
   id: string;
@@ -31,6 +32,7 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
   const [services, setServices] = useState<NewService[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNewServices = async () => {
@@ -137,7 +139,7 @@ export const NewServices: React.FC<NewServicesProps> = ({ onServiceSelect }) => 
         </div>
         <Button 
           variant="outline" 
-          onClick={() => window.location.href = '/all-new-services'}
+          onClick={() => navigate('/all-new-services')}
           className="hover:bg-green-600 hover:text-white"
         >
           Explore New

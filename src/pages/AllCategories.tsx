@@ -52,10 +52,18 @@ const AllCategories: React.FC = () => {
 
         if (error) throw error;
         
-        // Add service count for each category (mock for now)
-        const categoriesWithCount = (data || []).map(category => ({
-          ...category,
-          service_count: Math.floor(Math.random() * 50) + 10
+        // Get actual service count for each category
+        const categoriesWithCount = await Promise.all((data || []).map(async (category) => {
+          const { count } = await supabase
+            .from('provider_services')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'approved')
+            .eq('is_active', true);
+          
+          return {
+            ...category,
+            service_count: count || 0
+          };
         }));
         
         setCategories(categoriesWithCount);

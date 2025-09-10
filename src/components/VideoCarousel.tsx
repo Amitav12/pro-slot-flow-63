@@ -110,8 +110,7 @@ export const VideoCarousel: React.FC = () => {
               {videoCategories.map((category) => (
                 <CarouselItem key={category.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                   <div 
-                    className="group relative overflow-hidden rounded-2xl cursor-pointer aspect-[3/4] bg-gradient-to-br from-primary/10 to-secondary/10"
-                    onClick={() => handleCategoryClick(category.category)}
+                    className="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gradient-to-br from-primary/10 to-secondary/10"
                   >
                     <img
                       src={category.videoThumbnail}
