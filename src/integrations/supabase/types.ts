@@ -74,141 +74,6 @@ export type Database = {
         }
         Relationships: []
       }
-      booking_slots: {
-        Row: {
-          blocked_by: string | null
-          blocked_until: string | null
-          booking_id: string | null
-          created_at: string | null
-          id: string
-          is_blocked: boolean | null
-          provider_id: string | null
-          service_id: string | null
-          slot_date: string
-          slot_time: string
-        }
-        Insert: {
-          blocked_by?: string | null
-          blocked_until?: string | null
-          booking_id?: string | null
-          created_at?: string | null
-          id?: string
-          is_blocked?: boolean | null
-          provider_id?: string | null
-          service_id?: string | null
-          slot_date: string
-          slot_time: string
-        }
-        Update: {
-          blocked_by?: string | null
-          blocked_until?: string | null
-          booking_id?: string | null
-          created_at?: string | null
-          id?: string
-          is_blocked?: boolean | null
-          provider_id?: string | null
-          service_id?: string | null
-          slot_date?: string
-          slot_time?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "booking_slots_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "booking_slots_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bookings: {
-        Row: {
-          booking_date: string
-          booking_time: string
-          created_at: string
-          customer_id: string | null
-          id: string
-          location: string | null
-          notes: string | null
-          payment_intent_id: string | null
-          payment_status: string | null
-          provider_id: string | null
-          provider_name: string | null
-          provider_phone: string | null
-          service_id: string | null
-          service_name: string | null
-          slot_reserved_until: string | null
-          special_instructions: string | null
-          status: string | null
-          total_amount: number
-          updated_at: string
-        }
-        Insert: {
-          booking_date: string
-          booking_time: string
-          created_at?: string
-          customer_id?: string | null
-          id?: string
-          location?: string | null
-          notes?: string | null
-          payment_intent_id?: string | null
-          payment_status?: string | null
-          provider_id?: string | null
-          provider_name?: string | null
-          provider_phone?: string | null
-          service_id?: string | null
-          service_name?: string | null
-          slot_reserved_until?: string | null
-          special_instructions?: string | null
-          status?: string | null
-          total_amount: number
-          updated_at?: string
-        }
-        Update: {
-          booking_date?: string
-          booking_time?: string
-          created_at?: string
-          customer_id?: string | null
-          id?: string
-          location?: string | null
-          notes?: string | null
-          payment_intent_id?: string | null
-          payment_status?: string | null
-          provider_id?: string | null
-          provider_name?: string | null
-          provider_phone?: string | null
-          service_id?: string | null
-          service_name?: string | null
-          slot_reserved_until?: string | null
-          special_instructions?: string | null
-          status?: string | null
-          total_amount?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bookings_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "service_providers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookings_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       cart_items: {
         Row: {
           created_at: string
@@ -326,35 +191,6 @@ export type Database = {
         }
         Relationships: []
       }
-      favorites: {
-        Row: {
-          created_at: string
-          id: string
-          provider_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          provider_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          provider_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "favorites_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "service_providers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       guest_cart_items: {
         Row: {
           created_at: string
@@ -439,39 +275,6 @@ export type Database = {
           postal_code?: string
           state?: string
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      notifications: {
-        Row: {
-          created_at: string | null
-          data: Json | null
-          id: string
-          message: string
-          read: boolean | null
-          title: string
-          type: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          data?: Json | null
-          id?: string
-          message: string
-          read?: boolean | null
-          title: string
-          type: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          data?: Json | null
-          id?: string
-          message?: string
-          read?: boolean | null
-          title?: string
-          type?: string
-          user_id?: string | null
         }
         Relationships: []
       }
@@ -883,48 +686,6 @@ export type Database = {
         }
         Relationships: []
       }
-      services: {
-        Row: {
-          created_at: string
-          description: string | null
-          display_order: number | null
-          duration_minutes: number | null
-          id: string
-          is_active: boolean | null
-          is_popular: boolean | null
-          name: string
-          price: number
-          subcategory_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          display_order?: number | null
-          duration_minutes?: number | null
-          id?: string
-          is_active?: boolean | null
-          is_popular?: boolean | null
-          name: string
-          price: number
-          subcategory_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          display_order?: number | null
-          duration_minutes?: number | null
-          id?: string
-          is_active?: boolean | null
-          is_popular?: boolean | null
-          name?: string
-          price?: number
-          subcategory_id?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       subcategories: {
         Row: {
           category_id: string
@@ -984,11 +745,13 @@ export type Database = {
           date_of_birth: string | null
           emergency_offline: boolean | null
           full_name: string | null
+          home_address: string | null
           id: string
           id_document_url: string | null
           is_blocked: boolean | null
           license_document_url: string | null
           license_number: string | null
+          nearby_address: string | null
           onboarding_completed: boolean | null
           phone: string | null
           postal_code: string | null
@@ -999,6 +762,7 @@ export type Database = {
           street_address: string | null
           updated_at: string | null
           user_id: string
+          zip_code: string | null
         }
         Insert: {
           address?: string | null
@@ -1011,11 +775,13 @@ export type Database = {
           date_of_birth?: string | null
           emergency_offline?: boolean | null
           full_name?: string | null
+          home_address?: string | null
           id?: string
           id_document_url?: string | null
           is_blocked?: boolean | null
           license_document_url?: string | null
           license_number?: string | null
+          nearby_address?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
           postal_code?: string | null
@@ -1026,6 +792,7 @@ export type Database = {
           street_address?: string | null
           updated_at?: string | null
           user_id: string
+          zip_code?: string | null
         }
         Update: {
           address?: string | null
@@ -1038,11 +805,13 @@ export type Database = {
           date_of_birth?: string | null
           emergency_offline?: boolean | null
           full_name?: string | null
+          home_address?: string | null
           id?: string
           id_document_url?: string | null
           is_blocked?: boolean | null
           license_document_url?: string | null
           license_number?: string | null
+          nearby_address?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
           postal_code?: string | null
@@ -1053,6 +822,7 @@ export type Database = {
           street_address?: string | null
           updated_at?: string | null
           user_id?: string
+          zip_code?: string | null
         }
         Relationships: []
       }

@@ -35,7 +35,7 @@ export const ServiceManager = () => {
     queryKey: ['admin-services'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('services')
+        .from('provider_services')
         .select(`
           *,
           subcategories (
@@ -67,7 +67,7 @@ export const ServiceManager = () => {
   const createServiceMutation = useMutation({
     mutationFn: async (service: Omit<Service, 'id'>) => {
       const { data, error } = await supabase
-        .from('services')
+        .from('provider_services')
         .insert([service as any])
         .select()
         .single();
@@ -93,7 +93,7 @@ export const ServiceManager = () => {
     mutationFn: async (service: Service) => {
       const { subcategories, ...serviceData } = service;
       const { data, error } = await (supabase as any)
-        .from('services')
+        .from('provider_services')
         .update(serviceData as any)
         .eq('id' as any, service.id as any)
         .select()
@@ -119,7 +119,7 @@ export const ServiceManager = () => {
   const deleteServiceMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await (supabase as any)
-        .from('services')
+        .from('provider_services')
         .delete()
         .eq('id' as any, id as any);
       

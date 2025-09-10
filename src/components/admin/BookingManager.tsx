@@ -24,7 +24,7 @@ export const BookingManager = () => {
     queryKey: ['admin-bookings'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('bookings')
+        .from('orders')
         .select(`
           *,
           services (name),

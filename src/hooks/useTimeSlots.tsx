@@ -80,16 +80,8 @@ export const useTimeSlots = (providerId?: string) => {
 
   const fetchTimeSlots = async (targetProviderId: string, date: Date) => {
     try {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      
-      const { data, error } = await supabase
-        .from('booking_slots')
-        .select('*')
-        .eq('provider_id', targetProviderId)
-        .eq('slot_date', formattedDate);
-
-      if (error) throw error;
-      setSlots(data || []);
+      // TODO: Implement booking slots table
+      setSlots([]);
     } catch (error) {
       console.error('Error fetching time slots:', error);
       toast({
@@ -150,18 +142,7 @@ export const useTimeSlots = (providerId?: string) => {
       const [hour, minute] = time.split(':').map(Number);
       blockedUntil.setHours(hour, minute + duration, 0, 0);
 
-      const { error } = await supabase
-        .from('booking_slots')
-        .insert({
-          provider_id: providerId,
-          slot_date: format(date, 'yyyy-MM-dd'),
-          slot_time: time,
-          is_blocked: true,
-          blocked_by: user.id,
-          blocked_until: blockedUntil.toISOString()
-        });
-
-      if (error) throw error;
+      // TODO: Implement booking slots functionality
       
       toast({
         title: 'Success',

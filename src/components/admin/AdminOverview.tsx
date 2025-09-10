@@ -17,7 +17,7 @@ export const AdminOverview = () => {
       ] = await Promise.all([
         supabase.from('user_profiles').select('*', { count: 'exact', head: true }),
         supabase.from('service_providers').select('*', { count: 'exact', head: true }),
-        supabase.from('bookings').select('*', { count: 'exact', head: true }),
+        supabase.from('orders').select('*', { count: 'exact', head: true }),
         supabase.from('service_providers').select('*', { count: 'exact', head: true }).eq('status', 'pending' as any)
       ]);
 
@@ -34,7 +34,7 @@ export const AdminOverview = () => {
     queryKey: ['recent-bookings'],
     queryFn: async () => {
       const { data } = await supabase
-        .from('bookings')
+        .from('orders')
         .select(`
           id,
           booking_date,
@@ -113,7 +113,7 @@ export const AdminOverview = () => {
           .order('created_at', { ascending: false })
           .limit(5),
         supabase
-          .from('bookings')
+          .from('orders')
           .select('total_amount, created_at')
           .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
       ]);
