@@ -382,41 +382,52 @@ export const CustomerBookings: React.FC = () => {
                           Reschedule
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Reschedule Booking</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Select New Date</Label>
-                            <Calendar
-                              mode="single"
-                              selected={selectedDate}
-                              onSelect={setSelectedDate}
-                              disabled={(date) => !isAfter(date, canRebookFromDate(booking))}
-                              className="rounded-md border"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="time">Select Time</Label>
-                            <Input
-                              id="time"
-                              type="time"
-                              value={selectedTime}
-                              onChange={(e) => setSelectedTime(e.target.value)}
-                            />
-                          </div>
-                          <div className="flex justify-end space-x-2">
-                            <Button variant="outline" onClick={() => setIsRebookOpen(false)}>
-                              Cancel
-                            </Button>
-                            <Button onClick={handleRebook} disabled={loading}>
-                              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                              Confirm Reschedule
-                            </Button>
-                          </div>
+                    <DialogContent className="max-w-md bg-gradient-to-br from-blue-50 to-purple-50 border-0 shadow-2xl">
+                      <DialogHeader className="text-center pb-4">
+                        <DialogTitle className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          Reschedule Booking
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-6 animate-fade-in">
+                        <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
+                          <Label className="text-sm font-medium text-gray-700 mb-3 block">Select New Date</Label>
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={setSelectedDate}
+                            disabled={(date) => !isAfter(date, canRebookFromDate(booking))}
+                            className="rounded-lg border-0 bg-white/80 backdrop-blur-sm shadow-sm pointer-events-auto"
+                          />
                         </div>
-                      </DialogContent>
+                        <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
+                          <Label htmlFor="time" className="text-sm font-medium text-gray-700 mb-3 block">Select Time</Label>
+                          <Input
+                            id="time"
+                            type="time"
+                            value={selectedTime}
+                            onChange={(e) => setSelectedTime(e.target.value)}
+                            className="bg-white/80 border-blue-200 focus:border-purple-300 focus:ring-purple-200"
+                          />
+                        </div>
+                        <div className="flex justify-end space-x-3 pt-4">
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setIsRebookOpen(false)}
+                            className="border-gray-300 hover:bg-gray-50 transition-all duration-200"
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            onClick={handleRebook} 
+                            disabled={loading}
+                            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+                          >
+                            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            Confirm Reschedule
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
                     </Dialog>
                   )}
 
