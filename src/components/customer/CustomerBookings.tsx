@@ -280,45 +280,47 @@ export const CustomerBookings: React.FC = () => {
                         View Details
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle>Booking Details</DialogTitle>
+                    <DialogContent className="max-w-2xl bg-gradient-to-br from-slate-50 to-blue-50 border-0 shadow-2xl">
+                      <DialogHeader className="text-center pb-6">
+                        <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          Booking Details
+                        </DialogTitle>
                       </DialogHeader>
                      {selectedBooking && (
                         <div className="space-y-6 animate-fade-in">
-                          <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
+                          <div className="grid grid-cols-2 gap-4 p-6 rounded-xl bg-gradient-to-r from-blue-100 to-purple-100 border border-blue-300 shadow-lg">
                             <div>
-                              <h4 className="font-semibold text-gray-800">Date & Time</h4>
-                              <p className="text-gray-700">{selectedBooking.booking_date} at {selectedBooking.booking_time}</p>
+                              <h4 className="font-medium text-slate-800">Date & Time</h4>
+                              <p className="text-slate-700 text-lg">{selectedBooking.booking_date} at {selectedBooking.booking_time}</p>
                             </div>
                             <div>
-                              <h4 className="font-semibold text-gray-800">Total Amount</h4>
-                              <p className="text-lg font-bold text-green-600">${selectedBooking.total_amount}</p>
+                              <h4 className="font-medium text-slate-800">Total Amount</h4>
+                              <p className="text-2xl font-bold text-emerald-600">${selectedBooking.total_amount}</p>
                             </div>
                           </div>
                           
                           <div>
-                            <h4 className="font-semibold mb-3 text-gray-800">Services Booked</h4>
-                            <div className="space-y-3">
+                            <h4 className="font-semibold mb-4 text-slate-800 text-lg">Services Booked</h4>
+                            <div className="space-y-4">
                               {selectedBooking.cart_items && selectedBooking.cart_items.length > 0 ? (
                                 selectedBooking.cart_items.map((item: any, index: number) => (
-                                  <div key={index} className="rounded-lg p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 hover-scale transition-all duration-300">
-                                    <div className="flex justify-between items-start mb-3">
+                                  <div key={index} className="rounded-xl p-6 bg-gradient-to-r from-emerald-100 to-blue-100 border border-emerald-300 hover-scale transition-all duration-300 shadow-md">
+                                    <div className="flex justify-between items-start mb-4">
                                       <div>
-                                        <p className="font-medium text-lg text-gray-800">{item.service_name || selectedBooking.service_name}</p>
-                                        <p className="text-gray-600">Provider: {item.provider_name || selectedBooking.provider_name}</p>
-                                        <p className="text-sm text-gray-600">Quantity: {item.quantity || 1}</p>
+                                        <p className="font-semibold text-xl text-slate-800">{item.service_name || selectedBooking.service_name}</p>
+                                        <p className="text-slate-600 text-lg">Provider: {item.provider_name || selectedBooking.provider_name}</p>
+                                        <p className="text-slate-600">Quantity: {item.quantity || 1}</p>
                                       </div>
-                                      <p className="font-bold text-lg text-green-600">${item.price || selectedBooking.total_amount}</p>
+                                      <p className="font-bold text-2xl text-emerald-600">${item.price || selectedBooking.total_amount}</p>
                                     </div>
                                     
                                     {/* Individual service actions */}
                                     {canCancelOrRebook(selectedBooking) && (
-                                      <div className="flex justify-end space-x-2 pt-3 border-t border-gray-200">
+                                      <div className="flex justify-end space-x-3 pt-4 border-t border-slate-300">
                                         <Button 
                                           variant="outline" 
                                           size="sm"
-                                          className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
+                                          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-none hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
                                           onClick={() => {
                                             setSelectedBooking(selectedBooking);
                                             setIsDetailsOpen(false);
@@ -331,7 +333,7 @@ export const CustomerBookings: React.FC = () => {
                                         <Button 
                                           variant="outline" 
                                           size="sm" 
-                                          className="bg-gradient-to-r from-red-500 to-pink-500 text-white border-none hover:from-red-600 hover:to-pink-600 transition-all duration-300"
+                                          className="bg-gradient-to-r from-red-600 to-pink-600 text-white border-none hover:from-red-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
                                           onClick={() => {
                                             handleCancelBooking(selectedBooking.id);
                                             setIsDetailsOpen(false);
@@ -345,13 +347,13 @@ export const CustomerBookings: React.FC = () => {
                                   </div>
                                 ))
                               ) : (
-                                <div className="rounded-lg p-4 bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200">
+                                <div className="rounded-xl p-6 bg-gradient-to-r from-slate-100 to-blue-100 border border-slate-300 shadow-md">
                                   <div className="flex justify-between items-start">
                                     <div>
-                                      <p className="font-medium text-lg text-gray-800">{selectedBooking.service_name}</p>
-                                      <p className="text-gray-600">Provider: {selectedBooking.provider_name}</p>
+                                      <p className="font-semibold text-xl text-slate-800">{selectedBooking.service_name}</p>
+                                      <p className="text-slate-600 text-lg">Provider: {selectedBooking.provider_name}</p>
                                     </div>
-                                    <p className="font-bold text-lg text-green-600">${selectedBooking.total_amount}</p>
+                                    <p className="font-bold text-2xl text-emerald-600">${selectedBooking.total_amount}</p>
                                   </div>
                                 </div>
                               )}
@@ -359,9 +361,9 @@ export const CustomerBookings: React.FC = () => {
                           </div>
                           
                           {selectedBooking.special_instructions && (
-                            <div className="p-4 rounded-lg bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200">
-                              <h4 className="font-semibold text-gray-800">Special Instructions</h4>
-                              <p className="text-gray-700 mt-1">{selectedBooking.special_instructions}</p>
+                            <div className="p-6 rounded-xl bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-300 shadow-md">
+                              <h4 className="font-semibold text-slate-800 text-lg">Special Instructions</h4>
+                              <p className="text-slate-700 mt-2 text-base">{selectedBooking.special_instructions}</p>
                             </div>
                           )}
                         </div>
@@ -382,31 +384,31 @@ export const CustomerBookings: React.FC = () => {
                           Reschedule
                         </Button>
                       </DialogTrigger>
-                    <DialogContent className="max-w-md bg-gradient-to-br from-blue-50 to-purple-50 border-0 shadow-2xl">
-                      <DialogHeader className="text-center pb-4">
-                        <DialogTitle className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    <DialogContent className="max-w-md bg-gradient-to-br from-slate-50 to-blue-100 border-0 shadow-2xl">
+                      <DialogHeader className="text-center pb-6">
+                        <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                           Reschedule Booking
                         </DialogTitle>
                       </DialogHeader>
                       <div className="space-y-6 animate-fade-in">
-                        <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
-                          <Label className="text-sm font-medium text-gray-700 mb-3 block">Select New Date</Label>
+                        <div className="bg-white rounded-xl p-6 border border-blue-200 shadow-lg">
+                          <Label className="text-base font-semibold text-slate-700 mb-4 block">Select New Date</Label>
                           <Calendar
                             mode="single"
                             selected={selectedDate}
                             onSelect={setSelectedDate}
                             disabled={(date) => !isAfter(date, canRebookFromDate(booking))}
-                            className="rounded-lg border-0 bg-white/80 backdrop-blur-sm shadow-sm pointer-events-auto"
+                            className="rounded-lg border-2 border-blue-200 bg-white shadow-md pointer-events-auto w-full"
                           />
                         </div>
-                        <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
-                          <Label htmlFor="time" className="text-sm font-medium text-gray-700 mb-3 block">Select Time</Label>
+                        <div className="bg-white rounded-xl p-6 border border-blue-200 shadow-lg">
+                          <Label htmlFor="time" className="text-base font-semibold text-slate-700 mb-4 block">Select Time</Label>
                           <Input
                             id="time"
                             type="time"
                             value={selectedTime}
                             onChange={(e) => setSelectedTime(e.target.value)}
-                            className="bg-white/80 border-blue-200 focus:border-purple-300 focus:ring-purple-200"
+                            className="bg-white border-2 border-blue-200 focus:border-purple-400 focus:ring-purple-200 text-lg p-3"
                           />
                         </div>
                         <div className="flex justify-end space-x-3 pt-4">
