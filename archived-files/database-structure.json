@@ -1,0 +1,509 @@
+{
+  "tables": {
+    "categories": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "nullable": false,
+          "sample": "9660afd0-25fa-4940-a739-584c93949b12"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "nullable": false,
+          "sample": "Home Services"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "nullable": false,
+          "sample": "Professional home maintenance and repair services"
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "nullable": false,
+          "sample": "home"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "nullable": false,
+          "sample": true
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "nullable": false,
+          "sample": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "nullable": false,
+          "sample": "2025-09-02T09:40:15.914055+00:00"
+        }
+      ],
+      "hasData": true,
+      "recordCount": 6,
+      "sampleData": [
+        {
+          "id": "9660afd0-25fa-4940-a739-584c93949b12",
+          "name": "Home Services",
+          "description": "Professional home maintenance and repair services",
+          "icon": "home",
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "9279e654-b11f-4721-8983-48b704888deb",
+          "name": "Health & Wellness",
+          "description": "Healthcare and wellness services",
+          "icon": "heart",
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "1f3ba345-1eeb-4f95-b4d5-41a2e787f266",
+          "name": "Beauty & Personal Care",
+          "description": "Beauty treatments and personal care services",
+          "icon": "sparkles",
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "bbe84cda-3115-413e-85a4-43ea8580ddc9",
+          "name": "Automotive",
+          "description": "Vehicle maintenance and repair services",
+          "icon": "car",
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "62ee37e3-4701-4d17-bad1-b5a80c660412",
+          "name": "Technology",
+          "description": "IT support and technology services",
+          "icon": "laptop",
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "25c5d573-bca2-45ec-984e-b0cd8c065900",
+          "name": "Sports",
+          "description": "All Types of Sports ",
+          "icon": "",
+          "is_active": true,
+          "created_at": "2025-09-03T05:29:32.087061+00:00",
+          "updated_at": "2025-09-03T05:29:32.087061+00:00"
+        }
+      ],
+      "relationships": []
+    },
+    "subcategories": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "nullable": false,
+          "sample": "b35a6741-18f0-4355-b8b7-47f742f8b314"
+        },
+        {
+          "name": "category_id",
+          "type": "string",
+          "nullable": false,
+          "sample": "9660afd0-25fa-4940-a739-584c93949b12"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "nullable": false,
+          "sample": "Plumbing"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "nullable": false,
+          "sample": "Professional plumbing services"
+        },
+        {
+          "name": "min_price",
+          "type": "number",
+          "nullable": false,
+          "sample": 50
+        },
+        {
+          "name": "max_price",
+          "type": "number",
+          "nullable": false,
+          "sample": 500
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "nullable": false,
+          "sample": true
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "nullable": false,
+          "sample": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "nullable": false,
+          "sample": "2025-09-02T09:40:15.914055+00:00"
+        }
+      ],
+      "hasData": true,
+      "recordCount": 10,
+      "sampleData": [
+        {
+          "id": "b35a6741-18f0-4355-b8b7-47f742f8b314",
+          "category_id": "9660afd0-25fa-4940-a739-584c93949b12",
+          "name": "Plumbing",
+          "description": "Professional plumbing services",
+          "min_price": 50,
+          "max_price": 500,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "ac15fc6d-0aef-4540-891f-9cc2683cc884",
+          "category_id": "9660afd0-25fa-4940-a739-584c93949b12",
+          "name": "Electrical",
+          "description": "Electrical installation and repair",
+          "min_price": 75,
+          "max_price": 800,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "c9cf2852-8f96-48e9-a8b8-66edad61ab9d",
+          "category_id": "9660afd0-25fa-4940-a739-584c93949b12",
+          "name": "Cleaning",
+          "description": "House cleaning services",
+          "min_price": 30,
+          "max_price": 200,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "5268b79b-b160-41a7-8386-1f4aefb46ce3",
+          "category_id": "9660afd0-25fa-4940-a739-584c93949b12",
+          "name": "HVAC",
+          "description": "Heating, ventilation, and air conditioning",
+          "min_price": 100,
+          "max_price": 1000,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "fbab0daa-1c54-46f1-bccf-6c75c38429de",
+          "category_id": "9279e654-b11f-4721-8983-48b704888deb",
+          "name": "General Consultation",
+          "description": "General medical consultation",
+          "min_price": 25,
+          "max_price": 150,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "48e45857-1eb0-42ba-ab9a-7791a78302af",
+          "category_id": "9279e654-b11f-4721-8983-48b704888deb",
+          "name": "Physiotherapy",
+          "description": "Physical therapy services",
+          "min_price": 40,
+          "max_price": 200,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "2a0c78c9-0b3f-4ebd-9f0e-f60271d65141",
+          "category_id": "9279e654-b11f-4721-8983-48b704888deb",
+          "name": "Mental Health",
+          "description": "Counseling and therapy services",
+          "min_price": 50,
+          "max_price": 300,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "3a0c2130-4778-406e-b384-a77ce44582f8",
+          "category_id": "9279e654-b11f-4721-8983-48b704888deb",
+          "name": "Nutrition",
+          "description": "Dietary consultation and planning",
+          "min_price": 30,
+          "max_price": 120,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "fe4eb027-7d26-48bb-a5cd-1c7aa0539574",
+          "category_id": "bbe84cda-3115-413e-85a4-43ea8580ddc9",
+          "name": "Car Wash",
+          "description": "Professional car washing services",
+          "min_price": 15,
+          "max_price": 50,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "13469128-f9f7-4b0b-bac6-0b6a5da768e9",
+          "category_id": "bbe84cda-3115-413e-85a4-43ea8580ddc9",
+          "name": "Repair & Maintenance",
+          "description": "Vehicle repair and maintenance",
+          "min_price": 50,
+          "max_price": 1000,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        }
+      ],
+      "relationships": [
+        {
+          "column": "category_id",
+          "possibleTable": "categorys",
+          "type": "foreign_key"
+        }
+      ]
+    },
+    "locations": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "id",
+          "type": "string",
+          "nullable": false,
+          "sample": "d0f5e461-beb4-4368-bab5-5002c17b11cd"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "nullable": false,
+          "sample": "Downtown Service Center"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "nullable": false,
+          "sample": "123 Main St"
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "nullable": false,
+          "sample": "New York"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "nullable": false,
+          "sample": "NY"
+        },
+        {
+          "name": "postal_code",
+          "type": "string",
+          "nullable": false,
+          "sample": "10001"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "nullable": false,
+          "sample": "United States"
+        },
+        {
+          "name": "latitude",
+          "type": "number",
+          "nullable": false,
+          "sample": 40.7128
+        },
+        {
+          "name": "longitude",
+          "type": "number",
+          "nullable": false,
+          "sample": -74.006
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "nullable": false,
+          "sample": true
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "nullable": false,
+          "sample": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "nullable": false,
+          "sample": "2025-09-02T09:40:15.914055+00:00"
+        }
+      ],
+      "hasData": true,
+      "recordCount": 4,
+      "sampleData": [
+        {
+          "id": "d0f5e461-beb4-4368-bab5-5002c17b11cd",
+          "name": "Downtown Service Center",
+          "address": "123 Main St",
+          "city": "New York",
+          "state": "NY",
+          "postal_code": "10001",
+          "country": "United States",
+          "latitude": 40.7128,
+          "longitude": -74.006,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "a7bff8eb-9556-497e-bfa6-01087ce00ccb",
+          "name": "Westside Branch",
+          "address": "456 Oak Ave",
+          "city": "Los Angeles",
+          "state": "CA",
+          "postal_code": "90210",
+          "country": "United States",
+          "latitude": 34.0522,
+          "longitude": -118.2437,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "9ae330e3-628a-451b-9648-e169e35b99f5",
+          "name": "North Plaza",
+          "address": "789 Pine Rd",
+          "city": "Chicago",
+          "state": "IL",
+          "postal_code": "60601",
+          "country": "United States",
+          "latitude": 41.8781,
+          "longitude": -87.6298,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "3d0e6568-656e-40d8-8b57-cf35f1ccb9ed",
+          "name": "South Bay Center",
+          "address": "321 Elm St",
+          "city": "Miami",
+          "state": "FL",
+          "postal_code": "33101",
+          "country": "United States",
+          "latitude": 25.7617,
+          "longitude": -80.1918,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        }
+      ],
+      "relationships": []
+    },
+    "user_profiles": {
+      "exists": true,
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "unknown",
+          "nullable": true
+        }
+      ],
+      "hasData": false,
+      "recordCount": 0,
+      "sampleData": [],
+      "relationships": []
+    },
+    "provider_services": {
+      "exists": true,
+      "columns": [],
+      "hasData": false,
+      "recordCount": 0,
+      "sampleData": [],
+      "relationships": []
+    },
+    "bookings": {
+      "exists": true,
+      "columns": [],
+      "hasData": false,
+      "recordCount": 0,
+      "sampleData": [],
+      "relationships": []
+    },
+    "reviews": {
+      "exists": true,
+      "columns": [],
+      "hasData": false,
+      "recordCount": 0,
+      "sampleData": [],
+      "relationships": [],
+      "error": "Could not find the table 'public.reviews' in the schema cache"
+    },
+    "payments": {
+      "exists": true,
+      "columns": [],
+      "hasData": false,
+      "recordCount": 0,
+      "sampleData": [],
+      "relationships": [],
+      "error": "Could not find the table 'public.payments' in the schema cache"
+    },
+    "notifications": {
+      "exists": true,
+      "columns": [],
+      "hasData": false,
+      "recordCount": 0,
+      "sampleData": [],
+      "relationships": []
+    },
+    "service_requests": {
+      "exists": true,
+      "columns": [],
+      "hasData": false,
+      "recordCount": 0,
+      "sampleData": [],
+      "relationships": [],
+      "error": "Could not find the table 'public.service_requests' in the schema cache"
+    },
+    "availability_slots": {
+      "exists": true,
+      "columns": [],
+      "hasData": false,
+      "recordCount": 0,
+      "sampleData": [],
+      "relationships": [],
+      "error": "Could not find the table 'public.availability_slots' in the schema cache"
+    }
+  },
+  "relationships": {},
+  "summary": {
+    "totalTables": 11,
+    "tablesWithData": 3,
+    "totalRecords": 20,
+    "inspectionDate": "2025-09-03T06:00:19.680Z"
+  }
+}

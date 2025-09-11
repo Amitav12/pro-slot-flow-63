@@ -1,0 +1,328 @@
+{
+  "discoveredAt": "2025-09-03T12:05:21.689Z",
+  "totalTables": 8,
+  "expectedTables": 13,
+  "tables": [
+    "categories",
+    "subcategories",
+    "locations",
+    "user_profiles",
+    "provider_services",
+    "bookings",
+    "notifications",
+    "services"
+  ],
+  "tableDetails": {
+    "categories": {
+      "columns": [
+        "id",
+        "name",
+        "description",
+        "icon",
+        "is_active",
+        "created_at",
+        "updated_at"
+      ],
+      "sampleData": [
+        {
+          "id": "9660afd0-25fa-4940-a739-584c93949b12",
+          "name": "Home Services",
+          "description": "Professional home maintenance and repair services",
+          "icon": "home",
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "9279e654-b11f-4721-8983-48b704888deb",
+          "name": "Health & Wellness",
+          "description": "Healthcare and wellness services",
+          "icon": "heart",
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "1f3ba345-1eeb-4f95-b4d5-41a2e787f266",
+          "name": "Beauty & Personal Care",
+          "description": "Beauty treatments and personal care services",
+          "icon": "sparkles",
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        }
+      ],
+      "recordCount": 3
+    },
+    "subcategories": {
+      "columns": [
+        "id",
+        "category_id",
+        "name",
+        "description",
+        "min_price",
+        "max_price",
+        "is_active",
+        "created_at",
+        "updated_at"
+      ],
+      "sampleData": [
+        {
+          "id": "b35a6741-18f0-4355-b8b7-47f742f8b314",
+          "category_id": "9660afd0-25fa-4940-a739-584c93949b12",
+          "name": "Plumbing",
+          "description": "Professional plumbing services",
+          "min_price": 50,
+          "max_price": 500,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "ac15fc6d-0aef-4540-891f-9cc2683cc884",
+          "category_id": "9660afd0-25fa-4940-a739-584c93949b12",
+          "name": "Electrical",
+          "description": "Electrical installation and repair",
+          "min_price": 75,
+          "max_price": 800,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "c9cf2852-8f96-48e9-a8b8-66edad61ab9d",
+          "category_id": "9660afd0-25fa-4940-a739-584c93949b12",
+          "name": "Cleaning",
+          "description": "House cleaning services",
+          "min_price": 30,
+          "max_price": 200,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        }
+      ],
+      "recordCount": 3
+    },
+    "locations": {
+      "columns": [
+        "id",
+        "name",
+        "address",
+        "city",
+        "state",
+        "postal_code",
+        "country",
+        "latitude",
+        "longitude",
+        "is_active",
+        "created_at",
+        "updated_at"
+      ],
+      "sampleData": [
+        {
+          "id": "d0f5e461-beb4-4368-bab5-5002c17b11cd",
+          "name": "Downtown Service Center",
+          "address": "123 Main St",
+          "city": "New York",
+          "state": "NY",
+          "postal_code": "10001",
+          "country": "United States",
+          "latitude": 40.7128,
+          "longitude": -74.006,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "a7bff8eb-9556-497e-bfa6-01087ce00ccb",
+          "name": "Westside Branch",
+          "address": "456 Oak Ave",
+          "city": "Los Angeles",
+          "state": "CA",
+          "postal_code": "90210",
+          "country": "United States",
+          "latitude": 34.0522,
+          "longitude": -118.2437,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        },
+        {
+          "id": "9ae330e3-628a-451b-9648-e169e35b99f5",
+          "name": "North Plaza",
+          "address": "789 Pine Rd",
+          "city": "Chicago",
+          "state": "IL",
+          "postal_code": "60601",
+          "country": "United States",
+          "latitude": 41.8781,
+          "longitude": -87.6298,
+          "is_active": true,
+          "created_at": "2025-09-02T09:40:15.914055+00:00",
+          "updated_at": "2025-09-02T09:40:15.914055+00:00"
+        }
+      ],
+      "recordCount": 3
+    },
+    "user_profiles": {
+      "columns": [
+        "id",
+        "user_id",
+        "full_name",
+        "role",
+        "phone",
+        "address",
+        "business_name",
+        "contact_person",
+        "license_number",
+        "registration_status",
+        "license_document_url",
+        "id_document_url",
+        "onboarding_completed",
+        "emergency_offline",
+        "is_blocked",
+        "created_at",
+        "updated_at",
+        "auth_role",
+        "city",
+        "date_of_birth",
+        "preferences"
+      ],
+      "sampleData": [
+        {
+          "id": "ce8f61a0-c276-4352-8908-6fb5248229b0",
+          "user_id": "4e06ca5f-a4e4-4f2e-91d8-3716803a44e3",
+          "full_name": "Amit Sukla",
+          "role": "customer",
+          "phone": "3213131313331",
+          "address": null,
+          "business_name": null,
+          "contact_person": null,
+          "license_number": null,
+          "registration_status": "pending",
+          "license_document_url": null,
+          "id_document_url": null,
+          "onboarding_completed": false,
+          "emergency_offline": false,
+          "is_blocked": false,
+          "created_at": "2025-09-03T10:03:50.789609+00:00",
+          "updated_at": "2025-09-03T10:03:50.789609+00:00",
+          "auth_role": "customer",
+          "city": null,
+          "date_of_birth": null,
+          "preferences": {}
+        }
+      ],
+      "recordCount": 1
+    },
+    "provider_services": {
+      "empty": true
+    },
+    "bookings": {
+      "empty": true
+    },
+    "notifications": {
+      "empty": true
+    },
+    "services": {
+      "empty": true
+    }
+  },
+  "summary": {
+    "categories": {
+      "exists": true,
+      "hasData": true,
+      "recordCount": 1,
+      "firstRecord": {
+        "id": "9660afd0-25fa-4940-a739-584c93949b12",
+        "name": "Home Services",
+        "description": "Professional home maintenance and repair services",
+        "icon": "home",
+        "is_active": true,
+        "created_at": "2025-09-02T09:40:15.914055+00:00",
+        "updated_at": "2025-09-02T09:40:15.914055+00:00"
+      }
+    },
+    "subcategories": {
+      "exists": true,
+      "hasData": true,
+      "recordCount": 1,
+      "firstRecord": {
+        "id": "b35a6741-18f0-4355-b8b7-47f742f8b314",
+        "category_id": "9660afd0-25fa-4940-a739-584c93949b12",
+        "name": "Plumbing",
+        "description": "Professional plumbing services",
+        "min_price": 50,
+        "max_price": 500,
+        "is_active": true,
+        "created_at": "2025-09-02T09:40:15.914055+00:00",
+        "updated_at": "2025-09-02T09:40:15.914055+00:00"
+      }
+    },
+    "locations": {
+      "exists": true,
+      "hasData": true,
+      "recordCount": 1,
+      "firstRecord": {
+        "id": "d0f5e461-beb4-4368-bab5-5002c17b11cd",
+        "name": "Downtown Service Center",
+        "address": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "postal_code": "10001",
+        "country": "United States",
+        "latitude": 40.7128,
+        "longitude": -74.006,
+        "is_active": true,
+        "created_at": "2025-09-02T09:40:15.914055+00:00",
+        "updated_at": "2025-09-02T09:40:15.914055+00:00"
+      }
+    },
+    "user_profiles": {
+      "exists": true,
+      "hasData": true,
+      "recordCount": 1,
+      "firstRecord": {
+        "id": "ce8f61a0-c276-4352-8908-6fb5248229b0",
+        "user_id": "4e06ca5f-a4e4-4f2e-91d8-3716803a44e3",
+        "full_name": "Amit Sukla",
+        "role": "customer",
+        "phone": "3213131313331",
+        "address": null,
+        "business_name": null,
+        "contact_person": null,
+        "license_number": null,
+        "registration_status": "pending",
+        "license_document_url": null,
+        "id_document_url": null,
+        "onboarding_completed": false,
+        "emergency_offline": false,
+        "is_blocked": false,
+        "created_at": "2025-09-03T10:03:50.789609+00:00",
+        "updated_at": "2025-09-03T10:03:50.789609+00:00",
+        "auth_role": "customer",
+        "city": null,
+        "date_of_birth": null,
+        "preferences": {}
+      }
+    },
+    "provider_services": {
+      "exists": true,
+      "hasData": false,
+      "recordCount": 0,
+      "firstRecord": null
+    },
+    "bookings": {
+      "exists": true,
+      "hasData": false,
+      "recordCount": 0,
+      "firstRecord": null
+    },
+    "notifications": {
+      "exists": true,
+      "hasData": false,
+      "recordCount": 0,
+      "firstRecord": null
+    }
+  }
+}

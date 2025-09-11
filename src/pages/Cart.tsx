@@ -1,0 +1,427 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
+import { Layout } from '@/components/layout/Layout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Trash2, Plus, Minus, ShoppingBag, Lock, User, MapPin, Phone, Mail } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { paymentService } from '@/services/paymentService';
+
+
+export default function Cart() {
+  const { items, itemCount, totalAmount, removeFromCart, updateQuantity, clearCart, isLoading } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [showGuestForm, setShowGuestForm] = useState(false);
+  const [guestInfo, setGuestInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    instructions: ''
+  });
+
+  // Dynamic service fee calculation (could be 0, percentage, or fixed amount)
+  const serviceFee = totalAmount > 0 ? Math.max(totalAmount * 0.05, 2) : 0; // 5% with minimum $2
+  const finalTotal = totalAmount + serviceFee;
+
+  const handleCheckout = async (guestData?: typeof guestInfo) => {
+    console.log('🚀 Starting checkout process...', { 
+      totalAmount, 
+      serviceFee, 
+      finalTotal, 
+      itemCount, 
+      items,
+      isAuthenticated,
+      isLoading,
+      guestData 
+    });
+
+    // Ensure we have items to checkout
+    if (itemCount === 0 || items.length === 0) {
+      toast({
+        title: 'Cart Empty',
+        description: 'Please add items to your cart before checkout.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // For guest users, collect required information
+    if (!isAuthenticated && !guestData) {
+      setShowGuestForm(true);
+      return;
+    }
+
+    // Prevent checkout if cart is currently loading
+    if (isLoading) {
+      toast({
+        title: 'Please Wait',
+        description: 'Cart is loading, please try again in a moment.',
+        variant: 'default',
+      });
+      return;
+    }
+
+    try {
+      const result = await paymentService.createCheckoutSession({
+        amount: Math.round(finalTotal * 100), // Convert to cents
+        currency: 'usd',
+        cartItems: items,
+        guestInfo: guestData || undefined,
+        metadata: { 
+          source: 'cart',
+          isAuthenticated: isAuthenticated.toString(),
+          serviceFee: serviceFee.toFixed(2)
+        },
+      });
+
+      console.log('💳 Checkout session result:', result);
+
+      if (result.success && result.url) {
+        console.log('✅ Redirecting to Stripe checkout:', result.url);
+        // Open Stripe checkout in the same window
+        window.location.href = result.url;
+      } else {
+        console.error('❌ Checkout failed:', result.error);
+        toast({
+          title: 'Checkout Failed',
+          description: result.error || 'Unable to start checkout. Please try again.',
+          variant: 'destructive',
+          duration: 10000,
+        });
+      }
+    } catch (err: any) {
+      console.error('💥 Checkout error:', err);
+      toast({
+        title: 'Payment System Error',
+        description: `Error: ${err.message || 'Unexpected error occurred'}`,
+        variant: 'destructive',
+        duration: 15000,
+      });
+    }
+  };
+
+  const handleGuestCheckout = () => {
+    // Validate required fields
+    if (!guestInfo.name.trim()) {
+      toast({
+        title: 'Name Required',
+        description: 'Please enter your full name.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!guestInfo.email.trim()) {
+      toast({
+        title: 'Email Required',
+        description: 'Please enter your email address.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!guestInfo.phone.trim()) {
+      toast({
+        title: 'Phone Required',
+        description: 'Please enter your phone number.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!guestInfo.address.trim()) {
+      toast({
+        title: 'Address Required',
+        description: 'Please enter your address for service delivery.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setShowGuestForm(false);
+    handleCheckout(guestInfo);
+  };
+
+  if (itemCount === 0) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <ShoppingBag className="h-24 w-24 mx-auto text-gray-300 mb-6" />
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Your Cart is Empty</h1>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              Looks like you haven't added any services to your cart yet. Browse our services and add some!
+            </p>
+            <Button onClick={() => navigate('/')} className="btn-primary">
+              Browse Services
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Shopping Cart</h1>
+            <p className="text-gray-600">
+              {itemCount} {itemCount === 1 ? 'service' : 'services'} in your cart
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Cart Items */}
+            <div className="lg:col-span-2 space-y-4">
+              {items.map((item) => (
+                <Card key={item.id} className="card-premium">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          {item.serviceName}
+                        </h3>
+                        {item.providerName && (
+                          <p className="text-gray-600 mb-2">
+                            Provider: {item.providerName}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-4">
+                          <span className="text-xl font-bold text-primary">
+                            ${item.price}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              disabled={isLoading}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="w-8 text-center font-medium">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              disabled={isLoading}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-semibold text-gray-900 mb-2">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFromCart(item.id)}
+                          disabled={isLoading}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              <div className="flex justify-between items-center pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={clearCart}
+                  disabled={isLoading}
+                  className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                >
+                  Clear Cart
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/')}
+                >
+                  Continue Shopping
+                </Button>
+              </div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="lg:col-span-1">
+              <Card className="bg-background border shadow-lg sticky top-4">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl font-semibold">Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Subtotal */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">
+                      Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})
+                    </span>
+                    <span className="font-semibold text-lg">${totalAmount.toFixed(2)}</span>
+                  </div>
+                  
+                  {/* Service Fee */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Service Fee</span>
+                    <span className="font-semibold text-lg">${serviceFee.toFixed(2)}</span>
+                  </div>
+                  
+                  {/* Total */}
+                  <div className="border-t pt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-bold">Total</span>
+                      <span className="text-2xl font-bold text-primary">${finalTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  
+                   {/* Checkout Button */}
+                  <div className="pt-4">
+                    <Button 
+                      onClick={() => handleCheckout()}
+                      disabled={isLoading || itemCount === 0 || finalTotal <= 0}
+                      className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground border-0 shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                      {isLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Processing...
+                        </>
+                      ) : (
+                        isAuthenticated ? 'Proceed to Checkout' : 'Checkout as Guest'
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {/* Security Badge */}
+                  <div className="text-xs text-muted-foreground text-center pt-2">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <Lock className="h-3 w-3" />
+                      <span>Secure payment powered by Stripe</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Guest Information Dialog */}
+        <Dialog open={showGuestForm} onOpenChange={setShowGuestForm}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Guest Checkout Information</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label htmlFor="guest-name">Full Name *</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="guest-name"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={guestInfo.name}
+                    onChange={(e) => setGuestInfo({...guestInfo, name: e.target.value})}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="guest-email">Email Address *</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="guest-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={guestInfo.email}
+                    onChange={(e) => setGuestInfo({...guestInfo, email: e.target.value})}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="guest-phone">Phone Number *</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="guest-phone"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={guestInfo.phone}
+                    onChange={(e) => setGuestInfo({...guestInfo, phone: e.target.value})}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="guest-address">Service Address *</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
+                  <Textarea
+                    id="guest-address"
+                    placeholder="Enter your complete address for service delivery"
+                    value={guestInfo.address}
+                    onChange={(e) => setGuestInfo({...guestInfo, address: e.target.value})}
+                    className="pl-10 resize-none"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="guest-instructions">Special Instructions (Optional)</Label>
+                <Textarea
+                  id="guest-instructions"
+                  placeholder="Any special instructions for the service provider"
+                  value={guestInfo.instructions}
+                  onChange={(e) => setGuestInfo({...guestInfo, instructions: e.target.value})}
+                  className="resize-none"
+                  rows={2}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowGuestForm(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleGuestCheckout}
+                  className="flex-1"
+                >
+                  Continue to Payment
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </Layout>
+  );
+}

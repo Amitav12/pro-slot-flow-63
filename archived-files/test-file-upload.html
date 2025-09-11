@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .upload-area.dragover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+        .file-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+        }
+        .error {
+            color: #dc3545;
+            margin-top: 10px;
+        }
+        .success {
+            color: #28a745;
+            margin-top: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>File Upload Test</h1>
+    <p>This tests the file upload functionality for the service registration system.</p>
+    
+    <div class="upload-area" id="uploadArea">
+        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display: none;">
+        <div id="uploadContent">
+            <p>📁 Click to upload or drag and drop</p>
+            <p style="font-size: 12px; color: #666;">PDF, JPG, PNG, DOC up to 10MB</p>
+        </div>
+    </div>
+    
+    <div id="fileInfo" style="display: none;"></div>
+    <div id="message"></div>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const message = document.getElementById('message');
+        const uploadContent = document.getElementById('uploadContent');
+        
+        let selectedFile = null;
+        
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            // Validate file
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const allowedTypes = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (file.size > maxSize) {
+                showMessage('File size must be less than 10MB', 'error');
+                return;
+            }
+            
+            if (!allowedTypes.includes(fileExtension)) {
+                showMessage('File type not supported. Allowed: PDF, JPG, PNG, DOC', 'error');
+                return;
+            }
+            
+            selectedFile = file;
+            showFileInfo(file);
+            showMessage('✅ File selected successfully! This would be uploaded to Supabase storage.', 'success');
+        }
+        
+        function showFileInfo(file) {
+            fileInfo.style.display = 'block';
+            fileInfo.innerHTML = `
+                <div class="file-info">
+                    <strong>Selected File:</strong><br>
+                    📄 Name: ${file.name}<br>
+                    📊 Size: ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                    🏷️ Type: ${file.type || 'Unknown'}<br>
+                    <button onclick="clearFile()">Remove File</button>
+                </div>
+            `;
+            
+            uploadContent.innerHTML = `
+                <p style="color: #28a745;">✅ ${file.name} selected</p>
+                <p style="font-size: 12px; color: #666;">Click to change file</p>
+            `;
+        }
+        
+        function clearFile() {
+            selectedFile = null;
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            message.innerHTML = '';
+            uploadContent.innerHTML = `
+                <p>📁 Click to upload or drag and drop</p>
+                <p style="font-size: 12px; color: #666;">PDF, JPG, PNG, DOC up to 10MB</p>
+            `;
+        }
+        
+        function showMessage(text, type) {
+            message.innerHTML = `<p class="${type}">${text}</p>`;
+        }
+    </script>
+</body>
+</html>

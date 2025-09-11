@@ -1,0 +1,58 @@
+{
+  "categories": {
+    "accessible": true,
+    "sampleStructure": [
+      "id",
+      "name",
+      "description",
+      "icon",
+      "is_active",
+      "created_at",
+      "updated_at"
+    ],
+    "recordCount": 1
+  },
+  "subcategories": {
+    "accessible": true,
+    "sampleStructure": [
+      "id",
+      "category_id",
+      "name",
+      "description",
+      "min_price",
+      "max_price",
+      "is_active",
+      "created_at",
+      "updated_at"
+    ],
+    "recordCount": 1
+  },
+  "locations": {
+    "accessible": true,
+    "sampleStructure": [
+      "id",
+      "name",
+      "address",
+      "city",
+      "state",
+      "postal_code",
+      "country",
+      "latitude",
+      "longitude",
+      "is_active",
+      "created_at",
+      "updated_at"
+    ],
+    "recordCount": 1
+  },
+  "user_profiles": {
+    "accessible": true,
+    "sampleStructure": [],
+    "recordCount": 0
+  },
+  "provider_services": {
+    "accessible": true,
+    "sampleStructure": [],
+    "recordCount": 0
+  }
+}
