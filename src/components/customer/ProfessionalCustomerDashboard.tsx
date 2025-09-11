@@ -30,6 +30,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CustomerProfile } from './CustomerProfile';
+import { CustomerBookings } from './CustomerBookings';
 
 interface Booking {
   id: string;
@@ -475,77 +477,7 @@ const ProfessionalCustomerDashboard: React.FC = () => {
   );
 
   const renderBookings = () => (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">My Bookings</h2>
-          <p className="text-gray-600">Manage your service appointments</p>
-        </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg">
-          <Plus className="h-4 w-4 mr-2" />
-          Book Service
-        </Button>
-      </div>
-      
-      {bookings.length > 0 ? (
-        <div className="grid gap-6">
-          {bookings.map((booking) => (
-            <Card key={booking.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Calendar className="h-8 w-8 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-1">{booking.service_name}</h3>
-                      <p className="text-gray-600 font-medium">{booking.provider_name}</p>
-                      <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500">
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-1" />
-                          {new Date(booking.booking_date).toLocaleDateString()} at {booking.booking_time}
-                        </div>
-                        <div className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {booking.location}
-                        </div>
-                        {booking.provider_phone && (
-                          <div className="flex items-center">
-                            <Phone className="h-4 w-4 mr-1" />
-                            {booking.provider_phone}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end space-y-3">
-                    <Badge className={`${getStatusColor(booking.status)} border px-3 py-1`}>
-                      <div className="flex items-center space-x-1">
-                        {getStatusIcon(booking.status)}
-                        <span className="capitalize font-medium">{booking.status}</span>
-                      </div>
-                    </Badge>
-                    <p className="text-2xl font-bold text-gray-900">${booking.total_amount}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-12 text-center">
-            <Calendar className="h-20 w-20 text-gray-300 mx-auto mb-6" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No bookings yet</h3>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">Start exploring our amazing services to make your first booking and experience quality service delivery.</p>
-            <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg">
-              <Plus className="h-4 w-4 mr-2" />
-              Browse Services
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+    <CustomerBookings />
   );
 
   const renderFavorites = () => (
@@ -618,143 +550,7 @@ const ProfessionalCustomerDashboard: React.FC = () => {
   );
 
   const renderProfile = () => (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
-          <p className="text-gray-600">Manage your account information</p>
-        </div>
-        {!isEditingProfile && (
-          <Button 
-            onClick={() => setIsEditingProfile(true)}
-            className="bg-blue-600 hover:bg-blue-700 shadow-lg"
-          >
-            <Settings className="h-4 w-4 mr-2" />
-            Edit Profile
-          </Button>
-        )}
-      </div>
-      
-      <Card className="border-0 shadow-lg">
-        <CardContent className="p-8">
-          {isEditingProfile ? (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="full_name" className="text-sm font-medium text-gray-700">Full Name</Label>
-                  <Input
-                    id="full_name"
-                    value={profileForm.full_name}
-                    onChange={(e) => setProfileForm({...profileForm, full_name: e.target.value})}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
-                  <Input
-                    id="email"
-                    value={userProfile?.email || ''}
-                    disabled
-                    className="mt-1 bg-gray-50"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone</Label>
-                  <Input
-                    id="phone"
-                    value={profileForm.phone}
-                    onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="city" className="text-sm font-medium text-gray-700">City</Label>
-                  <Input
-                    id="city"
-                    value={profileForm.city}
-                    onChange={(e) => setProfileForm({...profileForm, city: e.target.value})}
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="address" className="text-sm font-medium text-gray-700">Address</Label>
-                <Input
-                  id="address"
-                  value={profileForm.address}
-                  onChange={(e) => setProfileForm({...profileForm, address: e.target.value})}
-                  className="mt-1"
-                />
-              </div>
-              <div className="flex space-x-4 pt-4">
-                <Button 
-                  onClick={updateProfile} 
-                  disabled={loading}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsEditingProfile(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              <div className="flex items-center space-x-6">
-                <Avatar className="w-20 h-20">
-                  <AvatarImage src="" />
-                  <AvatarFallback className="bg-blue-100 text-blue-600 text-2xl font-semibold">
-                    {userProfile?.full_name?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="text-2xl font-semibold text-gray-900">{userProfile?.full_name || 'User'}</h3>
-                  <p className="text-gray-600">Customer since {userProfile?.created_at ? new Date(userProfile.created_at).toLocaleDateString() : 'Unknown'}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-500 uppercase tracking-wide">Contact Information</Label>
-                    <div className="mt-3 space-y-3">
-                      <div className="flex items-center">
-                        <Mail className="h-5 w-5 text-gray-400 mr-3" />
-                        <span className="text-gray-900">{userProfile?.email}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Phone className="h-5 w-5 text-gray-400 mr-3" />
-                        <span className="text-gray-900">{userProfile?.phone || 'Not set'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-6">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-500 uppercase tracking-wide">Location</Label>
-                    <div className="mt-3 space-y-3">
-                      <div className="flex items-center">
-                        <MapPin className="h-5 w-5 text-gray-400 mr-3" />
-                        <span className="text-gray-900">{userProfile?.city || 'Not set'}</span>
-                      </div>
-                      <div className="flex items-start">
-                        <MapPin className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                        <span className="text-gray-900">{userProfile?.address || 'Not set'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+    <CustomerProfile />
   );
 
   const renderContent = () => {

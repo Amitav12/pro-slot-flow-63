@@ -105,7 +105,7 @@ export default function PaymentSuccess() {
                 <h1 className="text-2xl font-bold mb-4 text-red-600">Payment Verification Failed</h1>
                 <p className="text-gray-600 mb-6">{verificationError}</p>
                 <div className="space-y-3">
-                <Button onClick={() => navigate('/customer?section=bookings')} className="w-full">
+                <Button onClick={() => navigate('/dashboard/customer?section=bookings')} className="w-full">
                   View My Bookings
                 </Button>
                   <Button onClick={() => navigate('/')} variant="outline" className="w-full">
@@ -145,7 +145,7 @@ export default function PaymentSuccess() {
               )}
               
               <div className="space-y-3">
-                <Button onClick={() => navigate('/customer?section=bookings')} className="w-full">
+                <Button onClick={() => navigate('/dashboard/customer?section=bookings')} className="w-full">
                   View My Bookings
                 </Button>
                 <Button onClick={() => navigate('/')} variant="outline" className="w-full">
