@@ -269,17 +269,19 @@ export const CustomerBookings: React.FC = () => {
 
                 <div className="flex justify-end space-x-2">
                   {/* View Details Button */}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedBooking(booking);
+                      setIsDetailsOpen(true);
+                    }}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Details
+                  </Button>
+
                   <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setSelectedBooking(booking)}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </Button>
-                    </DialogTrigger>
                     <DialogContent className="max-w-2xl bg-gradient-to-br from-slate-50 to-blue-50 border-0 shadow-2xl">
                       <DialogHeader className="text-center pb-6">
                         <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -373,17 +375,20 @@ export const CustomerBookings: React.FC = () => {
 
                   {/* Rebook Button */}
                   {canCancelOrRebook(booking) && (
-                    <Dialog open={isRebookOpen} onOpenChange={setIsRebookOpen}>
-                      <DialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setSelectedBooking(booking)}
-                        >
-                          <RotateCcw className="h-4 w-4 mr-2" />
-                          Reschedule
-                        </Button>
-                      </DialogTrigger>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedBooking(booking);
+                        setIsRebookOpen(true);
+                      }}
+                    >
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      Reschedule
+                    </Button>
+                  )}
+
+                  <Dialog open={isRebookOpen} onOpenChange={setIsRebookOpen}>
                     <DialogContent className="max-w-md bg-gradient-to-br from-slate-50 to-blue-100 border-0 shadow-2xl">
                       <DialogHeader className="text-center pb-6">
                         <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -429,9 +434,8 @@ export const CustomerBookings: React.FC = () => {
                           </Button>
                         </div>
                       </div>
-                    </DialogContent>
-                    </Dialog>
-                  )}
+                     </DialogContent>
+                   </Dialog>
 
                   {/* Cancel Button */}
                   {canCancelOrRebook(booking) && (
