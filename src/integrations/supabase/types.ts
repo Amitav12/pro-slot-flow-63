@@ -74,6 +74,57 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_slots: {
+        Row: {
+          blocked_by: string | null
+          blocked_until: string | null
+          booking_id: string | null
+          created_at: string | null
+          held_by: string | null
+          hold_expires_at: string | null
+          id: string
+          is_blocked: boolean | null
+          provider_id: string
+          service_id: string | null
+          slot_date: string
+          slot_time: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          blocked_by?: string | null
+          blocked_until?: string | null
+          booking_id?: string | null
+          created_at?: string | null
+          held_by?: string | null
+          hold_expires_at?: string | null
+          id?: string
+          is_blocked?: boolean | null
+          provider_id: string
+          service_id?: string | null
+          slot_date: string
+          slot_time: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          blocked_by?: string | null
+          blocked_until?: string | null
+          booking_id?: string | null
+          created_at?: string | null
+          held_by?: string | null
+          hold_expires_at?: string | null
+          id?: string
+          is_blocked?: boolean | null
+          provider_id?: string
+          service_id?: string | null
+          slot_date?: string
+          slot_time?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           created_at: string
