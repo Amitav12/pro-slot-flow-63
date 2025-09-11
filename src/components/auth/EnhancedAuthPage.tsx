@@ -500,7 +500,7 @@ export const EnhancedAuthPage: React.FC<{
           <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'login' | 'signup')}>
             <TabsList className="grid w-full grid-cols-2 h-12 bg-gray-100 rounded-xl p-1">
               <TabsTrigger value="login" className="rounded-lg font-medium bg-green-400 hover:bg-green-300 text-gray-950">Sign In</TabsTrigger>
-              <TabsTrigger value="signup" className="rounded-lg font-medium bg-red-500 hover:bg-red-400">Create Account</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-lg font-medium bg-red-500 hover:bg-red-400 text-gray-800">Create Account</TabsTrigger>
             </TabsList>
 
             {/* Login Tab */}
