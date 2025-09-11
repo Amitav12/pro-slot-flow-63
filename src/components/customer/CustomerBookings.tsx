@@ -284,40 +284,41 @@ export const CustomerBookings: React.FC = () => {
                       <DialogHeader>
                         <DialogTitle>Booking Details</DialogTitle>
                       </DialogHeader>
-                       {selectedBooking && (
-                        <div className="space-y-6">
-                          <div className="grid grid-cols-2 gap-4">
+                     {selectedBooking && (
+                        <div className="space-y-6 animate-fade-in">
+                          <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
                             <div>
-                              <h4 className="font-semibold">Date & Time</h4>
-                              <p>{selectedBooking.booking_date} at {selectedBooking.booking_time}</p>
+                              <h4 className="font-semibold text-gray-800">Date & Time</h4>
+                              <p className="text-gray-700">{selectedBooking.booking_date} at {selectedBooking.booking_time}</p>
                             </div>
                             <div>
-                              <h4 className="font-semibold">Total Amount</h4>
-                              <p className="text-lg font-bold">${selectedBooking.total_amount}</p>
+                              <h4 className="font-semibold text-gray-800">Total Amount</h4>
+                              <p className="text-lg font-bold text-green-600">${selectedBooking.total_amount}</p>
                             </div>
                           </div>
                           
                           <div>
-                            <h4 className="font-semibold mb-3">Services Booked</h4>
+                            <h4 className="font-semibold mb-3 text-gray-800">Services Booked</h4>
                             <div className="space-y-3">
                               {selectedBooking.cart_items && selectedBooking.cart_items.length > 0 ? (
                                 selectedBooking.cart_items.map((item: any, index: number) => (
-                                  <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                                  <div key={index} className="rounded-lg p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 hover-scale transition-all duration-300">
                                     <div className="flex justify-between items-start mb-3">
                                       <div>
-                                        <p className="font-medium text-lg">{item.service_name}</p>
-                                        <p className="text-gray-600">Provider: {item.provider_name}</p>
-                                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                        <p className="font-medium text-lg text-gray-800">{item.service_name || selectedBooking.service_name}</p>
+                                        <p className="text-gray-600">Provider: {item.provider_name || selectedBooking.provider_name}</p>
+                                        <p className="text-sm text-gray-600">Quantity: {item.quantity || 1}</p>
                                       </div>
-                                      <p className="font-bold text-lg">${item.price}</p>
+                                      <p className="font-bold text-lg text-green-600">${item.price || selectedBooking.total_amount}</p>
                                     </div>
                                     
                                     {/* Individual service actions */}
                                     {canCancelOrRebook(selectedBooking) && (
-                                      <div className="flex justify-end space-x-2 pt-2 border-t">
+                                      <div className="flex justify-end space-x-2 pt-3 border-t border-gray-200">
                                         <Button 
                                           variant="outline" 
                                           size="sm"
+                                          className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-none hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
                                           onClick={() => {
                                             setSelectedBooking(selectedBooking);
                                             setIsDetailsOpen(false);
@@ -330,10 +331,8 @@ export const CustomerBookings: React.FC = () => {
                                         <Button 
                                           variant="outline" 
                                           size="sm" 
-                                          className="text-red-600 hover:text-red-700"
+                                          className="bg-gradient-to-r from-red-500 to-pink-500 text-white border-none hover:from-red-600 hover:to-pink-600 transition-all duration-300"
                                           onClick={() => {
-                                            // For individual service cancellation, we would need to modify the booking
-                                            // For now, cancel the whole booking
                                             handleCancelBooking(selectedBooking.id);
                                             setIsDetailsOpen(false);
                                           }}
@@ -346,13 +345,13 @@ export const CustomerBookings: React.FC = () => {
                                   </div>
                                 ))
                               ) : (
-                                <div className="border rounded-lg p-4 bg-gray-50">
+                                <div className="rounded-lg p-4 bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200">
                                   <div className="flex justify-between items-start">
                                     <div>
-                                      <p className="font-medium text-lg">{selectedBooking.service_name}</p>
+                                      <p className="font-medium text-lg text-gray-800">{selectedBooking.service_name}</p>
                                       <p className="text-gray-600">Provider: {selectedBooking.provider_name}</p>
                                     </div>
-                                    <p className="font-bold text-lg">${selectedBooking.total_amount}</p>
+                                    <p className="font-bold text-lg text-green-600">${selectedBooking.total_amount}</p>
                                   </div>
                                 </div>
                               )}
@@ -360,9 +359,9 @@ export const CustomerBookings: React.FC = () => {
                           </div>
                           
                           {selectedBooking.special_instructions && (
-                            <div>
-                              <h4 className="font-semibold">Special Instructions</h4>
-                              <p className="text-gray-600">{selectedBooking.special_instructions}</p>
+                            <div className="p-4 rounded-lg bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200">
+                              <h4 className="font-semibold text-gray-800">Special Instructions</h4>
+                              <p className="text-gray-700 mt-1">{selectedBooking.special_instructions}</p>
                             </div>
                           )}
                         </div>
