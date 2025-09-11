@@ -284,17 +284,9 @@ export const CustomerBookings: React.FC = () => {
                       <DialogHeader>
                         <DialogTitle>Booking Details</DialogTitle>
                       </DialogHeader>
-                      {selectedBooking && (
+                       {selectedBooking && (
                         <div className="space-y-6">
                           <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <h4 className="font-semibold">Service</h4>
-                              <p>{selectedBooking.service_name}</p>
-                            </div>
-                            <div>
-                              <h4 className="font-semibold">Provider</h4>
-                              <p>{selectedBooking.provider_name}</p>
-                            </div>
                             <div>
                               <h4 className="font-semibold">Date & Time</h4>
                               <p>{selectedBooking.booking_date} at {selectedBooking.booking_time}</p>
@@ -305,23 +297,67 @@ export const CustomerBookings: React.FC = () => {
                             </div>
                           </div>
                           
-                          {selectedBooking.cart_items && selectedBooking.cart_items.length > 0 && (
-                            <div>
-                              <h4 className="font-semibold mb-3">Services Included</h4>
-                              <div className="space-y-2">
-                                {selectedBooking.cart_items.map((item: any, index: number) => (
-                                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                    <div>
-                                      <p className="font-medium">{item.service_name}</p>
-                                      <p className="text-sm text-gray-600">Provider: {item.provider_name}</p>
-                                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                          <div>
+                            <h4 className="font-semibold mb-3">Services Booked</h4>
+                            <div className="space-y-3">
+                              {selectedBooking.cart_items && selectedBooking.cart_items.length > 0 ? (
+                                selectedBooking.cart_items.map((item: any, index: number) => (
+                                  <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                                    <div className="flex justify-between items-start mb-3">
+                                      <div>
+                                        <p className="font-medium text-lg">{item.service_name}</p>
+                                        <p className="text-gray-600">Provider: {item.provider_name}</p>
+                                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                      </div>
+                                      <p className="font-bold text-lg">${item.price}</p>
                                     </div>
-                                    <p className="font-bold">${item.price}</p>
+                                    
+                                    {/* Individual service actions */}
+                                    {canCancelOrRebook(selectedBooking) && (
+                                      <div className="flex justify-end space-x-2 pt-2 border-t">
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm"
+                                          onClick={() => {
+                                            setSelectedBooking(selectedBooking);
+                                            setIsDetailsOpen(false);
+                                            setIsRebookOpen(true);
+                                          }}
+                                        >
+                                          <RotateCcw className="h-4 w-4 mr-2" />
+                                          Reschedule This Service
+                                        </Button>
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm" 
+                                          className="text-red-600 hover:text-red-700"
+                                          onClick={() => {
+                                            // For individual service cancellation, we would need to modify the booking
+                                            // For now, cancel the whole booking
+                                            handleCancelBooking(selectedBooking.id);
+                                            setIsDetailsOpen(false);
+                                          }}
+                                        >
+                                          <X className="h-4 w-4 mr-2" />
+                                          Cancel This Service
+                                        </Button>
+                                      </div>
+                                    )}
                                   </div>
-                                ))}
-                              </div>
+                                ))
+                              ) : (
+                                <div className="border rounded-lg p-4 bg-gray-50">
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <p className="font-medium text-lg">{selectedBooking.service_name}</p>
+                                      <p className="text-gray-600">Provider: {selectedBooking.provider_name}</p>
+                                    </div>
+                                    <p className="font-bold text-lg">${selectedBooking.total_amount}</p>
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          )}
+                          </div>
                           
                           {selectedBooking.special_instructions && (
                             <div>
