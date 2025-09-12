@@ -13,19 +13,27 @@ interface TimeSlot {
 interface ProviderAvailability {
   id: string;
   provider_id: string;
-  date: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
   is_available: boolean;
-  time_slots: string[];
+  slot_duration: number;
 }
 
 interface BookingSlot {
   id: string;
   provider_id: string;
   service_id?: string;
-  date: string;
-  time_slot_id: string;
-  status: 'available' | 'held' | 'booked' | 'blocked';
-  time_slot: TimeSlot;
+  slot_date: string;
+  slot_time: string;
+  status: string;
+  is_blocked: boolean;
+  held_by?: string;
+  hold_expires_at?: string;
+  booking_id?: string;
+  blocked_by?: string;
+  blocked_until?: string;
+  created_at: string;
 }
 
 export const useProviderAvailability = () => {
@@ -54,12 +62,13 @@ export const useProviderAvailability = () => {
     }
   };
 
-  // Set provider availability for a specific date
+  // Set provider availability for a specific day of week
   const setProviderAvailability = async (
     providerId: string,
-    date: string,
+    dayOfWeek: number,
     isAvailable: boolean,
-    selectedTimeSlots: string[] = []
+    startTime: string = '09:00:00',
+    endTime: string = '17:00:00'
   ) => {
     setLoading(true);
     try {
@@ -67,33 +76,18 @@ export const useProviderAvailability = () => {
         .from('provider_availability')
         .upsert({
           provider_id: providerId,
-          date,
+          day_of_week: dayOfWeek,
+          start_time: startTime,
+          end_time: endTime,
           is_available: isAvailable,
-          time_slots: selectedTimeSlots
+          slot_duration: 120
         });
 
       if (error) throw error;
 
-      // Generate or remove booking slots based on availability
-      if (isAvailable) {
-        await supabase.rpc('generate_provider_slots', {
-          p_provider_id: providerId,
-          p_start_date: date,
-          p_end_date: date
-        });
-      } else {
-        // Remove booking slots for this date
-        await supabase
-          .from('booking_slots')
-          .delete()
-          .eq('provider_id', providerId)
-          .eq('date', date)
-          .eq('status', 'available');
-      }
-
       toast({
         title: "Success",
-        description: `Availability ${isAvailable ? 'set' : 'removed'} for ${date}`
+        description: `Availability ${isAvailable ? 'set' : 'removed'} for selected day`
       });
     } catch (error) {
       console.error('Error setting availability:', error);
@@ -110,16 +104,11 @@ export const useProviderAvailability = () => {
   // Get available slots for a provider on a specific date
   const getAvailableSlots = async (providerId: string, date: string): Promise<BookingSlot[]> => {
     try {
-      const { data, error } = await supabase
-        .from('booking_slots')
-        .select(`
-          *,
-          time_slot:time_slots(*)
-        `)
-        .eq('provider_id', providerId)
-        .eq('date', date)
-        .eq('status', 'available')
-        .order('time_slot.display_order');
+      const { data, error } = await supabase.rpc('get_available_slots', {
+        p_provider_id: providerId,
+        p_service_id: null,
+        p_date: date
+      });
 
       if (error) throw error;
       return data || [];
@@ -129,70 +118,72 @@ export const useProviderAvailability = () => {
     }
   };
 
-  // Hold a slot temporarily (7 minutes)
+  // Hold a slot temporarily using the database function
   const holdSlot = async (slotId: string, userId: string) => {
     try {
-      const holdExpiresAt = new Date(Date.now() + 7 * 60 * 1000); // 7 minutes from now
-      
-      const { error } = await supabase
-        .from('booking_slots')
-        .update({
-          status: 'held',
-          held_by: userId,
-          hold_expires_at: holdExpiresAt.toISOString()
-        })
-        .eq('id', slotId)
-        .eq('status', 'available');
+      const { data, error } = await supabase.rpc('hold_slot', {
+        slot_id: slotId,
+        user_id: userId,
+        hold_duration_minutes: 7
+      });
 
       if (error) throw error;
-      return true;
+      return data === true;
     } catch (error) {
       console.error('Error holding slot:', error);
       return false;
     }
   };
 
-  // Release a held slot
+  // Release a held slot using the database function
   const releaseSlot = async (slotId: string, userId: string) => {
     try {
-      const { error } = await supabase
-        .from('booking_slots')
-        .update({
-          status: 'available',
-          held_by: null,
-          hold_expires_at: null
-        })
-        .eq('id', slotId)
-        .eq('held_by', userId);
+      const { data, error } = await supabase.rpc('release_slot', {
+        slot_id: slotId,
+        user_id: userId
+      });
 
       if (error) throw error;
-      return true;
+      return data === true;
     } catch (error) {
       console.error('Error releasing slot:', error);
       return false;
     }
   };
 
-  // Get provider availability for a date range
+  // Get provider availability for day of week
   const getProviderAvailability = async (
-    providerId: string,
-    startDate: string,
-    endDate: string
+    providerId: string
   ): Promise<ProviderAvailability[]> => {
     try {
       const { data, error } = await supabase
         .from('provider_availability')
         .select('*')
         .eq('provider_id', providerId)
-        .gte('date', startDate)
-        .lte('date', endDate)
-        .order('date');
+        .order('day_of_week');
 
       if (error) throw error;
       return data || [];
     } catch (error) {
       console.error('Error fetching provider availability:', error);
       return [];
+    }
+  };
+
+  // Confirm a slot booking using the database function
+  const confirmSlotBooking = async (slotId: string, userId: string, bookingId: string) => {
+    try {
+      const { data, error } = await supabase.rpc('confirm_slot_booking', {
+        slot_id: slotId,
+        user_id: userId,
+        booking_id: bookingId
+      });
+
+      if (error) throw error;
+      return data === true;
+    } catch (error) {
+      console.error('Error confirming slot booking:', error);
+      return false;
     }
   };
 
@@ -208,6 +199,7 @@ export const useProviderAvailability = () => {
     holdSlot,
     releaseSlot,
     getProviderAvailability,
+    confirmSlotBooking,
     fetchTimeSlots
   };
 };

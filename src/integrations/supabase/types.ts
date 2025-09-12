@@ -929,6 +929,10 @@ export type Database = {
           exists_phone: boolean
         }[]
       }
+      confirm_slot_booking: {
+        Args: { booking_id: string; slot_id: string; user_id: string }
+        Returns: boolean
+      }
       get_available_slots: {
         Args: { p_date: string; p_provider_id: string; p_service_id: string }
         Returns: {
@@ -950,6 +954,14 @@ export type Database = {
       get_user_role: {
         Args: { user_uuid?: string }
         Returns: string
+      }
+      hold_slot: {
+        Args: {
+          hold_duration_minutes?: number
+          slot_id: string
+          user_id: string
+        }
+        Returns: boolean
       }
       log_security_event: {
         Args: {
