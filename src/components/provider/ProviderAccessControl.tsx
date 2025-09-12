@@ -24,21 +24,30 @@ export const ProviderAccessControl: React.FC<ProviderAccessControlProps> = ({ ch
         .from('service_providers')
         .select('status, business_name, created_at')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
-      if (serviceProvider) {
+      if (serviceProvider && serviceProvider.status === 'approved') {
         return serviceProvider;
       }
       
-      // Then check user_profiles for pending providers
+      // Then check user_profiles for all provider status including approved ones
       const { data: userProfile, error: profileError } = await supabase
         .from('user_profiles')
         .select('registration_status, business_name, created_at')
         .eq('user_id', user.id)
         .eq('role', 'provider')
-        .single();
+        .maybeSingle();
       
       if (userProfile) {
+        // If user profile shows approved and we found a service provider record, return approved
+        if (userProfile.registration_status === 'approved' && serviceProvider) {
+          return {
+            status: 'approved',
+            business_name: serviceProvider.business_name || userProfile.business_name,
+            created_at: serviceProvider.created_at || userProfile.created_at
+          };
+        }
+        
         return {
           status: userProfile.registration_status || 'pending',
           business_name: userProfile.business_name,
