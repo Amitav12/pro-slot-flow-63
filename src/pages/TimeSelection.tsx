@@ -66,21 +66,22 @@ const TimeSelection = () => {
         const endDate = new Date(selectedDate);
         endDate.setDate(endDate.getDate() + 14);
         
-        // TODO: Re-enable slot generation when function is available
-        // p_provider_id: providerId,
-        // p_start_date: dateString,
-        // p_end_date: endDate.toISOString().split('T')[0]
-        // });
+        // Generate slots using the database function
+        const { error } = await supabase.rpc('generate_provider_slots', {
+          p_provider_id: providerId,
+          p_start_date: dateString,
+          p_end_date: endDate.toISOString().split('T')[0]
+        });
         
-        // if (error) {
-        //   console.error('Error generating slots:', error);
-        //   toast({
-        //     title: "Error",
-        //     description: "Failed to generate time slots",
-        //     variant: "destructive"
-        //   });
-        //   return;
-        // }
+        if (error) {
+          console.error('Error generating slots:', error);
+          toast({
+            title: "Error",
+            description: "Failed to generate time slots",
+            variant: "destructive"
+          });
+          return;
+        }
         
         // Fetch the newly generated slots
         const newSlots = await getAvailableSlots(providerId, dateString);

@@ -933,6 +933,14 @@ export type Database = {
         Args: { booking_id: string; slot_id: string; user_id: string }
         Returns: boolean
       }
+      generate_provider_slots: {
+        Args: {
+          p_end_date: string
+          p_provider_id: string
+          p_start_date: string
+        }
+        Returns: undefined
+      }
       get_available_slots: {
         Args: { p_date: string; p_provider_id: string; p_service_id: string }
         Returns: {
