@@ -1,0 +1,10 @@
+# Ignore Netlify headers file to prevent Docker extension conflicts
+public/_headers
+
+# Ignore other non-Docker files
+*.md
+.env*
+.git*
+node_modules/
+dist/
+build/

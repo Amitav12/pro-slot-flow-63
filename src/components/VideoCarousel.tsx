@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -8,23 +8,48 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useAdminSettings } from '@/hooks/useAdminSettings';
+import { supabase } from '@/integrations/supabase/client';
 
-interface VideoCategory {
+interface VideoItem {
   id: string;
   title: string;
-  subtitle?: string;
-  videoThumbnail: string;
-  videoUrl: string;
-  category: string;
+  description: string;
+  video_url: string;
+  file_size: number;
+  is_active: boolean;
+  created_at: string;
 }
 
 export const VideoCarousel: React.FC = () => {
-  const [currentVideo, setCurrentVideo] = useState<string | null>(null);
+  const [playingVideo, setPlayingVideo] = useState<string | null>(null);
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const videoRefs = useRef<{ [key: string]: HTMLVideoElement | null }>({});
   const navigate = useNavigate();
-  const { data: videoData, isLoading } = useAdminSettings('video_carousel');
 
-  if (isLoading) {
+  useEffect(() => {
+    loadActiveVideos();
+  }, []);
+
+  const loadActiveVideos = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('gallery_videos')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setVideos(data || []);
+    } catch (error) {
+      console.error('Error loading active videos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
     return <section className="py-16 bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4">
         <div className="animate-pulse text-center mb-12">
@@ -40,27 +65,39 @@ export const VideoCarousel: React.FC = () => {
     </section>;
   }
 
-  const videoCategories: VideoCategory[] = (videoData as any)?.videos?.map((video: any, index: number) => {
-    console.log('Processing video:', video);
-    return {
-      id: (index + 1).toString(),
-      title: video.title?.split(' ')[0] || 'Service',
-      subtitle: video.title?.split(' ').slice(1).join(' ') || '',
-      videoThumbnail: video.thumbnail || '/placeholder.svg',
-      videoUrl: video.video_url || '',
-      category: video.title?.toLowerCase().replace(/\s+/g, '-') || 'service'
-    };
-  }) || [];
+  if (videos.length === 0 && !loading) {
+    return null; // Don't show the section if no active videos
+  }
 
-  console.log('Video categories processed:', videoCategories);
-
-  const handlePlayVideo = (videoUrl: string) => {
+  const handlePlayVideo = async (videoUrl: string) => {
     console.log('handlePlayVideo called with URL:', videoUrl);
     if (!videoUrl) {
       console.error('No video URL provided');
       return;
     }
-    setCurrentVideo(videoUrl);
+    
+    // Pause all other videos
+    Object.values(videoRefs.current).forEach(video => {
+      if (video && !video.paused) {
+        video.pause();
+      }
+    });
+    
+    // Toggle current video
+    if (playingVideo === videoUrl) {
+      setPlayingVideo(null);
+    } else {
+      setPlayingVideo(videoUrl);
+      // Start playing the video
+      const videoElement = videoRefs.current[videoUrl];
+      if (videoElement) {
+        try {
+          await videoElement.play();
+        } catch (error) {
+          console.error('Error playing video:', error);
+        }
+      }
+    }
   };
 
   const handleCategoryClick = (category: string) => {
@@ -72,40 +109,17 @@ export const VideoCarousel: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <p className="text-sm text-muted-foreground uppercase tracking-wider mb-2">
-            Watch real transformations
+            Watch our gallery
           </p>
           <h2 className="text-4xl font-bold text-foreground mb-4">
-            {(videoData as any)?.title || 'Service Experience Videos'}
+            Video Gallery
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            {(videoData as any)?.subtitle || 'See our professional services in action and the quality transformations we deliver.'}
+            Explore our collection of videos showcasing our work and services.
           </p>
         </div>
 
-        {/* Video Modal */}
-        {currentVideo && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="relative max-w-4xl w-full">
-              <button
-                onClick={() => setCurrentVideo(null)}
-                className="absolute -top-12 right-0 text-white text-2xl hover:text-gray-300 transition-colors"
-              >
-                ✕
-              </button>
-              <div className="bg-black rounded-xl overflow-hidden">
-                <video
-                  controls
-                  autoPlay
-                  className="w-full h-auto"
-                  style={{ maxHeight: '70vh' }}
-                >
-                  <source src={currentVideo} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Video Carousel */}
         <div className="relative max-w-7xl mx-auto">
@@ -117,50 +131,66 @@ export const VideoCarousel: React.FC = () => {
             className="w-full"
           >
             <CarouselContent className="-ml-2 md:-ml-4">
-              {videoCategories.map((category) => (
-                <CarouselItem key={category.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+              {videos.map((video) => (
+                <CarouselItem key={video.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                   <div 
                     className="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-gradient-to-br from-primary/10 to-secondary/10"
                   >
-                    <img
-                      src={category.videoThumbnail}
-                      alt={`${category.title} ${category.subtitle || ''}`}
+                    <video
+                      ref={(el) => {
+                        if (el) {
+                          videoRefs.current[video.video_url] = el;
+                        }
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
+                      preload="metadata"
+                      muted={playingVideo !== video.video_url}
+                      controls={playingVideo === video.video_url}
+                      loop
+                      onEnded={() => setPlayingVideo(null)}
+                      onPause={() => {
+                        if (playingVideo === video.video_url) {
+                          setPlayingVideo(null);
+                        }
+                      }}
+                    >
+                      <source src={video.video_url} type="video/mp4" />
+                    </video>
                     
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     
-                    {/* Play Button */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <button
-                        onClick={() => {
-                          console.log('Video play button clicked for:', category.videoUrl);
-                          console.log('Video data available:', !!category.videoUrl);
-                          try {
-                            if (category.videoUrl) {
-                              handlePlayVideo(category.videoUrl);
-                            } else {
-                              console.error('No video URL available');
+                    {/* Play Button - Only show when video is not playing */}
+                    {playingVideo !== video.video_url && (
+                      <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <button
+                          onClick={() => {
+                            console.log('Video play button clicked for:', video.video_url);
+                            try {
+                              if (video.video_url) {
+                                handlePlayVideo(video.video_url);
+                              } else {
+                                console.error('No video URL available');
+                              }
+                            } catch (error) {
+                              console.error('Video play failed:', error);
                             }
-                          } catch (error) {
-                            console.error('Video play failed:', error);
-                          }
-                        }}
-                        className="bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-4 transition-all duration-300 hover:scale-110 border border-white/30"
-                      >
-                        <Play className="h-8 w-8 text-white fill-white" />
-                      </button>
-                    </div>
+                          }}
+                          className="bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full p-4 transition-all duration-300 hover:scale-110 border border-white/30 z-20"
+                        >
+                          <Play className="h-8 w-8 text-white fill-white" />
+                        </button>
+                      </div>
+                    )}
                     
                     {/* Text Content */}
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <h3 className="text-white font-bold text-2xl md:text-3xl leading-tight">
-                        {category.title}
+                    <div className="absolute bottom-6 left-6 right-6 pointer-events-none">
+                      <h3 className="text-white font-bold text-xl md:text-2xl leading-tight mb-2">
+                        {video.title}
                       </h3>
-                      {category.subtitle && (
-                        <p className="text-white/90 font-bold text-2xl md:text-3xl leading-tight">
-                          {category.subtitle}
+                      {video.description && (
+                        <p className="text-white/90 text-sm md:text-base leading-tight line-clamp-2">
+                          {video.description}
                         </p>
                       )}
                     </div>

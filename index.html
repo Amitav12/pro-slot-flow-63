@@ -15,10 +15,21 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <!-- Content Security Policy for Supabase Storage -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://igezuyqvfoxolxbudcyj.supabase.co https://igezuyqvfoxolxbudcyj.supabase.co/storage/v1/object/public/*; media-src 'self' https://igezuyqvfoxolxbudcyj.supabase.co https://igezuyqvfoxolxbudcyj.supabase.co/storage/v1/object/public/*; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://igezuyqvfoxolxbudcyj.supabase.co https://*.supabase.co wss://igezuyqvfoxolxbudcyj.supabase.co wss://*.supabase.co; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- CSP Debug Script -->
+    <script>
+      // Debug CSP configuration
+      console.log('🔍 Current CSP:', document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.content || 'No CSP meta tag found');
+      console.log('✅ CSP debugging enabled - check actual video loading in admin panel');
+    </script>
   </body>
 </html>

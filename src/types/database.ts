@@ -403,6 +403,50 @@ export interface Database {
           updated_at?: string;
         };
       };
+      gallery_videos: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          video_url: string;
+          thumbnail_url: string | null;
+          file_size: number | null;
+          duration: number | null;
+          mime_type: string | null;
+          is_active: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          description?: string | null;
+          video_url: string;
+          thumbnail_url?: string | null;
+          file_size?: number | null;
+          duration?: number | null;
+          mime_type?: string | null;
+          is_active?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          description?: string | null;
+          video_url?: string;
+          thumbnail_url?: string | null;
+          file_size?: number | null;
+          duration?: number | null;
+          mime_type?: string | null;
+          is_active?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
@@ -456,6 +500,10 @@ export type FavoriteUpdate = Database['public']['Tables']['favorites']['Update']
 export type AdminSetting = Database['public']['Tables']['admin_settings']['Row'];
 export type AdminSettingInsert = Database['public']['Tables']['admin_settings']['Insert'];
 export type AdminSettingUpdate = Database['public']['Tables']['admin_settings']['Update'];
+
+export type GalleryVideo = Database['public']['Tables']['gallery_videos']['Row'];
+export type GalleryVideoInsert = Database['public']['Tables']['gallery_videos']['Insert'];
+export type GalleryVideoUpdate = Database['public']['Tables']['gallery_videos']['Update'];
 
 // Extended types with relationships
 export interface CategoryWithSubcategories extends Category {
