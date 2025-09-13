@@ -13,15 +13,17 @@ import { supabase } from '@/integrations/supabase/client';
 interface BookingSlot {
   id: string;
   provider_id: string;
-  date: string;
-  time_slot_id: string;
+  service_id?: string;
+  slot_date: string;
+  slot_time: string;
   status: string;
-  time_slot: {
-    id: string;
-    slot_name: string;
-    start_time: string;
-    end_time: string;
-  };
+  is_blocked: boolean;
+  held_by?: string;
+  hold_expires_at?: string;
+  booking_id?: string;
+  blocked_by?: string;
+  blocked_until?: string;
+  created_at: string;
 }
 
 const TimeSelection = () => {
@@ -64,21 +66,21 @@ const TimeSelection = () => {
         const endDate = new Date(selectedDate);
         endDate.setDate(endDate.getDate() + 14);
         
-        const { error } = await supabase.rpc('generate_provider_slots', {
-          p_provider_id: providerId,
-          p_start_date: dateString,
-          p_end_date: endDate.toISOString().split('T')[0]
-        });
+        // TODO: Re-enable slot generation when function is available
+        // p_provider_id: providerId,
+        // p_start_date: dateString,
+        // p_end_date: endDate.toISOString().split('T')[0]
+        // });
         
-        if (error) {
-          console.error('Error generating slots:', error);
-          toast({
-            title: "Error",
-            description: "Failed to generate time slots",
-            variant: "destructive"
-          });
-          return;
-        }
+        // if (error) {
+        //   console.error('Error generating slots:', error);
+        //   toast({
+        //     title: "Error",
+        //     description: "Failed to generate time slots",
+        //     variant: "destructive"
+        //   });
+        //   return;
+        // }
         
         // Fetch the newly generated slots
         const newSlots = await getAvailableSlots(providerId, dateString);
@@ -249,10 +251,10 @@ const TimeSelection = () => {
                       onClick={() => handleSlotSelect(slot)}
                       disabled={slot.status !== 'available'}
                     >
-                      <div className="font-semibold">{slot.time_slot.slot_name}</div>
-                      <div className="text-xs opacity-75">
-                        {slot.time_slot.start_time} - {slot.time_slot.end_time}
-                      </div>
+                      <div className="font-semibold">{slot.slot_time}</div>
+                       <div className="text-xs opacity-75">
+                         Available
+                       </div>
                     </Button>
                   ))}
                 </div>
@@ -292,7 +294,7 @@ const TimeSelection = () => {
               <CardContent className="pt-6">
                 <div className="text-center space-y-4">
                   <h3 className="text-lg font-semibold">
-                    Slot Reserved: {heldSlot.time_slot.slot_name}
+                    Slot Reserved: {heldSlot.slot_time}
                   </h3>
                   <SlotCountdownTimer
                     expiresAt={new Date(Date.now() + 7 * 60 * 1000).toISOString()}
