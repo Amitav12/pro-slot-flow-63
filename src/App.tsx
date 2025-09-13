@@ -31,6 +31,7 @@ import { applySecurityHeaders, initializeSecurityMonitoring } from "./utils/secu
 import { useEffect, useState } from "react";
 import { redirectToLogin } from '@/utils/loginRedirect';
 import { Loader2 } from 'lucide-react';
+import { useCSP } from './hooks/useCSP';
 import ProviderSelectionNew from './pages/ProviderSelectionNew';
 import Scheduling from './pages/Scheduling';
 import ServiceCategory from './pages/ServiceCategory';
@@ -54,7 +55,7 @@ const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ children })
     initializeCSRFProtection();
     
     // Apply security headers
-    applySecurityHeaders();
+    // applySecurityHeaders(); // Commented out to use static CSP meta tag in index.html
     
     // Initialize security monitoring
     initializeSecurityMonitoring();
@@ -104,6 +105,9 @@ const PaymentProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
 };
 
 const App = () => {
+  // Apply environment-aware CSP policies
+  // useCSP(); // Commented out to use static CSP meta tag in index.html
+  
   const [isLoading, setIsLoading] = useState(true);
 
   const handleLoadingComplete = () => {

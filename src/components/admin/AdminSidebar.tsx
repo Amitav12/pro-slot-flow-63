@@ -19,7 +19,8 @@ import {
   CreditCard,
   Bell,
   Gift,
-  Star
+  Star,
+  Video
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminPermissions } from '@/hooks/useAdminPermissions';
@@ -66,6 +67,7 @@ const navigationSections = [
     name: 'Marketing',
     items: [
       { name: 'Special Offers', href: '/dashboard/admin?section=special-offers', icon: Gift },
+      { name: 'Video Gallery', href: '/dashboard/admin?section=video-gallery', icon: Video },
     ]
   },
   {

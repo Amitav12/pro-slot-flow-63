@@ -22,7 +22,8 @@ import {
   Menu,
   X,
   Gift,
-  Star
+  Star,
+  Video
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
@@ -40,6 +41,8 @@ import { SettingsManager } from './SettingsManager';
 import SpecialOffersManager from './SpecialOffersManager';
 import ServiceManagementPanel from './ServiceManagementPanel';
 import { PopularServicesManager } from './PopularServicesManager';
+import VideoGalleryManager from './VideoGalleryManager';
+import { AdminSectionInitializer } from './AdminSectionInitializer';
 
 // Section components mapping
 const sectionComponents: Record<string, React.ComponentType> = {
@@ -49,6 +52,7 @@ const sectionComponents: Record<string, React.ComponentType> = {
   'service-management': ServiceManagementPanel,
   'special-offers': SpecialOffersManager,
   'popular-services': PopularServicesManager,
+  'video-gallery': VideoGalleryManager,
   bookings: BookingManager,
   categories: CategoryManager,
   locations: LocationManagement,
@@ -67,6 +71,7 @@ const sectionIcons: Record<string, React.ReactNode> = {
   'service-management': <Star className="h-4 w-4" />,
   'special-offers': <Gift className="h-4 w-4" />,
   'popular-services': <Star className="h-4 w-4" />,
+  'video-gallery': <Video className="h-4 w-4" />,
   bookings: <Calendar className="h-4 w-4" />,
   categories: <Package className="h-4 w-4" />,
   locations: <MapPin className="h-4 w-4" />,
@@ -108,6 +113,9 @@ export const EnhancedAdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Initialize missing admin sections */}
+      <AdminSectionInitializer />
+      
       {/* Mobile sidebar toggle button */}
       <Button
         onClick={() => setSidebarOpen(!sidebarOpen)}
