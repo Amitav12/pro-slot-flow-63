@@ -32,6 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CustomerProfile } from './CustomerProfile';
 import { CustomerBookings } from './CustomerBookings';
+import { OrderDetails } from './OrderDetails';
 
 interface Booking {
   id: string;
@@ -97,27 +98,25 @@ const ProfessionalCustomerDashboard: React.FC = () => {
   });
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/customer?section=dashboard' },
-    { id: 'bookings', label: 'My Bookings', icon: Calendar, path: '/customer?section=bookings' },
-    { id: 'profile', label: 'Profile', icon: User, path: '/customer?section=profile' },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard/customer/' },
+    { id: 'bookings', label: 'My Bookings', icon: Calendar, path: '/dashboard/customer/bookings' },
+    { id: 'profile', label: 'Profile', icon: User, path: '/dashboard/customer/profile' },
   ];
 
-  // Set active section based on current path or query parameter
+  // Set active section based on current path
   useEffect(() => {
     const path = location.pathname;
-    const searchParams = new URLSearchParams(location.search);
-    const section = searchParams.get('section');
     
-    if (section) {
-      setActiveSection(section);
-    } else if (path.includes('/bookings')) {
+    if (path.includes('/bookings') || path.includes('/orders/')) {
       setActiveSection('bookings');
     } else if (path.includes('/profile')) {
       setActiveSection('profile');
+    } else if (path.includes('/favorites')) {
+      setActiveSection('favorites');
     } else {
       setActiveSection('dashboard');
     }
-  }, [location.pathname, location.search]);
+  }, [location.pathname]);
 
   // Load data on component mount
   useEffect(() => {
@@ -423,7 +422,7 @@ const ProfessionalCustomerDashboard: React.FC = () => {
               size="sm"
               onClick={() => {
                 setActiveSection('bookings');
-                navigate('/dashboard/bookings');
+                navigate('/dashboard/customer/bookings');
               }}
               className="text-blue-600 border-blue-200 hover:bg-blue-50"
             >
@@ -554,12 +553,15 @@ const ProfessionalCustomerDashboard: React.FC = () => {
   );
 
   const renderContent = () => {
-    switch (activeSection) {
-      case 'bookings': return renderBookings();
-      case 'favorites': return renderFavorites();
-      case 'profile': return renderProfile();
-      default: return renderDashboard();
-    }
+    return (
+      <Routes>
+        <Route path="/" element={renderDashboard()} />
+        <Route path="/bookings" element={renderBookings()} />
+        <Route path="/orders/:orderId" element={<OrderDetails />} />
+        <Route path="/favorites" element={renderFavorites()} />
+        <Route path="/profile" element={renderProfile()} />
+      </Routes>
+    );
   };
 
   return (
@@ -606,7 +608,7 @@ const ProfessionalCustomerDashboard: React.FC = () => {
                   key={item.id}
                   onClick={() => {
                     setActiveSection(item.id);
-                    navigate(`/customer?section=${item.id}`);
+                    navigate(item.path);
                     setSidebarOpen(false);
                   }}
                   className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
@@ -683,7 +685,7 @@ const ProfessionalCustomerDashboard: React.FC = () => {
                   </h1>
                   <p className="text-sm text-gray-600">
                     {activeSection === 'dashboard' && 'Overview of your account'}
-                    {activeSection === 'bookings' && 'Manage your service appointments'}
+                    {activeSection === 'bookings' && 'Manage your service appointments and orders'}
                     {activeSection === 'favorites' && 'Your saved services'}
                     {activeSection === 'profile' && 'Account settings and information'}
                   </p>
