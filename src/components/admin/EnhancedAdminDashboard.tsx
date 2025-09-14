@@ -43,6 +43,7 @@ import ServiceManagementPanel from './ServiceManagementPanel';
 import { PopularServicesManager } from './PopularServicesManager';
 import VideoGalleryManager from './VideoGalleryManager';
 import { AdminSectionInitializer } from './AdminSectionInitializer';
+import SpecialOffersHub from './SpecialOffersHub';
 
 // Section components mapping
 const sectionComponents: Record<string, React.ComponentType> = {
@@ -50,7 +51,7 @@ const sectionComponents: Record<string, React.ComponentType> = {
   providers: ProviderManager,
   services: ServiceApprovalManager,
   'service-management': ServiceManagementPanel,
-  'special-offers': SpecialOffersManager,
+  'special-offers': SpecialOffersHub,
   'popular-services': PopularServicesManager,
   'video-gallery': VideoGalleryManager,
   bookings: BookingManager,

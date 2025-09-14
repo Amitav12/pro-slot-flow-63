@@ -104,14 +104,39 @@ export const useProviderAvailability = () => {
   // Get available slots for a provider on a specific date
   const getAvailableSlots = async (providerId: string, date: string): Promise<BookingSlot[]> => {
     try {
-      const { data, error } = await supabase.rpc('get_available_slots', {
-        p_provider_id: providerId,
-        p_service_id: null,
-        p_date: date
-      });
+      // First, clean up expired holds
+      const now = new Date().toISOString();
+      await supabase
+        .from('booking_slots')
+        .update({ 
+          status: 'available', 
+          held_by: null, 
+          hold_expires_at: null 
+        })
+        .eq('status', 'held')
+        .lt('hold_expires_at', now);
+      
+      // Fetch available slots directly from booking_slots table
+      const { data, error } = await supabase
+        .from('booking_slots')
+        .select('*')
+        .eq('provider_id', providerId)
+        .eq('slot_date', date)
+        .eq('is_blocked', false)
+        .in('status', ['available'])
+        .order('slot_time');
 
       if (error) throw error;
-      return data || [];
+      
+      // Filter out held slots that haven't expired (double check)
+      const availableSlots = (data || []).filter(slot => {
+        if (slot.status === 'held' && slot.hold_expires_at) {
+          return new Date(slot.hold_expires_at) < new Date();
+        }
+        return slot.status === 'available';
+      });
+      
+      return availableSlots;
     } catch (error) {
       console.error('Error fetching available slots:', error);
       return [];

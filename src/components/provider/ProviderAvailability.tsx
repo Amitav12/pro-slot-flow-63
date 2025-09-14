@@ -1,16 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, ToggleLeft, ToggleRight, Save, Plus, Trash2 } from 'lucide-react';
+import { Calendar, Clock, ToggleLeft, ToggleRight, Save, Plus, Trash2, CalendarDays, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTimeSlots } from '@/hooks/useTimeSlots';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { WeeklyScheduleSelector } from './WeeklyScheduleSelector';
+import NotificationSettings from './NotificationSettings';
 
 export const ProviderAvailability = () => {
   const [emergencyOffline, setEmergencyOffline] = useState(false);
+  const [activeTab, setActiveTab] = useState('weekly-schedule');
   const { user } = useAuth();
   const { toast } = useToast();
   const { availability, updateProviderAvailability, refetch } = useTimeSlots();
@@ -72,117 +76,139 @@ export const ProviderAvailability = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-h2 text-text-primary font-bold mb-2">Availability Settings</h1>
-        <p className="text-body text-text-secondary">
-          Manage your working hours and availability for bookings.
-        </p>
-      </div>
-
-      {/* Emergency Offline Toggle */}
+      {/* Header */}
       <div className="bg-surface rounded-2xl border border-border p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-h4 font-bold text-text-primary mb-2">Emergency Offline Mode</h3>
-            <p className="text-body text-text-secondary">
-              Temporarily stop accepting new bookings for emergencies or personal time.
+            <h2 className="text-h2 font-bold text-text-primary">Schedule & Availability</h2>
+            <p className="text-body text-text-muted mt-1">
+              Manage your working hours, weekly schedules, and availability settings
             </p>
           </div>
-          <button
-            onClick={() => setEmergencyOffline(!emergencyOffline)}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all ${
-              emergencyOffline
-                ? 'bg-error/10 text-error border border-error/20'
-                : 'bg-success/10 text-success border border-success/20'
-            }`}
-          >
-            {emergencyOffline ? (
-              <>
-                <ToggleRight className="h-5 w-5" />
-                <span>Offline</span>
-              </>
-            ) : (
-              <>
-                <ToggleLeft className="h-5 w-5" />
-                <span>Online</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Weekly Schedule */}
-      <div className="bg-surface rounded-2xl border border-border">
-        <div className="p-6 border-b border-border">
-          <div className="flex items-center justify-between">
-            <h3 className="text-h3 font-bold text-text-primary">Weekly Schedule</h3>
-            <Button onClick={saveAvailability} variant="default" size="sm">
-              <Save className="h-4 w-4 mr-2" />
-              Save Changes
+          <div className="flex items-center space-x-4">
+            <div className="text-right">
+              <p className="text-small text-text-muted">Status</p>
+              <p className={`text-h4 font-bold ${
+                emergencyOffline ? 'text-error' : 'text-success'
+              }`}>
+                {emergencyOffline ? 'Offline' : 'Online'}
+              </p>
+            </div>
+            <Button
+              variant={emergencyOffline ? 'destructive' : 'outline'}
+              onClick={() => setEmergencyOffline(!emergencyOffline)}
+              className="min-w-[120px]"
+            >
+              {emergencyOffline ? 'Go Online' : 'Go Offline'}
             </Button>
           </div>
         </div>
-        <div className="p-6 space-y-4">
-          {weekDays.map((schedule) => (
-            <div key={schedule.id} className="flex items-center justify-between p-4 bg-background rounded-xl">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-primary" />
-                </div>
+      </div>
+
+      {/* Main Content Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="weekly-schedule" className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4" />
+            Weekly Schedule
+          </TabsTrigger>
+          <TabsTrigger value="default-hours" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Default Hours
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Settings
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Weekly Schedule Tab */}
+        <TabsContent value="weekly-schedule" className="space-y-6">
+          <WeeklyScheduleSelector 
+            onScheduleUpdate={(schedules) => {
+              toast({
+                title: 'Schedule Updated',
+                description: `Updated availability for ${schedules.length} week(s)`,
+              });
+              refetch();
+            }}
+          />
+        </TabsContent>
+
+        {/* Default Hours Tab */}
+        <TabsContent value="default-hours" className="space-y-6">
+          <div className="bg-surface rounded-2xl border border-border">
+            <div className="p-6 border-b border-border">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-semibold text-text-primary">{schedule.day}</h4>
-                  <p className="text-small text-text-muted">
-                    {schedule.enabled ? `${schedule.start} - ${schedule.end}` : 'Closed'}
+                  <h3 className="text-h3 font-bold text-text-primary">Default Weekly Hours</h3>
+                  <p className="text-body text-text-muted mt-1">
+                    Set your standard working hours for each day of the week
                   </p>
                 </div>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                {schedule.enabled && (
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4 text-text-muted" />
-                      <Input
-                        type="time"
-                        value={schedule.start}
-                        onChange={(e) => updateScheduleDay(schedule.id, 'start', e.target.value)}
-                        className="w-24 text-small"
-                      />
-                    </div>
-                    <span className="text-text-muted">to</span>
-                    <Input
-                      type="time"
-                      value={schedule.end}
-                      onChange={(e) => updateScheduleDay(schedule.id, 'end', e.target.value)}
-                      className="w-24 text-small"
-                    />
-                  </div>
-                )}
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => updateScheduleDay(schedule.id, 'enabled', !schedule.enabled)}
-                  className={schedule.enabled ? 'border-success text-success' : 'border-error text-error'}
-                >
-                  {schedule.enabled ? 'Available' : 'Closed'}
+                <Button onClick={saveAvailability} variant="default" size="sm">
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
                 </Button>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="p-6 space-y-4">
+              {weekDays.map((schedule) => (
+                <div key={schedule.id} className="flex items-center justify-between p-4 bg-background rounded-xl">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                      <Calendar className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-text-primary">{schedule.day}</h4>
+                      <p className="text-small text-text-muted">
+                        {schedule.enabled ? `${schedule.start} - ${schedule.end}` : 'Closed'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    {schedule.enabled && (
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2">
+                          <Clock className="h-4 w-4 text-text-muted" />
+                          <Input
+                            type="time"
+                            value={schedule.start}
+                            onChange={(e) => updateScheduleDay(schedule.id, 'start', e.target.value)}
+                            className="w-24 text-small"
+                          />
+                        </div>
+                        <span className="text-text-muted">to</span>
+                        <Input
+                          type="time"
+                          value={schedule.end}
+                          onChange={(e) => updateScheduleDay(schedule.id, 'end', e.target.value)}
+                          className="w-24 text-small"
+                        />
+                      </div>
+                    )}
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => updateScheduleDay(schedule.id, 'enabled', !schedule.enabled)}
+                      className={schedule.enabled ? 'border-success text-success' : 'border-error text-error'}
+                    >
+                      {schedule.enabled ? 'Available' : 'Closed'}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </TabsContent>
 
-      {/* Calendar View */}
-      <div className="bg-surface rounded-2xl border border-border p-6">
-        <h3 className="text-h3 font-bold text-text-primary mb-4">Calendar View</h3>
-        <div className="bg-background rounded-xl p-6 text-center">
-          <Calendar className="h-12 w-12 text-text-muted mx-auto mb-4" />
-          <p className="text-body text-text-muted">
-            Interactive calendar coming soon. Manage specific dates and time slots.
-          </p>
-        </div>
-      </div>
+        {/* Settings Tab */}
+        <TabsContent value="settings" className="space-y-6">
+          <NotificationSettings providerId={user?.id || ''} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

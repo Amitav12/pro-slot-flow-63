@@ -10,10 +10,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CouponApplication } from '@/components/CouponApplication';
+import { PlatformFees } from '@/components/PlatformFees';
+import { TaxCalculation } from '@/components/TaxCalculation';
 import { Trash2, Plus, Minus, ShoppingBag, Lock, User, MapPin, Phone, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { paymentService } from '@/services/paymentService';
 
+
+interface AppliedCoupon {
+  code: string;
+  discountAmount: number;
+  offerId: string;
+}
 
 export default function Cart() {
   const { items, itemCount, totalAmount, removeFromCart, updateQuantity, clearCart, isLoading } = useCart();
@@ -21,6 +30,10 @@ export default function Cart() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showGuestForm, setShowGuestForm] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [platformFees, setPlatformFees] = useState(0);
+  const [taxAmount, setTaxAmount] = useState(0);
+  const [taxDetails, setTaxDetails] = useState<any>(null);
   const [guestInfo, setGuestInfo] = useState({
     name: '',
     email: '',
@@ -29,20 +42,25 @@ export default function Cart() {
     instructions: ''
   });
 
-  // Dynamic service fee calculation (could be 0, percentage, or fixed amount)
-  const serviceFee = totalAmount > 0 ? Math.max(totalAmount * 0.05, 2) : 0; // 5% with minimum $2
-  const finalTotal = totalAmount + serviceFee;
+  // Calculate totals with coupon and platform fees
+  const subtotalAfterDiscount = appliedCoupon 
+    ? Math.max(0, totalAmount - appliedCoupon.discountAmount)
+    : totalAmount;
+  const subtotalWithFees = subtotalAfterDiscount + platformFees;
+  const finalTotal = subtotalWithFees + taxAmount;
 
   const handleCheckout = async (guestData?: typeof guestInfo) => {
     console.log('🚀 Starting checkout process...', { 
       totalAmount, 
-      serviceFee, 
+      subtotalAfterDiscount,
+      platformFees, 
       finalTotal, 
       itemCount, 
       items,
       isAuthenticated,
       isLoading,
-      guestData 
+      guestData,
+      appliedCoupon 
     });
 
     // Ensure we have items to checkout
@@ -80,7 +98,10 @@ export default function Cart() {
         metadata: { 
           source: 'cart',
           isAuthenticated: isAuthenticated.toString(),
-          serviceFee: serviceFee.toFixed(2)
+          platformFees: platformFees.toFixed(2),
+          taxAmount: taxAmount.toFixed(2),
+          taxDetails: taxDetails ? JSON.stringify(taxDetails) : undefined,
+          appliedCoupon: appliedCoupon ? JSON.stringify(appliedCoupon) : undefined
         },
       });
 
@@ -264,6 +285,15 @@ export default function Cart() {
               </div>
             </div>
 
+            {/* Coupon Application */}
+            <div className="lg:col-span-2">
+              <CouponApplication
+                subtotal={totalAmount}
+                onCouponApplied={setAppliedCoupon}
+                appliedCoupon={appliedCoupon}
+              />
+            </div>
+
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <Card className="bg-background border shadow-lg sticky top-4">
@@ -279,11 +309,30 @@ export default function Cart() {
                     <span className="font-semibold text-lg">${totalAmount.toFixed(2)}</span>
                   </div>
                   
-                  {/* Service Fee */}
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Service Fee</span>
-                    <span className="font-semibold text-lg">${serviceFee.toFixed(2)}</span>
-                  </div>
+                  {/* Applied Coupon Discount */}
+                  {appliedCoupon && (
+                    <div className="flex justify-between items-center text-green-600">
+                      <span className="text-muted-foreground">
+                        Discount ({appliedCoupon.code})
+                      </span>
+                      <span className="font-semibold text-lg">-${appliedCoupon.discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  
+                  {/* Platform Fees */}
+                  <PlatformFees
+                    subtotal={subtotalAfterDiscount}
+                    onFeesCalculated={setPlatformFees}
+                  />
+                  
+                  {/* Tax Calculation */}
+                  <TaxCalculation 
+                    subtotal={subtotalWithFees}
+                    onTaxCalculated={(amount, details) => {
+                      setTaxAmount(amount);
+                      setTaxDetails(details);
+                    }}
+                  />
                   
                   {/* Total */}
                   <div className="border-t pt-4">

@@ -27,7 +27,7 @@ interface BookingSlot {
 }
 
 const TimeSelection = () => {
-  const { providerId, serviceId } = useParams();
+  const { serviceId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -36,6 +36,9 @@ const TimeSelection = () => {
   
   // Get data from DateSelection page
   const { selectedServices = [], selectedProvider, selectedDate, category = '' } = location.state || {};
+  
+  // Use provider ID from the state instead of URL params
+  const providerId = selectedProvider?.id;
   
   const [availableSlots, setAvailableSlots] = useState<BookingSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<BookingSlot | null>(null);
@@ -48,6 +51,36 @@ const TimeSelection = () => {
       fetchAvailableSlots();
     }
   }, [selectedDate, providerId]);
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('TimeSelection Debug:', {
+      selectedProvider,
+      providerId,
+      selectedDate,
+      selectedServices,
+      locationState: location.state
+    });
+    
+    // Check if we have the required data
+    if (!selectedProvider) {
+      console.error('No selectedProvider found in location state');
+      toast({
+        title: "Missing Provider Information",
+        description: "Please go back and select a provider again.",
+        variant: "destructive"
+      });
+    }
+    
+    if (!selectedDate) {
+      console.error('No selectedDate found in location state');
+      toast({
+        title: "Missing Date Information", 
+        description: "Please go back and select a date again.",
+        variant: "destructive"
+      });
+    }
+  }, [selectedProvider, providerId, selectedDate, selectedServices, location.state, toast]);
 
   const fetchAvailableSlots = async () => {
     if (!selectedDate || !providerId) return;

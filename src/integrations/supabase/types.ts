@@ -952,6 +952,304 @@ export type Database = {
         }
         Relationships: []
       }
+      special_offers: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          code: string
+          discount_type: string
+          discount_value: number
+          min_order_value: number | null
+          max_discount: number | null
+          usage_limit: number | null
+          used_count: number
+          valid_from: string
+          valid_until: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          code: string
+          discount_type: string
+          discount_value: number
+          min_order_value?: number | null
+          max_discount?: number | null
+          usage_limit?: number | null
+          used_count?: number
+          valid_from: string
+          valid_until: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          code?: string
+          discount_type?: string
+          discount_value?: number
+          min_order_value?: number | null
+          max_discount?: number | null
+          usage_limit?: number | null
+          used_count?: number
+          valid_from?: string
+          valid_until?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      coupons: {
+        Row: {
+          id: string
+          code: string
+          discount_type: string
+          discount_value: number
+          min_order_value: number | null
+          max_discount: number | null
+          usage_limit: number | null
+          used_count: number
+          valid_from: string
+          valid_until: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          code: string
+          discount_type: string
+          discount_value: number
+          min_order_value?: number | null
+          max_discount?: number | null
+          usage_limit?: number | null
+          used_count?: number
+          valid_from: string
+          valid_until: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          discount_type?: string
+          discount_value?: number
+          min_order_value?: number | null
+          max_discount?: number | null
+          usage_limit?: number | null
+          used_count?: number
+          valid_from?: string
+          valid_until?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_fees: {
+        Row: {
+          id: string
+          fee_type: string
+          fee_value: number
+          is_percentage: boolean
+          min_fee: number | null
+          max_fee: number | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          fee_type: string
+          fee_value: number
+          is_percentage?: boolean
+          min_fee?: number | null
+          max_fee?: number | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          fee_type?: string
+          fee_value?: number
+          is_percentage?: boolean
+          min_fee?: number | null
+          max_fee?: number | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tax_slabs: {
+        Row: {
+          id: string
+          name: string
+          tax_rate: number
+          min_amount: number | null
+          max_amount: number | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          tax_rate: number
+          min_amount?: number | null
+          max_amount?: number | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          tax_rate?: number
+          min_amount?: number | null
+          max_amount?: number | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      booking_discounts: {
+        Row: {
+          id: string
+          booking_id: string
+          discount_type: string
+          discount_amount: number
+          coupon_code: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id: string
+          discount_type: string
+          discount_amount: number
+          coupon_code?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string
+          discount_type?: string
+          discount_amount?: number
+          coupon_code?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_discounts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      booking_fees: {
+        Row: {
+          id: string
+          booking_id: string
+          fee_type: string
+          fee_amount: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id: string
+          fee_type: string
+          fee_amount: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string
+          fee_type?: string
+          fee_amount?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_fees_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      bookings: {
+        Row: {
+          id: string
+          user_id: string
+          provider_id: string
+          service_id: string
+          booking_date: string
+          booking_time: string
+          status: string
+          total_amount: number
+          payment_status: string
+          payment_method: string | null
+          customer_name: string
+          customer_phone: string
+          customer_email: string
+          customer_address: string
+          special_instructions: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          provider_id: string
+          service_id: string
+          booking_date: string
+          booking_time: string
+          status?: string
+          total_amount: number
+          payment_status?: string
+          payment_method?: string | null
+          customer_name: string
+          customer_phone: string
+          customer_email: string
+          customer_address: string
+          special_instructions?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          provider_id?: string
+          service_id?: string
+          booking_date?: string
+          booking_time?: string
+          status?: string
+          total_amount?: number
+          payment_status?: string
+          payment_method?: string | null
+          customer_name?: string
+          customer_phone?: string
+          customer_email?: string
+          customer_address?: string
+          special_instructions?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1035,6 +1333,14 @@ export type Database = {
       release_slot: {
         Args: { slot_id: string; user_id: string }
         Returns: boolean
+      }
+      validate_coupon_code: {
+        Args: { coupon_code: string; order_amount: number }
+        Returns: {
+          is_valid: boolean
+          discount_amount: number
+          error_message: string | null
+        }
       }
     }
     Enums: {

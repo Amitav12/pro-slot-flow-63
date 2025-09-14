@@ -80,8 +80,44 @@ export const useTimeSlots = (providerId?: string) => {
 
   const fetchTimeSlots = async (targetProviderId: string, date: Date) => {
     try {
-      // TODO: Implement booking slots table
-      setSlots([]);
+      const dateString = format(date, 'yyyy-MM-dd');
+      
+      // First, clean up expired holds directly
+      const now = new Date().toISOString();
+      await supabase
+        .from('booking_slots')
+        .update({ 
+          status: 'available', 
+          held_by: null, 
+          hold_expires_at: null 
+        })
+        .eq('status', 'held')
+        .lt('hold_expires_at', now);
+      
+      // Fetch available slots directly from booking_slots table
+      const { data: slotsData, error } = await supabase
+        .from('booking_slots')
+        .select('*')
+        .eq('provider_id', targetProviderId)
+        .eq('slot_date', dateString)
+        .eq('is_blocked', false)
+        .in('status', ['available', 'held'])
+        .order('slot_time');
+      
+      if (error) {
+        console.error('Error fetching slots:', error);
+        throw error;
+      }
+      
+      // Filter out held slots that haven't expired
+      const availableSlots = (slotsData || []).filter(slot => {
+        if (slot.status === 'held' && slot.hold_expires_at) {
+          return new Date(slot.hold_expires_at) < new Date();
+        }
+        return slot.status === 'available';
+      });
+      
+      setSlots(availableSlots);
     } catch (error) {
       console.error('Error fetching time slots:', error);
       toast({

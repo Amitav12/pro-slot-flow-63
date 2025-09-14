@@ -24,6 +24,7 @@ import { AdminLogin } from "./components/auth/AdminLogin";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { CartProvider } from "./hooks/useCart";
+import { NotificationSchedulerProvider } from "./services/NotificationScheduler";
 import { LoadingScreen } from "./components/LoadingScreen";
 import "./utils/errorHandler"; // Initialize production error handling
 import { initializeCSRFProtection, clearCSRFToken } from "./utils/csrfProtection";
@@ -121,8 +122,9 @@ const App = () => {
           <TooltipProvider>
             <AuthProvider>
               <CartProvider>
-                <Toaster />
-                <Sonner />
+                <NotificationSchedulerProvider enabled={true} checkInterval={60 * 60 * 1000}>
+                  <Toaster />
+                  <Sonner />
                 {isLoading ? (
                   <LoadingScreen onComplete={handleLoadingComplete} />
                 ) : (
@@ -220,6 +222,7 @@ const App = () => {
                     </Routes>
                   </BrowserRouter>
                 )}
+                </NotificationSchedulerProvider>
               </CartProvider>
             </AuthProvider>
           </TooltipProvider>
