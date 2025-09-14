@@ -15,15 +15,15 @@ interface PlatformFee {
   id: string;
   fee_type: 'percentage' | 'fixed_amount';
   fee_value: number;
-  minimum_fee?: number;
-  maximum_fee?: number;
-  applicable_services?: any[];
-  applicable_categories?: any[];
+  minimum_fee?: number | null;
+  maximum_fee?: number | null;
+  applicable_services?: any;
+  applicable_categories?: any;
   is_active: boolean;
-  description?: string;
+  description?: string | null;
   created_at?: string;
   updated_at?: string;
-  created_by?: string;
+  created_by?: string | null;
 }
 
 export function PlatformFeesManager() {
@@ -62,7 +62,21 @@ export function PlatformFeesManager() {
         return;
       }
 
-      setFees(data || []);
+      const transformedFees: PlatformFee[] = (data || []).map(fee => ({
+        id: fee.id,
+        fee_type: fee.fee_type as "percentage" | "fixed_amount",
+        fee_value: fee.fee_value,
+        minimum_fee: fee.minimum_fee,
+        maximum_fee: fee.maximum_fee,
+        description: fee.description,
+        applicable_services: fee.applicable_services,
+        applicable_categories: fee.applicable_categories,
+        created_by: fee.created_by,
+        is_active: fee.is_active,
+        created_at: fee.created_at,
+        updated_at: fee.updated_at
+      }));
+      setFees(transformedFees);
     } catch (error) {
       console.error('Error loading platform fees:', error);
       toast({
@@ -96,7 +110,21 @@ export function PlatformFeesManager() {
         throw error;
       }
 
-      setFees([data, ...fees]);
+      const newFee: PlatformFee = {
+        id: data.id,
+        fee_type: data.fee_type as "percentage" | "fixed_amount",
+        fee_value: data.fee_value,
+        minimum_fee: data.minimum_fee,
+        maximum_fee: data.maximum_fee,
+        description: data.description,
+        applicable_services: data.applicable_services,
+        applicable_categories: data.applicable_categories,
+        created_by: data.created_by,
+        is_active: data.is_active,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+      setFees([newFee, ...fees]);
       toast({
         title: "Success",
         description: "Platform fee created successfully",
@@ -134,7 +162,21 @@ export function PlatformFeesManager() {
         throw error;
       }
 
-      setFees(fees.map(fee => fee.id === id ? data : fee));
+      const updatedFee: PlatformFee = {
+        id: data.id,
+        fee_type: data.fee_type as "percentage" | "fixed_amount",
+        fee_value: data.fee_value,
+        minimum_fee: data.minimum_fee,
+        maximum_fee: data.maximum_fee,
+        description: data.description,
+        applicable_services: data.applicable_services,
+        applicable_categories: data.applicable_categories,
+        created_by: data.created_by,
+        is_active: data.is_active,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+      setFees(fees.map(fee => fee.id === id ? updatedFee : fee));
       toast({
         title: "Success",
         description: "Platform fee updated successfully",
@@ -202,7 +244,21 @@ export function PlatformFeesManager() {
         throw error;
       }
 
-      setFees(fees.map(fee => fee.id === id ? data : fee));
+      const updatedFee: PlatformFee = {
+        id: data.id,
+        fee_type: data.fee_type as "percentage" | "fixed_amount",
+        fee_value: data.fee_value,
+        minimum_fee: data.minimum_fee,
+        maximum_fee: data.maximum_fee,
+        description: data.description,
+        applicable_services: data.applicable_services,
+        applicable_categories: data.applicable_categories,
+        created_by: data.created_by,
+        is_active: data.is_active,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+      setFees(fees.map(fee => fee.id === id ? updatedFee : fee));
       toast({
         title: "Success",
         description: `Platform fee ${isActive ? 'activated' : 'deactivated'} successfully`,

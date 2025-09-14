@@ -152,12 +152,17 @@ export const WeeklyScheduleSelector: React.FC<WeeklyScheduleSelectorProps> = ({
               .upsert({
                 provider_id: user.id,
                 week_start: week.weekStart.toISOString().split('T')[0],
-                date: day.date.toISOString().split('T')[0],
-                day_of_week: day.date.getDay(),
-                start_time: day.startTime,
-                end_time: day.endTime,
-                is_available: true,
-                time_slots: day.slots
+                week_end: new Date(week.weekStart.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                availability_data: {
+                  [day.date.toISOString().split('T')[0]]: {
+                    day_of_week: day.date.getDay(),
+                    start_time: day.startTime,
+                    end_time: day.endTime,
+                    is_available: true,
+                    time_slots: day.slots
+                  }
+                },
+                is_confirmed: true
               });
             
             if (error) throw error;

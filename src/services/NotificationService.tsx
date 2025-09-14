@@ -1,6 +1,22 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { ProviderNotificationPreferences, ProviderNotificationPreferencesInsert, ProviderNotificationPreferencesUpdate } from '@/types/database';
+interface ProviderNotificationPreferences {
+  id: string;
+  provider_id: string;
+  availability_reminder_enabled: boolean;
+  reminder_days_advance: number;
+  notification_methods: any;
+  week_start_day: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ProviderNotificationPreferencesUpdate {
+  availability_reminder_enabled?: boolean;
+  reminder_days_advance?: number;
+  notification_methods?: any;
+  week_start_day?: number;
+}
 
 interface ProviderNotification {
   provider_id: string;

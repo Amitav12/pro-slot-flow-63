@@ -7,10 +7,15 @@ interface PlatformFee {
   id: string;
   fee_type: 'percentage' | 'fixed_amount';
   fee_value: number;
-  minimum_fee?: number;
-  maximum_fee?: number;
-  description?: string;
+  minimum_fee?: number | null;
+  maximum_fee?: number | null;
+  description?: string | null;
+  applicable_services?: any;
+  applicable_categories?: any;
+  created_by?: string | null;
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 interface PlatformFeesProps {
@@ -56,7 +61,11 @@ export const PlatformFees: React.FC<PlatformFeesProps> = ({
       }
 
       if (data) {
-        setPlatformFee(data);
+        const fee: PlatformFee = {
+          ...data,
+          fee_type: data.fee_type as "percentage" | "fixed_amount"
+        };
+        setPlatformFee(fee);
       }
     } catch (error) {
       console.error('Error loading platform fees:', error);

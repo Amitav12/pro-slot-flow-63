@@ -43,7 +43,7 @@ export class CSPConfigService {
   }
 
   public logCSPPolicy(): void {
-    if (import.meta.env?.DEV) {
+    if (process.env.NODE_ENV === 'development') {
       console.log('🔒 CSP Configuration Applied:');
       console.log('📡 Supabase Domain:', this.supabaseDomain);
       console.log('🎬 Media-src directive:', `'self' ${this.supabaseDomain} ${this.supabaseDomain}/storage/v1/object/public/*`);

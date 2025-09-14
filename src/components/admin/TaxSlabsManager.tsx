@@ -62,7 +62,12 @@ export function TaxSlabsManager() {
         return;
       }
 
-      setTaxSlabs(data || []);
+      const transformedSlabs: TaxSlab[] = (data || []).map(slab => ({
+        ...slab,
+        minimum_amount: slab.minimum_amount || 0,
+        maximum_amount: slab.maximum_amount || undefined
+      }));
+      setTaxSlabs(transformedSlabs);
     } catch (error) {
       console.error('Error loading tax slabs:', error);
       toast({
@@ -97,7 +102,12 @@ export function TaxSlabsManager() {
         throw error;
       }
 
-      setTaxSlabs([data, ...taxSlabs]);
+      const addedSlab: TaxSlab = {
+        ...data,
+        minimum_amount: data.minimum_amount || 0,
+        maximum_amount: data.maximum_amount || undefined
+      };
+      setTaxSlabs([addedSlab, ...taxSlabs]);
       toast({
         title: "Success",
         description: "Tax slab created successfully",
@@ -136,7 +146,12 @@ export function TaxSlabsManager() {
         throw error;
       }
 
-      setTaxSlabs(taxSlabs.map(slab => slab.id === id ? data : slab));
+      const updatedSlab: TaxSlab = {
+        ...data,
+        minimum_amount: data.minimum_amount || 0,
+        maximum_amount: data.maximum_amount || undefined
+      };
+      setTaxSlabs(taxSlabs.map(slab => slab.id === id ? updatedSlab : slab));
       toast({
         title: "Success",
         description: "Tax slab updated successfully",
@@ -205,7 +220,12 @@ export function TaxSlabsManager() {
         throw error;
       }
 
-      setTaxSlabs(taxSlabs.map(slab => slab.id === id ? data : slab));
+      const updatedSlab: TaxSlab = {
+        ...data,
+        minimum_amount: data.minimum_amount || 0,
+        maximum_amount: data.maximum_amount || undefined
+      };
+      setTaxSlabs(taxSlabs.map(slab => slab.id === id ? updatedSlab : slab));
       toast({
         title: "Success",
         description: `Tax slab ${isActive ? 'activated' : 'deactivated'} successfully`,
