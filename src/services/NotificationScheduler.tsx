@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 interface NotificationSchedulerProps {
   enabled?: boolean;
   checkInterval?: number; // in milliseconds, default 1 hour
+  children?: React.ReactNode;
 }
 
 // Background service to handle automated notifications

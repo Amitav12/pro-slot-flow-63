@@ -74,6 +74,92 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_discounts: {
+        Row: {
+          booking_id: string
+          coupon_code: string | null
+          created_at: string
+          discount_amount: number
+          discount_type: string
+          discount_value: number
+          id: string
+          offer_id: string | null
+        }
+        Insert: {
+          booking_id: string
+          coupon_code?: string | null
+          created_at?: string
+          discount_amount: number
+          discount_type: string
+          discount_value: number
+          id?: string
+          offer_id?: string | null
+        }
+        Update: {
+          booking_id?: string
+          coupon_code?: string | null
+          created_at?: string
+          discount_amount?: number
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          offer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_discounts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_discounts_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "special_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_fees: {
+        Row: {
+          booking_id: string
+          created_at: string
+          description: string | null
+          fee_amount: number
+          fee_type: string
+          fee_value: number
+          id: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          description?: string | null
+          fee_amount: number
+          fee_type: string
+          fee_value: number
+          id?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          description?: string | null
+          fee_amount?: number
+          fee_type?: string
+          fee_value?: number
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_fees_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_slots: {
         Row: {
           blocked_by: string | null
@@ -122,6 +208,54 @@ export type Database = {
           slot_time?: string
           status?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          booking_date: string
+          booking_time: string
+          created_at: string
+          customer_id: string | null
+          id: string
+          payment_intent_id: string | null
+          payment_status: string | null
+          provider_id: string | null
+          service_id: string | null
+          special_instructions: string | null
+          status: string | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          booking_date: string
+          booking_time: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          payment_intent_id?: string | null
+          payment_status?: string | null
+          provider_id?: string | null
+          service_id?: string | null
+          special_instructions?: string | null
+          status?: string | null
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          booking_date?: string
+          booking_time?: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          payment_intent_id?: string | null
+          payment_status?: string | null
+          provider_id?: string | null
+          service_id?: string | null
+          special_instructions?: string | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -202,6 +336,60 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      coupons: {
+        Row: {
+          booking_id: string | null
+          code_used: string
+          customer_id: string | null
+          discount_applied: number
+          final_amount: number
+          id: string
+          offer_id: string
+          original_amount: number
+          status: string | null
+          used_at: string
+        }
+        Insert: {
+          booking_id?: string | null
+          code_used: string
+          customer_id?: string | null
+          discount_applied: number
+          final_amount: number
+          id?: string
+          offer_id: string
+          original_amount: number
+          status?: string | null
+          used_at?: string
+        }
+        Update: {
+          booking_id?: string | null
+          code_used?: string
+          customer_id?: string | null
+          discount_applied?: number
+          final_amount?: number
+          id?: string
+          offer_id?: string
+          original_amount?: number
+          status?: string | null
+          used_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupons_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupons_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "special_offers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       customer_favorites: {
         Row: {
@@ -509,6 +697,51 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_fees: {
+        Row: {
+          applicable_categories: Json | null
+          applicable_services: Json | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          fee_type: string
+          fee_value: number
+          id: string
+          is_active: boolean | null
+          maximum_fee: number | null
+          minimum_fee: number | null
+          updated_at: string
+        }
+        Insert: {
+          applicable_categories?: Json | null
+          applicable_services?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fee_type: string
+          fee_value: number
+          id?: string
+          is_active?: boolean | null
+          maximum_fee?: number | null
+          minimum_fee?: number | null
+          updated_at?: string
+        }
+        Update: {
+          applicable_categories?: Json | null
+          applicable_services?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fee_type?: string
+          fee_value?: number
+          id?: string
+          is_active?: boolean | null
+          maximum_fee?: number | null
+          minimum_fee?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       provider_availability: {
         Row: {
           created_at: string | null
@@ -544,6 +777,88 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      provider_availability_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          notification_type: string
+          provider_id: string
+          sent_at: string
+          status: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          notification_type?: string
+          provider_id: string
+          sent_at?: string
+          status?: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          notification_type?: string
+          provider_id?: string
+          sent_at?: string
+          status?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_availability_notifications_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_notification_preferences: {
+        Row: {
+          availability_reminder_enabled: boolean
+          created_at: string
+          id: string
+          notification_methods: Json
+          provider_id: string
+          reminder_days_advance: number
+          updated_at: string
+          week_start_day: number
+        }
+        Insert: {
+          availability_reminder_enabled?: boolean
+          created_at?: string
+          id?: string
+          notification_methods?: Json
+          provider_id: string
+          reminder_days_advance?: number
+          updated_at?: string
+          week_start_day?: number
+        }
+        Update: {
+          availability_reminder_enabled?: boolean
+          created_at?: string
+          id?: string
+          notification_methods?: Json
+          provider_id?: string
+          reminder_days_advance?: number
+          updated_at?: string
+          week_start_day?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_notification_preferences_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provider_services: {
         Row: {
@@ -628,6 +943,47 @@ export type Database = {
             columns: ["subcategory_id"]
             isOneToOne: false
             referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_weekly_availability: {
+        Row: {
+          availability_data: Json
+          created_at: string
+          id: string
+          is_confirmed: boolean
+          provider_id: string
+          updated_at: string
+          week_end: string
+          week_start: string
+        }
+        Insert: {
+          availability_data?: Json
+          created_at?: string
+          id?: string
+          is_confirmed?: boolean
+          provider_id: string
+          updated_at?: string
+          week_end: string
+          week_start: string
+        }
+        Update: {
+          availability_data?: Json
+          created_at?: string
+          id?: string
+          is_confirmed?: boolean
+          provider_id?: string
+          updated_at?: string
+          week_end?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_weekly_availability_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -782,6 +1138,72 @@ export type Database = {
         }
         Relationships: []
       }
+      special_offers: {
+        Row: {
+          applicable_categories: Json | null
+          applicable_services: Json | null
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean | null
+          maximum_discount_amount: number | null
+          minimum_order_amount: number | null
+          title: string
+          updated_at: string
+          usage_count: number | null
+          usage_limit: number | null
+          usage_limit_per_customer: number | null
+          valid_from: string
+          valid_until: string
+        }
+        Insert: {
+          applicable_categories?: Json | null
+          applicable_services?: Json | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          discount_type: string
+          discount_value: number
+          id?: string
+          is_active?: boolean | null
+          maximum_discount_amount?: number | null
+          minimum_order_amount?: number | null
+          title: string
+          updated_at?: string
+          usage_count?: number | null
+          usage_limit?: number | null
+          usage_limit_per_customer?: number | null
+          valid_from?: string
+          valid_until: string
+        }
+        Update: {
+          applicable_categories?: Json | null
+          applicable_services?: Json | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean | null
+          maximum_discount_amount?: number | null
+          minimum_order_amount?: number | null
+          title?: string
+          updated_at?: string
+          usage_count?: number | null
+          usage_limit?: number | null
+          usage_limit_per_customer?: number | null
+          valid_from?: string
+          valid_until?: string
+        }
+        Relationships: []
+      }
       subcategories: {
         Row: {
           category_id: string
@@ -828,6 +1250,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tax_slabs: {
+        Row: {
+          applies_to: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          maximum_amount: number | null
+          minimum_amount: number | null
+          name: string
+          tax_percentage: number
+          updated_at: string
+        }
+        Insert: {
+          applies_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          maximum_amount?: number | null
+          minimum_amount?: number | null
+          name: string
+          tax_percentage: number
+          updated_at?: string
+        }
+        Update: {
+          applies_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          maximum_amount?: number | null
+          minimum_amount?: number | null
+          name?: string
+          tax_percentage?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       time_slots: {
         Row: {
@@ -952,304 +1416,6 @@ export type Database = {
         }
         Relationships: []
       }
-      special_offers: {
-        Row: {
-          id: string
-          title: string
-          description: string | null
-          code: string
-          discount_type: string
-          discount_value: number
-          min_order_value: number | null
-          max_discount: number | null
-          usage_limit: number | null
-          used_count: number
-          valid_from: string
-          valid_until: string
-          is_active: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          title: string
-          description?: string | null
-          code: string
-          discount_type: string
-          discount_value: number
-          min_order_value?: number | null
-          max_discount?: number | null
-          usage_limit?: number | null
-          used_count?: number
-          valid_from: string
-          valid_until: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          title?: string
-          description?: string | null
-          code?: string
-          discount_type?: string
-          discount_value?: number
-          min_order_value?: number | null
-          max_discount?: number | null
-          usage_limit?: number | null
-          used_count?: number
-          valid_from?: string
-          valid_until?: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      coupons: {
-        Row: {
-          id: string
-          code: string
-          discount_type: string
-          discount_value: number
-          min_order_value: number | null
-          max_discount: number | null
-          usage_limit: number | null
-          used_count: number
-          valid_from: string
-          valid_until: string
-          is_active: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          code: string
-          discount_type: string
-          discount_value: number
-          min_order_value?: number | null
-          max_discount?: number | null
-          usage_limit?: number | null
-          used_count?: number
-          valid_from: string
-          valid_until: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          code?: string
-          discount_type?: string
-          discount_value?: number
-          min_order_value?: number | null
-          max_discount?: number | null
-          usage_limit?: number | null
-          used_count?: number
-          valid_from?: string
-          valid_until?: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      platform_fees: {
-        Row: {
-          id: string
-          fee_type: string
-          fee_value: number
-          is_percentage: boolean
-          min_fee: number | null
-          max_fee: number | null
-          is_active: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          fee_type: string
-          fee_value: number
-          is_percentage?: boolean
-          min_fee?: number | null
-          max_fee?: number | null
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          fee_type?: string
-          fee_value?: number
-          is_percentage?: boolean
-          min_fee?: number | null
-          max_fee?: number | null
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      tax_slabs: {
-        Row: {
-          id: string
-          name: string
-          tax_rate: number
-          min_amount: number | null
-          max_amount: number | null
-          is_active: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          tax_rate: number
-          min_amount?: number | null
-          max_amount?: number | null
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          tax_rate?: number
-          min_amount?: number | null
-          max_amount?: number | null
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      booking_discounts: {
-        Row: {
-          id: string
-          booking_id: string
-          discount_type: string
-          discount_amount: number
-          coupon_code: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          booking_id: string
-          discount_type: string
-          discount_amount: number
-          coupon_code?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          booking_id?: string
-          discount_type?: string
-          discount_amount?: number
-          coupon_code?: string | null
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "booking_discounts_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      booking_fees: {
-        Row: {
-          id: string
-          booking_id: string
-          fee_type: string
-          fee_amount: number
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          booking_id: string
-          fee_type: string
-          fee_amount: number
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          booking_id?: string
-          fee_type?: string
-          fee_amount?: number
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "booking_fees_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      bookings: {
-        Row: {
-          id: string
-          user_id: string
-          provider_id: string
-          service_id: string
-          booking_date: string
-          booking_time: string
-          status: string
-          total_amount: number
-          payment_status: string
-          payment_method: string | null
-          customer_name: string
-          customer_phone: string
-          customer_email: string
-          customer_address: string
-          special_instructions: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          provider_id: string
-          service_id: string
-          booking_date: string
-          booking_time: string
-          status?: string
-          total_amount: number
-          payment_status?: string
-          payment_method?: string | null
-          customer_name: string
-          customer_phone: string
-          customer_email: string
-          customer_address: string
-          special_instructions?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          provider_id?: string
-          service_id?: string
-          booking_date?: string
-          booking_time?: string
-          status?: string
-          total_amount?: number
-          payment_status?: string
-          payment_method?: string | null
-          customer_name?: string
-          customer_phone?: string
-          customer_email?: string
-          customer_address?: string
-          special_instructions?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -1258,6 +1424,10 @@ export type Database = {
       approve_provider: {
         Args: { provider_user_id: string }
         Returns: Json
+      }
+      calculate_platform_fees: {
+        Args: { order_amount: number; service_ids?: string[] }
+        Returns: number
       }
       check_duplicate_credentials: {
         Args: {
@@ -1302,6 +1472,17 @@ export type Database = {
           status: string
         }[]
       }
+      get_providers_needing_availability_reminder: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          email: string
+          phone: string
+          provider_id: string
+          provider_name: string
+          reminder_days_advance: number
+          week_start: string
+        }[]
+      }
       get_user_role: {
         Args: { user_uuid?: string }
         Returns: string
@@ -1335,12 +1516,13 @@ export type Database = {
         Returns: boolean
       }
       validate_coupon_code: {
-        Args: { coupon_code: string; order_amount: number }
+        Args: { coupon_code: string; customer_id: string; order_amount: number }
         Returns: {
-          is_valid: boolean
           discount_amount: number
-          error_message: string | null
-        }
+          error_message: string
+          is_valid: boolean
+          offer_id: string
+        }[]
       }
     }
     Enums: {

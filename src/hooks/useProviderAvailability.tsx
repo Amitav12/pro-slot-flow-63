@@ -104,6 +104,8 @@ export const useProviderAvailability = () => {
   // Get available slots for a provider on a specific date
   const getAvailableSlots = async (providerId: string, date: string): Promise<BookingSlot[]> => {
     try {
+      console.log('Fetching available slots for provider:', providerId, 'date:', date);
+      
       // First, clean up expired holds
       const now = new Date().toISOString();
       await supabase
@@ -116,30 +118,41 @@ export const useProviderAvailability = () => {
         .eq('status', 'held')
         .lt('hold_expires_at', now);
       
-      // Fetch available slots directly from booking_slots table
-      const { data, error } = await supabase
-        .from('booking_slots')
-        .select('*')
-        .eq('provider_id', providerId)
-        .eq('slot_date', date)
-        .eq('is_blocked', false)
-        .in('status', ['available'])
-        .order('slot_time');
-
-      if (error) throw error;
-      
-      // Filter out held slots that haven't expired (double check)
-      const availableSlots = (data || []).filter(slot => {
-        if (slot.status === 'held' && slot.hold_expires_at) {
-          return new Date(slot.hold_expires_at) < new Date();
-        }
-        return slot.status === 'available';
+      // Use the RPC function to get available slots
+      const { data, error } = await supabase.rpc('get_available_slots', {
+        p_provider_id: providerId,
+        p_service_id: null,
+        p_date: date
       });
+
+      if (error) {
+        console.error('RPC error:', error);
+        throw error;
+      }
       
-      return availableSlots;
+      console.log('Available slots from RPC:', data);
+      return data || [];
     } catch (error) {
       console.error('Error fetching available slots:', error);
-      return [];
+      // Fallback to direct query if RPC fails
+      try {
+        const { data, error: fallbackError } = await supabase
+          .from('booking_slots')
+          .select('*')
+          .eq('provider_id', providerId)
+          .eq('slot_date', date)
+          .eq('is_blocked', false)
+          .eq('status', 'available')
+          .order('slot_time');
+
+        if (fallbackError) throw fallbackError;
+        
+        console.log('Fallback query result:', data);
+        return data || [];
+      } catch (fallbackError) {
+        console.error('Fallback query also failed:', fallbackError);
+        return [];
+      }
     }
   };
 

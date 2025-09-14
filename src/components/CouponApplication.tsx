@@ -98,13 +98,19 @@ export const CouponApplication: React.FC<CouponApplicationProps> = ({
 
       if (error) throw error;
 
-      const result = data;
+      // The data is an array of results from the function
+      let result;
+      if (Array.isArray(data) && data.length > 0) {
+        result = data[0];
+      } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+        result = data;
+      }
       
-      if (result.is_valid) {
+      if (result && 'is_valid' in result && result.is_valid) {
         const appliedCouponData: AppliedCoupon = {
           code: code.toUpperCase(),
-          discountAmount: result.discount_amount,
-          offerId: code.toUpperCase()
+          discountAmount: result.discount_amount || 0,
+          offerId: result.offer_id || code.toUpperCase()
         };
         
         onCouponApplied(appliedCouponData);
@@ -112,12 +118,12 @@ export const CouponApplication: React.FC<CouponApplicationProps> = ({
         
         toast({
           title: 'Coupon Applied!',
-          description: `You saved $${result.discount_amount.toFixed(2)}`,
+          description: `You saved $${(result.discount_amount || 0).toFixed(2)}`,
         });
       } else {
         toast({
           title: 'Invalid Coupon',
-          description: result.error_message || 'Invalid coupon code',
+          description: (result && 'error_message' in result && result.error_message) || 'Invalid coupon code',
           variant: 'destructive',
         });
       }

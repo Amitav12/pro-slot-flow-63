@@ -90,11 +90,34 @@ const TimeSelection = () => {
       // Convert selectedDate to string format (YYYY-MM-DD)
       const dateString = selectedDate.toISOString().split('T')[0];
       
-      // First, try to get existing available slots
+      // First check if provider has availability set for this day
+      const dayOfWeek = selectedDate.getDay();
+      const { data: availability, error: availError } = await supabase
+        .from('provider_availability')
+        .select('*')
+        .eq('provider_id', providerId)
+        .eq('day_of_week', dayOfWeek)
+        .eq('is_available', true)
+        .single();
+      
+      if (availError || !availability) {
+        console.log('No availability set for this day');
+        setAvailableSlots([]);
+        toast({
+          title: "No Availability",
+          description: "This provider is not available on this day.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Try to get existing available slots
       const slots = await getAvailableSlots(providerId, dateString);
       
       // If no slots exist, generate them for this provider
       if (slots.length === 0) {
+        console.log('No slots found, generating for provider:', providerId);
+        
         // Generate slots for the next 15 days starting from selected date
         const endDate = new Date(selectedDate);
         endDate.setDate(endDate.getDate() + 14);
