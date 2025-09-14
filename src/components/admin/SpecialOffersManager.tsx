@@ -67,7 +67,10 @@ const SpecialOffersManager: React.FC = () => {
             title: 'Special Offers',
             subtitle: 'Limited time deals',
             offers: updatedOffers
-          } as any
+          } as any,
+          description: 'Promotional offers section content'
+        }, {
+          onConflict: 'key'
         });
 
       if (error) throw error;

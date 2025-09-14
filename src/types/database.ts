@@ -12,6 +12,41 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
+      provider_notification_preferences: {
+        Row: {
+          id: string;
+          provider_id: string;
+          availability_reminder_enabled: boolean;
+          reminder_days_advance: number;
+          notification_time: string;
+          email_notifications: boolean;
+          sms_notifications: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          provider_id: string;
+          availability_reminder_enabled?: boolean;
+          reminder_days_advance?: number;
+          notification_time?: string;
+          email_notifications?: boolean;
+          sms_notifications?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          provider_id?: string;
+          availability_reminder_enabled?: boolean;
+          reminder_days_advance?: number;
+          notification_time?: string;
+          email_notifications?: boolean;
+          sms_notifications?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
         Insert: {
           id?: string;
           name: string;
@@ -447,6 +482,41 @@ export interface Database {
           updated_at?: string;
         };
       };
+      provider_notification_preferences: {
+        Row: {
+          id: string;
+          provider_id: string;
+          availability_reminder_enabled: boolean;
+          reminder_days_advance: number;
+          notification_time: string;
+          email_notifications: boolean;
+          sms_notifications: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          provider_id: string;
+          availability_reminder_enabled?: boolean;
+          reminder_days_advance?: number;
+          notification_time?: string;
+          email_notifications?: boolean;
+          sms_notifications?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          provider_id?: string;
+          availability_reminder_enabled?: boolean;
+          reminder_days_advance?: number;
+          notification_time?: string;
+          email_notifications?: boolean;
+          sms_notifications?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
@@ -504,6 +574,10 @@ export type AdminSettingUpdate = Database['public']['Tables']['admin_settings'][
 export type GalleryVideo = Database['public']['Tables']['gallery_videos']['Row'];
 export type GalleryVideoInsert = Database['public']['Tables']['gallery_videos']['Insert'];
 export type GalleryVideoUpdate = Database['public']['Tables']['gallery_videos']['Update'];
+
+export type ProviderNotificationPreferences = Database['public']['Tables']['provider_notification_preferences']['Row'];
+export type ProviderNotificationPreferencesInsert = Database['public']['Tables']['provider_notification_preferences']['Insert'];
+export type ProviderNotificationPreferencesUpdate = Database['public']['Tables']['provider_notification_preferences']['Update'];
 
 // Extended types with relationships
 export interface CategoryWithSubcategories extends Category {

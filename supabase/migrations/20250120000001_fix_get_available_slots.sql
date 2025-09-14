@@ -1,4 +1,4 @@
--- Create function to get available slots
+-- Fix get_available_slots function to handle null service_id properly
 CREATE OR REPLACE FUNCTION get_available_slots(
   p_provider_id UUID,
   p_service_id UUID,
@@ -23,6 +23,11 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
+  -- Clean up expired holds first
+  UPDATE public.booking_slots 
+  SET status = 'available', held_by = NULL, hold_expires_at = NULL
+  WHERE status = 'held' AND hold_expires_at < NOW();
+
   RETURN QUERY
   SELECT 
     bs.id,
@@ -48,31 +53,5 @@ BEGIN
 END;
 $$;
 
--- Create function to release a slot
-CREATE OR REPLACE FUNCTION release_slot(
-  slot_id UUID,
-  user_id UUID
-)
-RETURNS BOOLEAN
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-BEGIN
-  -- Release the slot if it's held by the user
-  UPDATE booking_slots 
-  SET 
-    status = 'available',
-    held_by = NULL,
-    hold_expires_at = NULL
-  WHERE 
-    id = slot_id 
-    AND held_by = user_id
-    AND status = 'held';
-  
-  RETURN FOUND;
-END;
-$$;
-
 -- Grant permissions
 GRANT EXECUTE ON FUNCTION get_available_slots TO authenticated;
-GRANT EXECUTE ON FUNCTION release_slot TO authenticated;
