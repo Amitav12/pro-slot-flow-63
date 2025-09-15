@@ -103,7 +103,27 @@ const ProviderSelection: React.FC = () => {
         if (providersError) throw providersError;
 
         // Combine data and format for UI
-        const formattedProviders: Provider[] = uniqueProviderIds.map(providerId => {
+        const formattedProviders = uniqueProviderIds.map(providerId => {
+          const providerService = providerServices.find(ps => ps.provider_id === providerId);
+          const userProfile = providerService?.user_profiles;
+          const serviceProvider = serviceProviders?.find(sp => sp.user_id === userProfile?.user_id);
+          
+          return {
+            id: providerService?.provider_id,
+            business_name: userProfile?.business_name || serviceProvider?.business_name || 'Professional Service Provider',
+            contact_person: userProfile?.full_name || serviceProvider?.contact_person || 'Service Provider',
+            phone: userProfile?.phone || serviceProvider?.phone || 'N/A',
+            rating: serviceProvider?.rating || 4.5,
+            years_of_experience: serviceProvider?.years_of_experience || 2,
+            total_reviews: serviceProvider?.total_reviews || 0,
+            total_completed_jobs: serviceProvider?.total_completed_jobs || 0,
+            profile_image_url: serviceProvider?.profile_image_url || '/placeholder.svg',
+            specializations: Array.isArray(serviceProvider?.specializations) ? serviceProvider.specializations : [],
+            certifications: Array.isArray(serviceProvider?.certifications) ? serviceProvider.certifications : ['Licensed'],
+            response_time_minutes: serviceProvider?.response_time_minutes || 15,
+            address: userProfile?.address || serviceProvider?.address || 'Location not specified'
+          };
+        const formattedProviders = uniqueProviderIds.map(providerId => {
           const providerService = providerServices.find(ps => ps.provider_id === providerId);
           const userProfile = providerService?.user_profiles;
           const serviceProvider = serviceProviders?.find(sp => sp.user_id === userProfile?.user_id);
@@ -118,18 +138,20 @@ const ProviderSelection: React.FC = () => {
             total_reviews: serviceProvider?.total_reviews || 0,
             total_completed_jobs: serviceProvider?.total_completed_jobs || 0,
             profile_image_url: serviceProvider?.profile_image_url || '/placeholder.svg',
-            specializations: Array.isArray(serviceProvider?.specializations) 
-              ? (serviceProvider.specializations as string[]) 
-              : [],
-            certifications: Array.isArray(serviceProvider?.certifications) 
-              ? (serviceProvider.certifications as string[]) 
-              : ['Licensed'],
+            specializations: Array.isArray(serviceProvider?.specializations) ? serviceProvider.specializations : [],
+            certifications: Array.isArray(serviceProvider?.certifications) ? serviceProvider.certifications : ['Licensed'],
             response_time_minutes: serviceProvider?.response_time_minutes || 15,
             address: userProfile?.address || serviceProvider?.address || 'Location not specified'
           };
         }).filter(provider => provider.id);
 
-        setProviders(formattedProviders);
+        setProviders(formattedProviders.map(provider => ({
+          ...provider,
+          specializations: provider.specializations.map(spec => String(spec)),
+          certifications: provider.certifications.map(cert => String(cert))
+        })));
+        });
+
       } catch (error) {
         console.error('Error fetching providers:', error);
         toast({
@@ -346,17 +368,19 @@ const ProviderSelection: React.FC = () => {
 
           {/* Continue Button */}
           {selectedProvider && (
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40">
-              <div className="container mx-auto flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Provider selected • {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''}
-                  </p>
-                  <p className="font-semibold">Total: ${getTotalPrice()}</p>
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40" style={{ paddingRight: '120px' }}>
+              <div className="container mx-auto">
+                <div className="flex flex-col items-center justify-center space-y-3">
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">
+                      Provider selected • {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''}
+                    </p>
+                    <p className="font-semibold">Total: ${getTotalPrice()}</p>
+                  </div>
+                  <Button onClick={handleNext} size="lg" className="px-8">
+                    Next: Select Date & Time
+                  </Button>
                 </div>
-                <Button onClick={handleNext} size="lg" className="px-8">
-                  Next: Select Date & Time
-                </Button>
               </div>
             </div>
           )}

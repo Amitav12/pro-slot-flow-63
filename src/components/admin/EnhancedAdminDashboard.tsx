@@ -24,7 +24,8 @@ import {
   X,
   Gift,
   Star,
-  Video
+  Video,
+  ClipboardCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
@@ -39,12 +40,14 @@ import { ProviderManager } from './ProviderManager';
 import { AdminManager } from './AdminManager';
 import { BookingManager } from './BookingManager';
 import { SettingsManager } from './SettingsManager';
+import { ServiceRegisterRequestSection } from './ServiceRegisterRequestSection';
 import SpecialOffersManager from './SpecialOffersManager';
 import ServiceManagementPanel from './ServiceManagementPanel';
 import { PopularServicesManager } from './PopularServicesManager';
 import VideoGalleryManager from './VideoGalleryManager';
 import { AdminSectionInitializer } from './AdminSectionInitializer';
 import SpecialOffersHub from './SpecialOffersHub';
+import { AdminNotificationBell } from './AdminNotificationBell';
 
 // Section components mapping
 const sectionComponents: Record<string, React.ComponentType> = {
@@ -52,6 +55,7 @@ const sectionComponents: Record<string, React.ComponentType> = {
   providers: ProviderManager,
   services: ServiceApprovalManager,
   'service-management': ServiceManagementPanel,
+  'service-register-requests': ServiceRegisterRequestSection,
   'special-offers': SpecialOffersHub,
   'popular-services': PopularServicesManager,
   'video-gallery': VideoGalleryManager,
@@ -71,6 +75,7 @@ const sectionIcons: Record<string, React.ReactNode> = {
   providers: <UserCheck className="h-4 w-4" />,
   services: <Package className="h-4 w-4" />,
   'service-management': <Star className="h-4 w-4" />,
+  'service-register-requests': <ClipboardCheck className="h-4 w-4" />,
   'special-offers': <Gift className="h-4 w-4" />,
   'popular-services': <Star className="h-4 w-4" />,
   'video-gallery': <Video className="h-4 w-4" />,
@@ -152,28 +157,43 @@ export const EnhancedAdminDashboard: React.FC = () => {
         <div className="flex-1 flex flex-col h-screen lg:ml-0">
           <div className="flex-1 overflow-y-auto p-4 lg:p-6">
             <div className="max-w-7xl mx-auto space-y-6">
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold flex items-center">
-                    {isSuperAdmin ? (
-                      <Crown className="h-8 w-8 mr-3 text-yellow-500" />
-                    ) : (
-                      <Shield className="h-8 w-8 mr-3 text-blue-500" />
-                    )}
-                    {isSuperAdmin ? 'Super Admin' : 'Admin'} Dashboard
-                  </h1>
-                  <p className="text-muted-foreground mt-1">
-                    Welcome back, {profile?.full_name || 'Administrator'}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant={isSuperAdmin ? "default" : "secondary"}>
-                    {isSuperAdmin ? 'Super Admin' : 'Admin'}
-                  </Badge>
-                  <Badge variant="outline">
-                    {enabledSections.length} Sections Available
-                  </Badge>
+              {/* Professional Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl shadow-lg p-6 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className={`p-3 rounded-full ${isSuperAdmin ? 'bg-yellow-500/20' : 'bg-white/20'}`}>
+                      {isSuperAdmin ? (
+                        <Crown className="h-10 w-10 text-yellow-300" />
+                      ) : (
+                        <Shield className="h-10 w-10 text-white" />
+                      )}
+                    </div>
+                    <div>
+                      <h1 className="text-3xl font-bold">
+                        {isSuperAdmin ? 'Super Admin' : 'Admin'} Dashboard
+                      </h1>
+                      <p className="text-blue-100 mt-1 text-lg">
+                        Welcome back, {profile?.full_name || 'Administrator'}
+                      </p>
+                      <div className="flex items-center space-x-3 mt-2">
+                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                          {isSuperAdmin ? 'Super Admin' : 'Admin'}
+                        </Badge>
+                        <Badge variant="outline" className="border-white/30 text-white">
+                          {enabledSections.length} Sections Available
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="text-right">
+                      <p className="text-sm text-blue-100">Last Login</p>
+                      <p className="text-white font-medium">{new Date().toLocaleDateString()}</p>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-2">
+                      <AdminNotificationBell />
+                    </div>
+                  </div>
                 </div>
               </div>
 

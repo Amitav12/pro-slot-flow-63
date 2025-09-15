@@ -203,20 +203,22 @@ const SubcategorySelection: React.FC = () => {
 
               {/* Continue Button */}
               {selectedSubcategory && (
-                <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40">
-                  <div className="container mx-auto flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Service type selected
-                      </p>
-                      <p className="font-semibold">
-                        {subcategories.find(s => s.id === selectedSubcategory)?.name}
-                      </p>
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40" style={{ paddingRight: '120px' }}>
+                  <div className="container mx-auto">
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="text-center">
+                        <p className="text-sm text-muted-foreground">
+                          Service type selected
+                        </p>
+                        <p className="font-semibold">
+                          {subcategories.find(s => s.id === selectedSubcategory)?.name}
+                        </p>
+                      </div>
+                      <Button onClick={handleNext} size="lg" className="px-8">
+                        Next: View Services
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button onClick={handleNext} size="lg" className="px-8">
-                      Next: View Services
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
               )}

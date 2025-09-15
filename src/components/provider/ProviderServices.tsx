@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Plus, 
   Edit, 
@@ -17,14 +17,22 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useProviderServices } from '@/hooks/useProviderServices';
 import { useCategories } from '@/hooks/useCategories';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { ServiceModal } from './ServiceModal';
+import { SubcategoryPricingSetup } from './SubcategoryPricingSetup';
 
 export const ProviderServices = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
+  const [showPricingSetup, setShowPricingSetup] = useState(false);
+  const [hasApprovedRegistrations, setHasApprovedRegistrations] = useState(false);
+  const [registrationStatus, setRegistrationStatus] = useState<'none' | 'pending' | 'approved'>('none');
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { services, loading, createService, updateService, deleteService } = useProviderServices();
   const { categories } = useCategories();
+  const { user } = useAuth();
 
   // Check for action=add query parameter to auto-open modal
   useEffect(() => {
@@ -34,6 +42,54 @@ export const ProviderServices = () => {
       setSearchParams({});
     }
   }, [searchParams, setSearchParams]);
+
+  // Check for approved registrations
+  useEffect(() => {
+    const checkRegistrationStatus = async () => {
+      if (!user) return;
+
+      try {
+        // Get user profile
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+
+        if (!profile) return;
+
+        // Check for registration requests
+        const { data: registrations } = await supabase
+          .from('provider_registration_requests')
+          .select('status')
+          .eq('provider_id', profile.id);
+
+        if (!registrations || registrations.length === 0) {
+          setRegistrationStatus('none');
+          setHasApprovedRegistrations(false);
+          return;
+        }
+
+        const hasApproved = registrations.some(reg => reg.status === 'approved');
+        const hasPending = registrations.some(reg => reg.status === 'pending');
+
+        if (hasApproved) {
+          setRegistrationStatus('approved');
+          setHasApprovedRegistrations(true);
+        } else if (hasPending) {
+          setRegistrationStatus('pending');
+          setHasApprovedRegistrations(false);
+        } else {
+          setRegistrationStatus('none');
+          setHasApprovedRegistrations(false);
+        }
+      } catch (error) {
+        console.error('Error checking registration status:', error);
+      }
+    };
+
+    checkRegistrationStatus();
+  }, [user]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -52,8 +108,20 @@ export const ProviderServices = () => {
   };
 
   const handleAddService = () => {
-    setEditingService(null);
-    setShowModal(true);
+    if (registrationStatus === 'none') {
+      // Navigate to registration page for initial registration
+      navigate('/provider/registration');
+    } else if (registrationStatus === 'approved') {
+      // Show pricing setup for approved providers
+      setShowPricingSetup(true);
+    } else {
+      // For pending status, show info message
+      alert('Your registration is still under review. Please wait for approval before setting up services.');
+    }
+  };
+
+  const handleRegisterService = () => {
+    navigate('/provider/registration');
   };
 
   const handleEditService = (service: any) => {
@@ -87,10 +155,22 @@ export const ProviderServices = () => {
           <h1 className="text-3xl font-bold text-gray-900">My Services</h1>
           <p className="text-gray-600 mt-1">Manage your service offerings and pricing</p>
         </div>
-        <Button onClick={handleAddService} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Service
-        </Button>
+        {registrationStatus === 'none' ? (
+          <Button onClick={handleRegisterService} className="bg-green-600 hover:bg-green-700">
+            <Plus className="h-4 w-4 mr-2" />
+            Register the Service
+          </Button>
+        ) : registrationStatus === 'approved' ? (
+          <Button onClick={handleAddService} className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="h-4 w-4 mr-2" />
+            Request New Category
+          </Button>
+        ) : (
+          <Button disabled className="bg-gray-400 cursor-not-allowed">
+            <AlertCircle className="h-4 w-4 mr-2" />
+            Registration Pending
+          </Button>
+        )}
       </div>
 
       {/* Services Stats */}
@@ -237,18 +317,20 @@ export const ProviderServices = () => {
         ))}
 
         {/* Add Service Card */}
-        <Card 
-          className="border-2 border-dashed border-gray-300 hover:border-blue-400 cursor-pointer transition-colors"
-          onClick={handleAddService}
-        >
-          <CardContent className="flex flex-col items-center justify-center h-64 text-gray-500 hover:text-blue-600">
-            <Plus className="h-12 w-12 mb-4" />
-            <h3 className="text-lg font-medium mb-2">Request New Category</h3>
-            <p className="text-sm text-center">
-              Request approval to provide services in a new category
-            </p>
-          </CardContent>
-        </Card>
+        {registrationStatus === 'approved' && (
+          <Card 
+            className="border-2 border-dashed border-gray-300 hover:border-blue-400 cursor-pointer transition-colors"
+            onClick={handleAddService}
+          >
+            <CardContent className="flex flex-col items-center justify-center h-64 text-gray-500 hover:text-blue-600">
+              <Plus className="h-12 w-12 mb-4" />
+              <h3 className="text-lg font-medium mb-2">Request New Category</h3>
+              <p className="text-sm text-center">
+                Set your price for approved categories
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Empty State */}
@@ -258,14 +340,40 @@ export const ProviderServices = () => {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Eye className="h-8 w-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No category requests yet</h3>
-            <p className="text-gray-600 mb-6">
-              Start by requesting approval for your first service category
-            </p>
-            <Button onClick={handleAddService} className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Request First Category
-            </Button>
+            {registrationStatus === 'none' ? (
+              <>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Get Started as a Service Provider</h3>
+                <p className="text-gray-600 mb-6">
+                  Register as a service provider to start offering your services to customers
+                </p>
+                <Button onClick={handleRegisterService} className="bg-green-600 hover:bg-green-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Register the Service
+                </Button>
+              </>
+            ) : registrationStatus === 'pending' ? (
+              <>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Registration Under Review</h3>
+                <p className="text-gray-600 mb-6">
+                  Your provider registration is being reviewed. You'll be able to set up services once approved.
+                </p>
+                <Button disabled className="bg-gray-400 cursor-not-allowed">
+                  <AlertCircle className="h-4 w-4 mr-2" />
+                  Awaiting Approval
+                </Button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No services set up yet</h3>
+                <p className="text-gray-600 mb-6">
+                  Set up pricing for your approved categories to start receiving bookings
+                </p>
+                <Button onClick={handleAddService} className="bg-blue-600 hover:bg-blue-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Set Up First Service
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       )}
@@ -284,6 +392,27 @@ export const ProviderServices = () => {
             }
           }}
         />
+      )}
+
+      {/* Pricing Setup Modal */}
+      {showPricingSetup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Set Up Your Services</h2>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowPricingSetup(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </Button>
+              </div>
+              <SubcategoryPricingSetup />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
