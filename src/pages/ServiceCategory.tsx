@@ -258,22 +258,24 @@ const ServiceCategory: React.FC = () => {
 
               {/* Continue Button */}
               {selectedServices.length > 0 && (
-                <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40">
-                  <div className="container mx-auto flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} selected
-                      </p>
-                      <p className="font-semibold">
-                        Total: ${services
-                          .filter(s => selectedServices.includes(s.id))
-                          .reduce((sum, s) => sum + s.price, 0)
-                        }
-                      </p>
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40" style={{ paddingRight: '120px' }}>
+                  <div className="container mx-auto">
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="text-center">
+                        <p className="text-sm text-muted-foreground">
+                          {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} selected
+                        </p>
+                        <p className="font-semibold">
+                          Total: ${services
+                            .filter(s => selectedServices.includes(s.id))
+                            .reduce((sum, s) => sum + s.price, 0)
+                          }
+                        </p>
+                      </div>
+                      <Button onClick={handleNext} size="lg" className="px-8">
+                        Next: Choose Provider
+                      </Button>
                     </div>
-                    <Button onClick={handleNext} size="lg" className="px-8">
-                      Next: Choose Provider
-                    </Button>
                   </div>
                 </div>
               )}

@@ -156,19 +156,21 @@ const DateSelection: React.FC = () => {
 
           {/* Continue Button */}
           {selectedDate && (
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40">
-              <div className="container mx-auto flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Date selected: {format(selectedDate, 'PPP')}
-                  </p>
-                  <p className="font-semibold">
-                    Total: ₹{getTotalPrice()}
-                  </p>
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-40" style={{ paddingRight: '120px' }}>
+              <div className="container mx-auto">
+                <div className="flex flex-col items-center justify-center space-y-3">
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">
+                      Date selected: {format(selectedDate, 'PPP')}
+                    </p>
+                    <p className="font-semibold">
+                      Total: ₹{getTotalPrice()}
+                    </p>
+                  </div>
+                  <Button onClick={handleContinue} size="lg" className="px-8">
+                    Next: Select Time
+                  </Button>
                 </div>
-                <Button onClick={handleContinue} size="lg" className="px-8">
-                  Next: Select Time
-                </Button>
               </div>
             </div>
           )}

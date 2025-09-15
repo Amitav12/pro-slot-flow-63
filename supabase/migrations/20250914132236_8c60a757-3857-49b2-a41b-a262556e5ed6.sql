@@ -111,10 +111,10 @@ BEGIN
   RETURN QUERY
   SELECT 
     up.id as provider_id,
-    up.full_name as provider_name,
-    au.email::text as email,
-    up.phone::text as phone,
-    (CURRENT_DATE + (pnp.reminder_days_advance || ' days')::interval)::date::text as week_start,
+    COALESCE(up.full_name, '')::TEXT as provider_name,
+    COALESCE(au.email, '')::TEXT as email,
+    COALESCE(up.phone, '')::TEXT as phone,
+    (CURRENT_DATE + (pnp.reminder_days_advance || ' days')::interval)::date::TEXT as week_start,
     pnp.reminder_days_advance
   FROM public.user_profiles up
   JOIN auth.users au ON au.id = up.user_id

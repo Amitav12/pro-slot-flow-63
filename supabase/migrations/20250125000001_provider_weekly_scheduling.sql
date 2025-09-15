@@ -107,13 +107,14 @@ BEGIN
     RETURN QUERY
     SELECT 
         up.id as provider_id,
-        up.full_name as provider_name,
-        up.email,
-        up.phone,
+        COALESCE(up.full_name::TEXT, 'Unknown Provider') as provider_name,
+        COALESCE(au.email::TEXT, 'no-email@example.com') as email,
+        COALESCE(up.phone::TEXT, 'N/A') as phone,
         (CURRENT_DATE + (pnp.reminder_days_advance || ' days')::INTERVAL)::DATE as week_start,
         pnp.reminder_days_advance
     FROM public.user_profiles up
     JOIN public.provider_notification_preferences pnp ON up.id = pnp.provider_id
+    JOIN auth.users au ON up.user_id = au.id
     WHERE up.role = 'service_provider'
         AND up.status = 'approved'
         AND pnp.availability_reminder_enabled = true

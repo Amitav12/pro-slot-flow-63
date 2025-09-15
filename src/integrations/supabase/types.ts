@@ -1494,8 +1494,89 @@ export type Database = {
           user_id?: string
           working_hours?: Json | null
           zip_code?: string | null
-        }
+        };
         Relationships: []
+      }
+      provider_registration_requests: {
+        Row: {
+          id: string
+          user_id: string
+          category_id: string
+          business_name: string
+          business_description: string | null
+          license_number: string
+          license_document_url: string | null
+          contact_phone: string
+          contact_email: string
+          business_address: string | null
+          years_of_experience: number | null
+          certifications: string | null
+          insurance_details: string | null
+          status: 'pending' | 'approved' | 'rejected'
+          admin_notes: string | null
+          reviewed_by: string | null
+          reviewed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          category_id: string
+          business_name: string
+          business_description?: string | null
+          license_number: string
+          license_document_url?: string | null
+          contact_phone: string
+          contact_email: string
+          business_address?: string | null
+          years_of_experience?: number | null
+          certifications?: string | null
+          insurance_details?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          admin_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          category_id?: string
+          business_name?: string
+          business_description?: string | null
+          license_number?: string
+          license_document_url?: string | null
+          contact_phone?: string
+          contact_email?: string
+          business_address?: string | null
+          years_of_experience?: number | null
+          certifications?: string | null
+          insurance_details?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          admin_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_registration_requests_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_registration_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          }
+        ]
       }
     }
     Views: {

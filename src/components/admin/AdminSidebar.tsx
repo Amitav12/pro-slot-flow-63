@@ -51,11 +51,12 @@ const navigationSections = [
     items: [
       { name: 'Service Management', href: '/dashboard/admin?section=services', icon: Wrench },
       { name: 'Service Status Control', href: '/dashboard/admin?section=service-management', icon: Star },
+      { name: 'Service Register Requests', href: '/dashboard/admin?section=service-register-requests', icon: ClipboardCheck },
       { name: 'Category Management', href: '/dashboard/admin?section=categories', icon: FolderTree },
       { name: 'Location Management', href: '/dashboard/admin?section=locations', icon: MapPin },
     ]
-  },
-  {
+  }
+  ,{
     name: 'Operations',
     items: [
       { name: 'Booking Management', href: '/dashboard/admin?section=bookings', icon: Calendar },
@@ -94,6 +95,7 @@ export const AdminSidebar = () => {
     'providers': { name: 'Provider Management', href: '/dashboard/admin?section=providers', icon: UserCheck },
     'admins': { name: 'Admin Management', href: '/dashboard/admin?section=admins', icon: Crown },
     'services': { name: 'Service Management', href: '/dashboard/admin?section=services', icon: Wrench },
+    'service-register-requests': { name: 'Service Register Requests', href: '/dashboard/admin?section=service-register-requests', icon: ClipboardCheck },
     'categories': { name: 'Category Management', href: '/dashboard/admin?section=categories', icon: FolderTree },
     'locations': { name: 'Location Management', href: '/dashboard/admin?section=locations', icon: MapPin },
     'bookings': { name: 'Booking Management', href: '/dashboard/admin?section=bookings', icon: Calendar },

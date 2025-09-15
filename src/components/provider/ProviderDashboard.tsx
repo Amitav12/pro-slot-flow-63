@@ -9,6 +9,7 @@ import { ProviderEarnings } from './ProviderEarnings';
 import { ProviderSchedule } from './ProviderSchedule';
 import { ProviderAccessControl } from './ProviderAccessControl';
 import { DatabaseStatus } from '../dev/DatabaseStatus';
+import { ServiceRegistration } from './ServiceRegistration';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { SecureStorage } from '@/utils/secureStorage';
@@ -327,6 +328,7 @@ export const ProviderDashboard = () => {
               <Routes>
                 <Route path="/" element={<ProviderOverview />} />
                 <Route path="/services" element={<ProviderServices />} />
+                <Route path="/registration" element={<ServiceRegistration />} />
                 <Route path="/bookings" element={<ProviderBookings />} />
                 <Route path="/schedule" element={<ProviderSchedule />} />
                 <Route path="/earnings" element={<ProviderEarnings />} />
