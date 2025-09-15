@@ -208,11 +208,11 @@ const ProviderSelectionNew: React.FC = () => {
                   <div className="flex items-start gap-4">
                     <div className="relative">
                       <img
-                        src={provider.image}
-                        alt={provider.name}
+                        src={provider.profile_image_url}
+                        alt={provider.business_name}
                         className="w-20 h-20 rounded-full object-cover"
                       />
-                      {provider.isVerified && (
+                      {provider.rating > 4.5 && (
                         <div className="absolute -bottom-1 -right-1">
                           <div className="bg-green-500 rounded-full p-1">
                             <Shield className="w-3 h-3 text-white" />
@@ -225,8 +225,8 @@ const ProviderSelectionNew: React.FC = () => {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                            {provider.name}
-                            {provider.isVerified && (
+                            {provider.business_name}
+                            {provider.rating > 4.5 && (
                               <Badge variant="secondary" className="text-xs">
                                 Verified
                               </Badge>

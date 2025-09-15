@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdminPermissions } from '@/hooks/useAdminPermissions';
 import { AdminPermissionsPanel } from './AdminPermissionsPanel';
 import { AdminSidebar } from './AdminSidebar';
-import AdminNotificationCenter from './AdminNotificationCenter';
+import { AdminNotificationCenter } from './AdminNotificationCenter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

@@ -170,8 +170,8 @@ export const initializeSecurityMonitoring = (): void => {
     
     // Override console methods in production
     Object.keys(console).forEach((method) => {
-      if (typeof (console as Record<string, unknown>)[method] === 'function') {
-        (console as Record<string, unknown>)[method] = (...args: unknown[]) => {
+      if (typeof (console as any)[method] === 'function') {
+        (console as any)[method] = (...args: unknown[]) => {
           // Log security event for console access
           logSecurityEvent({
             type: 'suspicious_activity',
@@ -184,7 +184,7 @@ export const initializeSecurityMonitoring = (): void => {
           });
           
           // Still allow console in development builds
-          return (originalConsole as Record<string, unknown>)[method]?.apply(console, args);
+          return (originalConsole as any)[method]?.apply?.(console, args);
         };
       }
     });

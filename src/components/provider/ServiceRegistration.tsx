@@ -593,7 +593,7 @@ export const ServiceRegistration = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Price Range</p>
-                      <p className="text-sm">${service.subcategory?.min_price} - ${service.subcategory?.max_price}</p>
+                      <p className="text-sm">${(service.subcategory as any)?.min_price || 0} - ${(service.subcategory as any)?.max_price || 999999}</p>
                     </div>
                   </div>
 

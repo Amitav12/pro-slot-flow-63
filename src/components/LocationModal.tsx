@@ -76,7 +76,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
               </div>
             ) : (
               locations.map((location) => {
-                const locationDisplay = `${location.name}, ${location.city}, ${location.province}`;
+                const locationDisplay = `${location.name}, ${location.city}, ${location.state}`;
                 return (
                   <button
                     key={location.id}
@@ -93,7 +93,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
                       <div className="flex-1">
                         <div className="font-medium">{location.name}</div>
                         <div className="text-sm text-gray-500">
-                          {location.city}, {location.province}, {location.country}
+                          {location.city}, {location.state}, {location.country}
                         </div>
                       </div>
                       {loading && locationDisplay !== currentLocation && (

@@ -16,7 +16,7 @@ import {
 interface LocationFormData {
   name: string;
   city: string;
-  province: string;
+  state: string;
   country: string;
   is_active: boolean;
 }
@@ -28,7 +28,7 @@ export const LocationManagement: React.FC = () => {
   const [formData, setFormData] = useState<LocationFormData>({
     name: '',
     city: '',
-    province: '',
+    state: '',
     country: 'Canada',
     is_active: true
   });
@@ -38,7 +38,7 @@ export const LocationManagement: React.FC = () => {
     setFormData({
       name: '',
       city: '',
-      province: '',
+      state: '',
       country: 'Canada',
       is_active: true
     });
@@ -50,7 +50,7 @@ export const LocationManagement: React.FC = () => {
     setFormData({
       name: location.name,
       city: location.city,
-      province: location.province,
+      state: location.state,
       country: location.country,
       is_active: location.is_active
     });
@@ -159,8 +159,8 @@ export const LocationManagement: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.province}
-                    onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                    value={formData.state}
+                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                     className="input-primary w-full"
                     placeholder="e.g., NB"
                     required
@@ -236,7 +236,7 @@ export const LocationManagement: React.FC = () => {
                   <div>
                     <h4 className="font-semibold text-gray-900">{location.name}</h4>
                     <p className="text-sm text-gray-600">
-                      {location.city}, {location.province}
+                      {location.city}, {location.state}
                     </p>
                   </div>
                 </div>

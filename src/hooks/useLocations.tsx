@@ -4,9 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 export interface Location {
   id: string;
   name: string;
+  address: string;
   city: string;
-  province: string;
+  state: string;
+  postal_code: string;
   country: string;
+  latitude?: number;
+  longitude?: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -36,18 +40,18 @@ export const useLocations = () => {
     }
   };
 
-  const createLocation = async (locationData: Omit<Location, 'id' | 'created_at' | 'updated_at'>) => {
+  const createLocation = async (locationData: Partial<Location>) => {
     try {
       const { data, error } = await supabase
         .from('locations')
-        .insert([locationData])
+        .insert(locationData as any)
         .select()
         .single();
 
       if (error) throw error;
       
-      setLocations(prev => [...prev, data]);
-      return { data, error: null };
+      setLocations(prev => [...prev, data as Location]);
+      return { data: data as Location, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create location';
       setError(errorMessage);
@@ -66,7 +70,7 @@ export const useLocations = () => {
 
       if (error) throw error;
 
-      setLocations(prev => prev.map(loc => loc.id === id ? data : loc));
+      setLocations(prev => prev.map(loc => loc.id === id ? data as Location : loc));
       return { data, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update location';
