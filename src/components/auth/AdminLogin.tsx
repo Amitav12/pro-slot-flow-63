@@ -63,7 +63,7 @@ export const AdminLogin: React.FC = () => {
                 full_name: data.user.email?.split('@')[0] || 'Admin',
                 is_blocked: false
               }
-            ] as any);
+            ]);
 
           if (!insertError) {
             navigate('/admin');
@@ -71,22 +71,22 @@ export const AdminLogin: React.FC = () => {
           }
         }
 
-        if ((profile as any)?.is_blocked) {
+        if (profile?.is_blocked) {
           setError('Your account has been blocked. Please contact support.');
           await supabase.auth.signOut();
           return;
         }
 
-        if ((profile as any)?.role === 'admin' || (profile as any)?.role === 'super_admin') {
+        if (profile?.role === 'admin' || profile?.role === 'super_admin') {
           navigate('/admin');
         } else {
           setError('Access denied. Admin privileges required.');
           await supabase.auth.signOut();
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Admin login error:', err);
-      setError(err.message || 'Login failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -128,14 +128,14 @@ export const AdminLogin: React.FC = () => {
                 full_name: 'Demo Admin',
                 is_blocked: false
               }
-            ] as any);
+            ]);
 
           navigate('/admin');
         }
       } else if (data.user) {
         navigate('/admin');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Demo login error:', err);
       setError('Demo login failed. Please try manual login.');
     } finally {

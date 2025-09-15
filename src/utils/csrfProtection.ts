@@ -50,16 +50,16 @@ export const initializeCSRFProtection = (): string => {
 };
 
 // CSRF-protected request wrapper
-export interface CSRFProtectedRequestOptions {
+export interface CSRFProtectedRequestOptions<T = unknown> {
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  data?: any;
+  data?: T;
   headers?: Record<string, string>;
 }
 
-export const makeCSRFProtectedRequest = async (
-  operation: () => Promise<any>,
-  options: CSRFProtectedRequestOptions
-): Promise<any> => {
+export const makeCSRFProtectedRequest = async <T = unknown, R = unknown>(
+  operation: () => Promise<R>,
+  options: CSRFProtectedRequestOptions<T>
+): Promise<R> => {
   const csrfToken = getCSRFToken();
   
   if (!csrfToken) {
@@ -81,11 +81,13 @@ export const makeCSRFProtectedRequest = async (
     
     console.log('✅ CSRF-protected request completed successfully');
     return result;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ CSRF-protected request failed:', error);
     
     // Check if it's a CSRF-related error
-    if (error.message?.includes('CSRF') || error.status === 403) {
+    const errorMessage = error instanceof Error ? error.message : '';
+    const errorStatus = (error as { status?: number })?.status;
+    if (errorMessage.includes('CSRF') || errorStatus === 403) {
       console.warn('🚨 Potential CSRF attack detected or token expired');
       // Regenerate token
       initializeCSRFProtection();
@@ -99,47 +101,47 @@ export const makeCSRFProtectedRequest = async (
 // Supabase operation wrappers with CSRF protection
 export const csrfProtectedSupabaseOperation = {
   // Insert operation
-  insert: async (table: string, data: any) => {
+  insert: async <T = Record<string, unknown>>(table: string, data: T) => {
     return makeCSRFProtectedRequest(
-      async () => await (supabase as any).from(table as any).insert(data),
+      async () => await supabase.from(table).insert(data),
       { method: 'POST', data }
     );
   },
 
   // Update operation
-  update: async (table: string, data: any, filter: any) => {
+  update: async <T = Record<string, unknown>, F = Record<string, unknown>>(table: string, data: T, filter: F) => {
     return makeCSRFProtectedRequest(
-      async () => await (supabase as any).from(table as any).update(data).match(filter),
+      async () => await supabase.from(table).update(data).match(filter),
       { method: 'PUT', data }
     );
   },
 
   // Upsert operation
-  upsert: async (table: string, data: any, options?: any) => {
+  upsert: async <T = Record<string, unknown>>(table: string, data: T, options?: Record<string, unknown>) => {
     return makeCSRFProtectedRequest(
-      async () => await (supabase as any).from(table as any).upsert(data, options),
+      async () => await supabase.from(table).upsert(data, options),
       { method: 'POST', data }
     );
   },
 
   // Delete operation
-  delete: async (table: string, filter: any) => {
+  delete: async <F = Record<string, unknown>>(table: string, filter: F) => {
     return makeCSRFProtectedRequest(
-      async () => await (supabase as any).from(table as any).delete().match(filter),
+      async () => await supabase.from(table).delete().match(filter),
       { method: 'DELETE' }
     );
   },
 
   // Auth operations
   auth: {
-    signUp: async (credentials: any) => {
+    signUp: async (credentials: { email: string; password: string; options?: Record<string, unknown> }) => {
       return makeCSRFProtectedRequest(
         () => supabase.auth.signUp(credentials),
         { method: 'POST', data: credentials }
       );
     },
 
-    signIn: async (credentials: any) => {
+    signIn: async (credentials: { email: string; password: string }) => {
       return makeCSRFProtectedRequest(
         () => supabase.auth.signInWithPassword(credentials),
         { method: 'POST', data: credentials }
@@ -153,7 +155,7 @@ export const csrfProtectedSupabaseOperation = {
       );
     },
 
-    updateUser: async (updates: any) => {
+    updateUser: async (updates: { email?: string; password?: string; data?: Record<string, unknown> }) => {
       return makeCSRFProtectedRequest(
         () => supabase.auth.updateUser(updates),
         { method: 'PUT', data: updates }

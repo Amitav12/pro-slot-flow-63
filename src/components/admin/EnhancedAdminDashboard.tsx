@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdminPermissions } from '@/hooks/useAdminPermissions';
 import { AdminPermissionsPanel } from './AdminPermissionsPanel';
 import { AdminSidebar } from './AdminSidebar';
+import AdminNotificationCenter from './AdminNotificationCenter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -267,10 +268,4 @@ const PaymentManagementSection: React.FC = () => (
   </div>
 );
 
-const NotificationCenterSection: React.FC = () => (
-  <div className="space-y-4">
-    <h3 className="text-lg font-semibold">Notification Center</h3>
-    <p className="text-muted-foreground">Send and manage system notifications.</p>
-    <ComingSoonSection title="Notification Center" />
-  </div>
-);
+const NotificationCenterSection: React.FC = () => <AdminNotificationCenter />;

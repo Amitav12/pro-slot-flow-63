@@ -57,57 +57,75 @@ const ProviderSelection: React.FC = () => {
       try {
         setLoading(true);
         
-        // For demo purposes, we'll create some mock providers
-        // In a real app, you'd fetch providers based on the selected services
-        const mockProviders: Provider[] = [
-          {
-            id: '1',
-            business_name: 'Professional Cleaning Co.',
-            contact_person: 'John Smith',
-            phone: '+1 (555) 123-4567',
-            rating: 4.8,
-            years_of_experience: 5,
-            total_reviews: 127,
-            total_completed_jobs: 340,
-            profile_image_url: '/placeholder.svg',
-            specializations: ['Deep Cleaning', 'Regular Cleaning'],
-            certifications: ['Licensed', 'Insured'],
-            response_time_minutes: 15,
-            address: '123 Main St, City, State'
-          },
-          {
-            id: '2',
-            business_name: 'Expert Services LLC',
-            contact_person: 'Sarah Johnson',
-            phone: '+1 (555) 987-6543',
-            rating: 4.9,
-            years_of_experience: 8,
-            total_reviews: 203,
-            total_completed_jobs: 567,
-            profile_image_url: '/placeholder.svg',
-            specializations: ['All Services'],
-            certifications: ['Licensed', 'Bonded', 'Insured'],
-            response_time_minutes: 10,
-            address: '456 Oak Ave, City, State'
-          },
-          {
-            id: '3',
-            business_name: 'Quality Home Services',
-            contact_person: 'Mike Davis',
-            phone: '+1 (555) 456-7890',
-            rating: 4.7,
-            years_of_experience: 3,
-            total_reviews: 89,
-            total_completed_jobs: 156,
-            profile_image_url: '/placeholder.svg',
-            specializations: ['Specialized Services'],
-            certifications: ['Licensed'],
-            response_time_minutes: 20,
-            address: '789 Pine Rd, City, State'
-          }
-        ];
+        // Get subcategory IDs from selected services
+        const subcategoryIds = selectedServices.map(service => service.subcategory_id).filter(Boolean);
+        
+        if (subcategoryIds.length === 0) {
+          setProviders([]);
+          return;
+        }
 
-        setProviders(mockProviders);
+        // Fetch providers who offer services in the selected subcategories
+        const { data: providerServices, error: servicesError } = await supabase
+          .from('provider_services')
+          .select(`
+            provider_id,
+            user_profiles!inner (
+              id,
+              user_id,
+              full_name,
+              business_name,
+              phone,
+              address
+            )
+          `)
+          .in('subcategory_id', subcategoryIds)
+          .eq('status', 'approved')
+          .eq('is_active', true);
+
+        if (servicesError) throw servicesError;
+
+        if (!providerServices || providerServices.length === 0) {
+          setProviders([]);
+          return;
+        }
+
+        // Get unique provider IDs
+        const uniqueProviderIds = [...new Set(providerServices.map(ps => ps.provider_id))];
+        
+        // Get provider details from service_providers table
+        const { data: serviceProviders, error: providersError } = await supabase
+          .from('service_providers')
+          .select('*')
+          .in('user_id', providerServices.map(ps => ps.user_profiles?.user_id).filter(Boolean))
+          .eq('status', 'approved');
+
+        if (providersError) throw providersError;
+
+        // Combine data and format for UI
+        const formattedProviders: Provider[] = uniqueProviderIds.map(providerId => {
+          const providerService = providerServices.find(ps => ps.provider_id === providerId);
+          const userProfile = providerService?.user_profiles;
+          const serviceProvider = serviceProviders?.find(sp => sp.user_id === userProfile?.user_id);
+          
+          return {
+            id: providerId,
+            business_name: userProfile?.business_name || serviceProvider?.business_name || 'Professional Service Provider',
+            contact_person: userProfile?.full_name || serviceProvider?.contact_person || 'Service Provider',
+            phone: userProfile?.phone || serviceProvider?.phone || 'N/A',
+            rating: serviceProvider?.rating || 4.5,
+            years_of_experience: serviceProvider?.years_of_experience || 2,
+            total_reviews: serviceProvider?.total_reviews || 0,
+            total_completed_jobs: serviceProvider?.total_completed_jobs || 0,
+            profile_image_url: serviceProvider?.profile_image_url || '/placeholder.svg',
+            specializations: Array.isArray(serviceProvider?.specializations) ? serviceProvider.specializations : [],
+            certifications: Array.isArray(serviceProvider?.certifications) ? serviceProvider.certifications : ['Licensed'],
+            response_time_minutes: serviceProvider?.response_time_minutes || 15,
+            address: userProfile?.address || serviceProvider?.business_address || 'Location not specified'
+          };
+        }).filter(provider => provider.id);
+
+        setProviders(formattedProviders);
       } catch (error) {
         console.error('Error fetching providers:', error);
         toast({

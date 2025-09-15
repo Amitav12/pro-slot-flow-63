@@ -13,7 +13,6 @@ interface ProviderServiceData {
   price: number;
   license_number: string | null;
   license_document_url: string | null;
-  working_hours?: any;
   status: 'pending' | 'approved' | 'rejected';
   is_active: boolean;
   approval_notes?: string | null;
@@ -25,8 +24,6 @@ interface ProviderServiceData {
     id: string;
     name: string;
     description: string;
-    min_price: number;
-    max_price: number;
     category?: {
       id: string;
       name: string;
@@ -83,8 +80,14 @@ export const useProviderServices = (providerId?: string) => {
         .select(`
           *,
           subcategory:subcategories(
-            *,
-            category:categories(*)
+            id,
+            name,
+            description,
+            category:categories(
+              id,
+              name,
+              description
+            )
           ),
           provider:user_profiles!provider_id(
             id,
@@ -112,7 +115,7 @@ export const useProviderServices = (providerId?: string) => {
     }
   };
 
-  const createService = async (serviceData: CreateProviderServiceData) => {
+  const createService = async (serviceData: any) => {
     try {
       // Get current user profile
       const { data: { user } } = await supabase.auth.getUser();
@@ -129,46 +132,84 @@ export const useProviderServices = (providerId?: string) => {
         throw new Error('Profile not found');
       }
 
-      // Check subcategory price limits using raw query
-      const { data: subcategory, error: subcategoryError } = await (supabase as any)
+      let licenseDocumentUrl = serviceData.license_document_url;
+
+      // Upload license document if provided
+      if (serviceData.licenseFile) {
+        const fileExt = serviceData.licenseFile.name.split('.').pop();
+        const fileName = `${profile.id}-${Date.now()}.${fileExt}`;
+        const filePath = `licenses/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(filePath, serviceData.licenseFile);
+
+        if (uploadError) {
+          throw new Error('Failed to upload license document');
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('documents')
+          .getPublicUrl(filePath);
+
+        licenseDocumentUrl = publicUrl;
+      }
+
+      // Get subcategory details to generate service name and get category_id
+      const { data: subcategoryData, error: subcategoryError } = await supabase
         .from('subcategories')
-        .select('min_price, max_price')
+        .select(`
+          id,
+          name,
+          category_id,
+          min_price,
+          max_price,
+          category:categories(id, name)
+        `)
         .eq('id', serviceData.subcategory_id)
         .single();
 
-      if (!subcategoryError && subcategory && 'min_price' in subcategory && 'max_price' in subcategory) {
-        if (serviceData.price < subcategory.min_price || serviceData.price > subcategory.max_price) {
-          throw new Error(`Price must be between ${subcategory.min_price} and ${subcategory.max_price}`);
-        }
+      if (subcategoryError) {
+        console.error('Error fetching subcategory:', subcategoryError);
+        throw new Error('Failed to fetch subcategory details');
       }
 
-      // Prepare the insert data - use any to bypass strict typing
+      // Note: Skipping provider_categories table insertion as it's not required for service creation
+
+      // Generate service name from subcategory if not provided
+      const serviceName = serviceData.service_name || `Professional ${subcategoryData.name}`;
+
+      // Prepare the insert data for provider service request
       const insertData: any = {
         provider_id: profile.id,
         subcategory_id: serviceData.subcategory_id,
-        service_name: serviceData.service_name,
-        description: serviceData.description || null,
-        price: serviceData.price,
-        license_number: serviceData.license_number || null,
-        license_document_url: serviceData.license_document_url || null,
+        service_name: serviceName,
+        description: serviceData.description || `Expert ${subcategoryData.name} services with quality guarantee`,
+        price: parseFloat(serviceData.price) || subcategoryData.min_price || 0,
+        license_number: serviceData.license_number,
+        license_document_url: licenseDocumentUrl,
         status: 'pending',
-        is_active: true
+        is_active: false // Will be activated after admin approval
       };
 
-      // Add working_hours if provided
-      if (serviceData.working_hours) {
-        insertData.working_hours = serviceData.working_hours;
-      }
-
-      // Use raw query to bypass type checking
+      // Use upsert to handle duplicate provider-subcategory combinations
       const { data, error } = await (supabase as any)
         .from('provider_services')
-        .insert([insertData])
+        .upsert([insertData], {
+          onConflict: 'provider_id,subcategory_id',
+          ignoreDuplicates: false
+        })
         .select(`
           *,
           subcategory:subcategories(
-            *,
-            category:categories(*)
+            id,
+            name,
+            description,
+            category:categories(
+              id,
+              name,
+              description
+            )
           ),
           provider:user_profiles!provider_id(
             id,
@@ -180,20 +221,62 @@ export const useProviderServices = (providerId?: string) => {
 
       if (error) throw error;
 
+      // Create admin notification for the category request
+      // Note: Temporarily disabled until database function is available
+      try {
+        // TODO: Re-enable when create_category_request_notification function is deployed
+        console.log('Service created successfully - admin notification would be sent here');
+        /*
+        const { error: notificationError } = await supabase.rpc(
+          'create_category_request_notification',
+          {
+            p_provider_id: profile.id,
+            p_provider_name: data.provider?.full_name || data.provider?.business_name || 'Unknown Provider',
+            p_category_name: data.subcategory?.category?.name || 'Unknown Category',
+            p_license_number: serviceData.license_number,
+            p_license_document_url: licenseDocumentUrl
+          }
+        );
+        
+        if (notificationError) {
+          console.error('Error creating admin notification:', notificationError);
+        }
+        */
+      } catch (notificationError) {
+        console.error('Failed to create admin notification:', notificationError);
+      }
+
       // Transform the response data safely
       const newService = data as unknown as ProviderServiceData;
 
-      setServices(prev => [newService, ...prev]);
+      // Update services list - either add new or update existing
+      setServices(prev => {
+        const existingIndex = prev.findIndex(s => 
+          s.provider_id === newService.provider_id && 
+          s.subcategory_id === newService.subcategory_id
+        );
+        
+        if (existingIndex >= 0) {
+          // Update existing service
+          const updated = [...prev];
+          updated[existingIndex] = newService;
+          return updated;
+        } else {
+          // Add new service
+          return [newService, ...prev];
+        }
+      });
+      
       toast({
         title: "Success",
-        description: "Service registered successfully and pending admin approval",
+        description: "Service request submitted successfully and pending admin approval",
       });
       return newService;
     } catch (error: any) {
       console.error('Error creating service:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to register service",
+        description: error.message || "Failed to submit service request",
         variant: "destructive",
       });
       throw error;
@@ -206,9 +289,18 @@ export const useProviderServices = (providerId?: string) => {
       if (updates.price !== undefined) {
         const service = services.find(s => s.id === id);
         if (service?.subcategory) {
-          const { min_price, max_price } = service.subcategory;
-          if (updates.price < min_price || updates.price > max_price) {
-            throw new Error(`Price must be between ${min_price} and ${max_price}`);
+          // Get subcategory details with price limits
+          const { data: subcategoryData, error: subcategoryError } = await supabase
+            .from('subcategories')
+            .select('min_price, max_price')
+            .eq('id', service.subcategory_id)
+            .single();
+            
+          if (!subcategoryError && subcategoryData) {
+            const { min_price, max_price } = subcategoryData;
+            if (updates.price < min_price || updates.price > max_price) {
+              throw new Error(`Price must be between ${min_price} and ${max_price}`);
+            }
           }
         }
       }
@@ -230,8 +322,14 @@ export const useProviderServices = (providerId?: string) => {
         .select(`
           *,
           subcategory:subcategories(
-            *,
-            category:categories(*)
+            id,
+            name,
+            description,
+            category:categories(
+              id,
+              name,
+              description
+            )
           ),
           provider:user_profiles!provider_id(
             id,

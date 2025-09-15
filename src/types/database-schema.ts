@@ -1,5 +1,6 @@
 // Generated schema types from Supabase
 // Generated on: 2025-09-03T06:40:26.269Z
+import { WorkingHours } from './categories';
 
 export interface Database {
   public: {
@@ -31,6 +32,41 @@ export interface Database {
           is_active?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
+        };
+      };
+      admin_notifications: {
+        Row: {
+          id: string;
+          type: 'service_request' | 'provider_registration' | 'booking_issue' | 'system_alert';
+          title: string;
+          message: string;
+          data: Record<string, unknown> | null;
+          is_read: boolean;
+          created_by: string | null;
+          created_at: string;
+          read_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          type: 'service_request' | 'provider_registration' | 'booking_issue' | 'system_alert';
+          title: string;
+          message: string;
+          data?: Record<string, unknown> | null;
+          is_read?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          read_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          type?: 'service_request' | 'provider_registration' | 'booking_issue' | 'system_alert';
+          title?: string;
+          message?: string;
+          data?: Record<string, unknown> | null;
+          is_read?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          read_at?: string | null;
         };
       };
       subcategories: {
@@ -113,14 +149,131 @@ export interface Database {
         };
       };
       user_profiles: {
-        Row: any;
-        Insert: any;
-        Update: any;
+        Row: {
+          id: string;
+          user_id: string;
+          full_name: string | null;
+          role: 'customer' | 'provider' | 'admin' | 'super_admin';
+          auth_role: 'customer' | 'provider' | 'admin' | 'super_admin';
+          phone: string | null;
+          address: string | null;
+          business_name: string | null;
+          contact_person: string | null;
+          license_number: string | null;
+          registration_status: 'pending' | 'approved' | 'rejected';
+          license_document_url: string | null;
+          id_document_url: string | null;
+          onboarding_completed: boolean;
+          emergency_offline: boolean;
+          is_blocked: boolean;
+          created_at: string;
+          updated_at: string;
+          city: string | null;
+          date_of_birth: string | null;
+          preferences: Record<string, unknown>;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          full_name?: string | null;
+          role?: 'customer' | 'provider' | 'admin' | 'super_admin';
+          auth_role?: 'customer' | 'provider' | 'admin' | 'super_admin';
+          phone?: string | null;
+          address?: string | null;
+          business_name?: string | null;
+          contact_person?: string | null;
+          license_number?: string | null;
+          registration_status?: 'pending' | 'approved' | 'rejected';
+          license_document_url?: string | null;
+          id_document_url?: string | null;
+          onboarding_completed?: boolean;
+          emergency_offline?: boolean;
+          is_blocked?: boolean;
+          created_at?: string;
+          updated_at?: string;
+          city?: string | null;
+          date_of_birth?: string | null;
+          preferences?: Record<string, unknown>;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          full_name?: string | null;
+          role?: 'customer' | 'provider' | 'admin' | 'super_admin';
+          auth_role?: 'customer' | 'provider' | 'admin' | 'super_admin';
+          phone?: string | null;
+          address?: string | null;
+          business_name?: string | null;
+          contact_person?: string | null;
+          license_number?: string | null;
+          registration_status?: 'pending' | 'approved' | 'rejected';
+          license_document_url?: string | null;
+          id_document_url?: string | null;
+          onboarding_completed?: boolean;
+          emergency_offline?: boolean;
+          is_blocked?: boolean;
+          created_at?: string;
+          updated_at?: string;
+          city?: string | null;
+          date_of_birth?: string | null;
+          preferences?: Record<string, unknown>;
+        };
       };
       provider_services: {
-        Row: any;
-        Insert: any;
-        Update: any;
+        Row: {
+          id: string;
+          provider_id: string;
+          subcategory_id: string;
+          service_name: string;
+          description: string | null;
+          price: number;
+          license_number: string | null;
+          license_document_url: string | null;
+          working_hours: WorkingHours | null;
+          status: 'pending' | 'approved' | 'rejected';
+          is_active: boolean;
+          approval_notes: string | null;
+          approved_at: string | null;
+          approved_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          provider_id: string;
+          subcategory_id: string;
+          service_name: string;
+          description?: string | null;
+          price: number;
+          license_number?: string | null;
+          license_document_url?: string | null;
+          working_hours?: WorkingHours | null;
+          status?: 'pending' | 'approved' | 'rejected';
+          is_active?: boolean;
+          approval_notes?: string | null;
+          approved_at?: string | null;
+          approved_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          provider_id?: string;
+          subcategory_id?: string;
+          service_name?: string;
+          description?: string | null;
+          price?: number;
+          license_number?: string | null;
+          license_document_url?: string | null;
+          working_hours?: WorkingHours | null;
+          status?: 'pending' | 'approved' | 'rejected';
+          is_active?: boolean;
+          approval_notes?: string | null;
+          approved_at?: string | null;
+          approved_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
       };
       customer_favorites: {
         Row: {

@@ -27,22 +27,23 @@ interface Service {
 
 
 const ServiceCategory: React.FC = () => {
-  const { category } = useParams<{ category: string }>();
+  const { category, subcategory } = useParams<{ category: string; subcategory: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryName, setCategoryName] = useState<string>('');
+  const [subcategoryName, setSubcategoryName] = useState<string>('');
 
   useEffect(() => {
-    const fetchServicesForCategory = async () => {
-      if (!category) return;
+    const fetchServicesForSubcategory = async () => {
+      if (!category || !subcategory) return;
 
       try {
         setLoading(true);
         
-        // First get the category details
+        // Get category and subcategory details
         const { data: categoryData, error: categoryError } = await supabase
           .from('categories')
           .select('name')
@@ -52,7 +53,16 @@ const ServiceCategory: React.FC = () => {
         if (categoryError) throw categoryError;
         setCategoryName(categoryData?.name || '');
 
-        // Fetch services for this category
+        const { data: subcategoryData, error: subcategoryError } = await supabase
+          .from('subcategories')
+          .select('name')
+          .eq('id', subcategory)
+          .maybeSingle();
+
+        if (subcategoryError) throw subcategoryError;
+        setSubcategoryName(subcategoryData?.name || '');
+
+        // Fetch services for this specific subcategory
         const { data: servicesData, error: servicesError } = await supabase
           .from('provider_services')
           .select(`
@@ -70,7 +80,7 @@ const ServiceCategory: React.FC = () => {
           `)
           .eq('status', 'approved')
           .eq('is_active', true)
-          .eq('subcategories.category_id', category);
+          .eq('subcategory_id', subcategory);
 
         if (servicesError) throw servicesError;
         setServices(servicesData || []);
@@ -78,7 +88,7 @@ const ServiceCategory: React.FC = () => {
         console.error('Error fetching services:', error);
         toast({
           title: "Error loading services",
-          description: "Failed to load services for this category",
+          description: "Failed to load services for this subcategory",
           variant: "destructive"
         });
       } finally {
@@ -86,8 +96,8 @@ const ServiceCategory: React.FC = () => {
       }
     };
 
-    fetchServicesForCategory();
-  }, [category]);
+    fetchServicesForSubcategory();
+  }, [category, subcategory]);
 
   const handleServiceToggle = (serviceId: string) => {
     setSelectedServices(prev => 
@@ -111,7 +121,9 @@ const ServiceCategory: React.FC = () => {
       state: { 
         selectedServices: selectedServiceData,
         categoryId: category,
-        categoryName: categoryName
+        categoryName: categoryName,
+        subcategoryId: subcategory,
+        subcategoryName: subcategoryName
       } 
     });
   };
@@ -132,10 +144,10 @@ const ServiceCategory: React.FC = () => {
               </button>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  {categoryName ? `${categoryName} Services` : 'Services'}
+                  {subcategoryName ? `${subcategoryName} Services` : 'Services'}
                 </h1>
                 <p className="text-muted-foreground">
-                  Select the services you'd like to book
+                  {categoryName && subcategoryName ? `${categoryName} > ${subcategoryName}` : 'Select the services you\'d like to book'}
                 </p>
               </div>
             </div>

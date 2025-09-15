@@ -166,7 +166,7 @@ export const EnhancedAuthPage: React.FC<{
         }
       } = supabase.storage.from('documents').getPublicUrl(data.path);
       return publicUrl;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error uploading ID proof:', error);
       throw error;
     } finally {
@@ -204,11 +204,11 @@ export const EnhancedAuthPage: React.FC<{
         // Call the callback to let parent handle navigation
         onAuthSuccess();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
       toast({
         title: "Login Failed",
-        description: error.message || "Invalid email or password",
+        description: error instanceof Error ? error.message : "Invalid email or password",
         variant: "destructive"
       });
     } finally {
@@ -478,11 +478,12 @@ export const EnhancedAuthPage: React.FC<{
         // Fallback
         setActiveTab('login');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Signup error:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create account";
       toast({
         title: "Signup Failed",
-        description: error.message || "Failed to create account",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

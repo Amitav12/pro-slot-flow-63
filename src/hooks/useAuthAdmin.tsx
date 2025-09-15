@@ -27,7 +27,7 @@ export const useAuthAdmin = () => {
           .eq('user_id', session.user.id)
           .single();
       
-      setProfile((profileData as any));
+      setProfile(profileData);
       }
       setLoading(false);
     };
@@ -45,7 +45,7 @@ export const useAuthAdmin = () => {
             .eq('user_id', session.user.id)
             .single();
         
-        setProfile((profileData as any));
+        setProfile(profileData);
         } else {
           setProfile(null);
         }

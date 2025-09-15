@@ -84,7 +84,7 @@ export class SecureStorage {
       const REVALIDATION_INTERVAL = 5 * 60 * 1000; // 5 minutes
       if (Date.now() - sessionData.lastValidated > REVALIDATION_INTERVAL) {
         console.log('Session needs revalidation');
-        return { ...sessionData, needsRevalidation: true } as any;
+        return { ...sessionData, needsRevalidation: true };
       }
 
       return sessionData;

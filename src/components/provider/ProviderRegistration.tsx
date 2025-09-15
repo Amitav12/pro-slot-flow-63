@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocations } from '@/hooks/useLocations';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { 
   User, 
   MapPin, 
@@ -10,8 +12,12 @@ import {
   FileText, 
   Upload,
   Loader2,
-  CheckCircle
+  CheckCircle,
+  FolderOpen
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { Category, Subcategory } from '@/types/database';
 
 interface ProviderRegistrationData {
   businessName: string;
@@ -23,10 +29,10 @@ interface ProviderRegistrationData {
   businessType: string;
   licenseNumber: string;
   description: string;
-  services: string[];
+  selectedCategories: string[];
 }
 
-export const ProviderRegistration: React.FC = () => {
+export const ProviderRegistration = () => {
   const { locations, loading: locationsLoading } = useLocations();
   const [formData, setFormData] = useState<ProviderRegistrationData>({
     businessName: '',
@@ -38,11 +44,13 @@ export const ProviderRegistration: React.FC = () => {
     businessType: '',
     licenseNumber: '',
     description: '',
-    services: []
+    selectedCategories: []
   });
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   const businessTypes = [
     'Cleaning Services',
@@ -54,8 +62,43 @@ export const ProviderRegistration: React.FC = () => {
     'Other'
   ];
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+      
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load categories. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
   const handleInputChange = (field: keyof ProviderRegistrationData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCategoryChange = (categoryId: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      selectedCategories: checked 
+        ? [...prev.selectedCategories, categoryId]
+        : prev.selectedCategories.filter(id => id !== categoryId)
+    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,25 +110,101 @@ export const ProviderRegistration: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
-
+    
+    // Validation
+    if (!formData.businessName || !formData.ownerName || !formData.email || !formData.phone) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (formData.selectedCategories.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one service category.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!licenseFile) {
+      toast({
+        title: "Error",
+        description: "Please upload your license document.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
     try {
-      // Here you would typically upload the license file and submit the registration
-      // For now, we'll simulate the process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Upload license file
+      const fileExt = licenseFile.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
       
-      console.log('Provider registration data:', formData);
-      console.log('License file:', licenseFile);
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('licenses')
+        .upload(fileName, licenseFile);
       
-      setSubmitted(true);
+      if (uploadError) throw uploadError;
+      
+      // Insert provider data
+      const { data: providerData, error: providerError } = await supabase
+        .from('service_providers')
+        .insert({
+          business_name: formData.businessName,
+          owner_name: formData.ownerName,
+          email: formData.email,
+          phone: formData.phone,
+          location_id: formData.locationId,
+          business_address: formData.address,
+          business_type: formData.businessType,
+          license_number: formData.licenseNumber,
+          license_document_url: uploadData.path,
+          description: formData.description,
+          approval_status: 'pending',
+          is_active: false
+        })
+        .select()
+        .single();
+      
+      if (providerError) throw providerError;
+      
+      // Insert provider categories
+      const categoryInserts = formData.selectedCategories.map(categoryId => ({
+        provider_id: providerData.id,
+        category_id: categoryId
+      }));
+      
+      const { error: categoryError } = await supabase
+        .from('provider_categories')
+        .insert(categoryInserts);
+      
+      if (categoryError) throw categoryError;
+      
+      setIsSubmitted(true);
+      toast({
+        title: "Success!",
+        description: "Your registration has been submitted for admin approval."
+      });
+      
     } catch (error) {
       console.error('Registration error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit registration. Please try again.",
+        variant: "destructive"
+      });
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
-  if (submitted) {
+  if (isSubmitted) {
     return (
       <div className="max-w-2xl mx-auto p-6">
         <Card className="card-elevated text-center">
@@ -270,6 +389,53 @@ export const ProviderRegistration: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* Service Categories */}
+        <Card className="card-elevated">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2 mb-6">
+              <FolderOpen className="h-5 w-5 text-primary" />
+              <h3 className="text-xl font-semibold">Service Categories</h3>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-4">
+                Select the service categories you provide *
+              </label>
+              {loadingCategories ? (
+                <div className="flex items-center space-x-2 p-4 border border-gray-200 rounded-lg">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-gray-500">Loading categories...</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {categories.map((category) => (
+                    <div key={category.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                      <Checkbox
+                        id={`category-${category.id}`}
+                        checked={formData.selectedCategories.includes(category.id)}
+                        onCheckedChange={(checked) => handleCategoryChange(category.id, checked as boolean)}
+                      />
+                      <Label
+                        htmlFor={`category-${category.id}`}
+                        className="flex-1 cursor-pointer text-sm font-medium"
+                      >
+                        {category.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {formData.selectedCategories.length > 0 && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    Selected categories: {formData.selectedCategories.length}
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* License Documentation */}
         <Card className="card-elevated">
           <CardContent className="p-6">
@@ -338,10 +504,10 @@ export const ProviderRegistration: React.FC = () => {
         <div className="flex justify-end">
           <Button
             type="submit"
-            disabled={submitting}
+            disabled={isSubmitting}
             className="btn-primary px-8 py-3"
           >
-            {submitting ? (
+            {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Submitting Registration...

@@ -94,8 +94,8 @@ export const ServiceApprovalManager = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Service Approval Manager</h1>
-          <p className="text-gray-600 mt-1">Review and approve provider service registrations</p>
+          <h1 className="text-3xl font-bold text-gray-900">Provider Category Approval</h1>
+          <p className="text-gray-600 mt-1">Review and approve provider category requests with license verification</p>
         </div>
       </div>
 
@@ -105,7 +105,7 @@ export const ServiceApprovalManager = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending Review</p>
+                <p className="text-sm text-gray-600">Pending Requests</p>
                 <p className="text-2xl font-bold text-yellow-600">{pendingServices.length}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
@@ -141,7 +141,7 @@ export const ServiceApprovalManager = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Services</p>
+                <p className="text-sm text-gray-600">Total Requests</p>
                 <p className="text-2xl font-bold text-gray-900">{services.length}</p>
               </div>
               <FileText className="h-8 w-8 text-gray-500" />
@@ -156,7 +156,7 @@ export const ServiceApprovalManager = () => {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Clock className="h-5 w-5 text-yellow-500" />
-              <span>Pending Approval ({pendingServices.length})</span>
+              <span>Pending Category Requests ({pendingServices.length})</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -166,29 +166,25 @@ export const ServiceApprovalManager = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-3">
-                        <h3 className="text-lg font-semibold">{service.service_name}</h3>
+                        <h3 className="text-lg font-semibold">{service.category?.name} Category Request</h3>
                         <Badge className={getStatusColor(service.status)}>
                           {getStatusIcon(service.status)}
                           {service.status}
                         </Badge>
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                         <div>
                           <p className="text-sm text-gray-500">Provider</p>
                           <p className="font-medium">{service.provider?.full_name || service.provider?.business_name}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-500">Category</p>
-                          <p className="font-medium">{service.subcategory?.category?.name}</p>
+                          <p className="text-sm text-gray-500">Requested Category</p>
+                          <p className="font-medium">{service.category?.name}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-500">Subcategory</p>
-                          <p className="font-medium">{service.subcategory?.name}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Price</p>
-                          <p className="font-medium text-green-600">${service.price}</p>
+                          <p className="text-sm text-gray-500">License Number</p>
+                          <p className="font-medium text-blue-600">{service.license_number}</p>
                         </div>
                       </div>
 
@@ -261,11 +257,10 @@ export const ServiceApprovalManager = () => {
                     <FileText className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">{service.service_name}</h4>
+                    <h4 className="font-medium text-gray-900">{service.category?.name} Category Request</h4>
                     <p className="text-sm text-gray-600">
                       {service.provider?.full_name || service.provider?.business_name} • 
-                      {service.subcategory?.category?.name} • 
-                      {service.subcategory?.name}
+                      License: {service.license_number}
                     </p>
                     <p className="text-sm text-gray-500">
                       {new Date(service.created_at).toLocaleDateString()}
@@ -278,7 +273,7 @@ export const ServiceApprovalManager = () => {
                     {service.status}
                   </Badge>
                   <div className="text-right">
-                    <p className="font-medium text-gray-900">${service.price}</p>
+                    <p className="text-sm text-gray-500">License Required</p>
                   </div>
                 </div>
               </div>
@@ -293,7 +288,7 @@ export const ServiceApprovalManager = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
-                <h2 className="text-xl font-bold">Review Service</h2>
+                <h2 className="text-xl font-bold">Review Category Request</h2>
                 <Button variant="outline" onClick={() => setSelectedService(null)}>
                   ×
                 </Button>
@@ -301,8 +296,8 @@ export const ServiceApprovalManager = () => {
 
               <div className="space-y-4 mb-6">
                 <div>
-                  <h3 className="font-semibold text-lg">{selectedService.service_name}</h3>
-                  <p className="text-gray-600">{selectedService.description}</p>
+                  <h3 className="font-semibold text-lg">{selectedService.category?.name} Category Request</h3>
+                  <p className="text-gray-600">{selectedService.description || 'Provider requesting approval to provide services in this category.'}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -311,16 +306,19 @@ export const ServiceApprovalManager = () => {
                     <p className="font-medium">{selectedService.provider?.full_name || selectedService.provider?.business_name}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Price</p>
-                    <p className="font-medium text-green-600">${selectedService.price}</p>
+                    <p className="text-sm text-gray-500">Requested Category</p>
+                    <p className="font-medium text-blue-600">{selectedService.category?.name}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Category</p>
-                    <p className="font-medium">{selectedService.subcategory?.category?.name}</p>
+                    <p className="text-sm text-gray-500">Request Date</p>
+                    <p className="font-medium">{new Date(selectedService.created_at).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Subcategory</p>
-                    <p className="font-medium">{selectedService.subcategory?.name}</p>
+                    <p className="text-sm text-gray-500">Status</p>
+                    <Badge className={getStatusColor(selectedService.status)}>
+                      {getStatusIcon(selectedService.status)}
+                      {selectedService.status}
+                    </Badge>
                   </div>
                 </div>
 
@@ -367,7 +365,7 @@ export const ServiceApprovalManager = () => {
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <CheckCircle className="h-4 w-4 mr-1" />
-                  Approve Service
+                  Approve Category
                 </Button>
                 <Button
                   onClick={() => handleApproval(selectedService.id, 'rejected', approvalNotes)}
@@ -375,7 +373,7 @@ export const ServiceApprovalManager = () => {
                   variant="destructive"
                 >
                   <XCircle className="h-4 w-4 mr-1" />
-                  Reject Service
+                  Reject Category
                 </Button>
                 <Button
                   variant="outline"

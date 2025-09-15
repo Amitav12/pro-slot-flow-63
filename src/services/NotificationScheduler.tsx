@@ -129,11 +129,8 @@ export const NotificationSchedulerProvider: React.FC<NotificationSchedulerProps>
       notificationScheduler.start(checkInterval);
       hasStarted.current = true;
 
-      // Show a toast notification that the scheduler is running
-      toast({
-        title: 'Notification System Active',
-        description: 'Automatic availability reminders are now running in the background.',
-      });
+      // Note: Toast notification removed from here as it should only show to providers
+      // The notification will be shown in the provider dashboard instead
     }
 
     // Cleanup on unmount

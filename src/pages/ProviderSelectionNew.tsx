@@ -5,80 +5,25 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, Clock, ArrowLeft, Award, Shield } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Provider {
   id: string;
-  name: string;
+  business_name: string;
+  contact_person: string;
+  phone: string;
   rating: number;
-  reviews: number;
-  distance: string;
-  image: string;
-  specialties: string[];
-  availability: string;
-  basePrice: number;
-  experience: number;
-  isVerified: boolean;
-  responseTime: string;
+  years_of_experience: number;
+  total_reviews: number;
+  total_completed_jobs: number;
+  profile_image_url: string;
+  address: string;
+  response_time_minutes: number;
+  status: string;
 }
 
-const mockProviders: Provider[] = [
-  {
-    id: '1',
-    name: 'Sarah Johnson',
-    rating: 4.8,
-    reviews: 127,
-    distance: '0.8 km away',
-    image: '/api/placeholder/80/80',
-    specialties: ['Facial', 'Deep Cleansing', 'Anti-aging'],
-    availability: 'Available today',
-    basePrice: 1200,
-    experience: 5,
-    isVerified: true,
-    responseTime: '10 min'
-  },
-  {
-    id: '2',
-    name: 'Maria Rodriguez',
-    rating: 4.9,
-    reviews: 203,
-    distance: '1.2 km away',
-    image: '/api/placeholder/80/80',
-    specialties: ['Spa Treatments', 'Massage', 'Aromatherapy'],
-    availability: 'Available tomorrow',
-    basePrice: 1500,
-    experience: 8,
-    isVerified: true,
-    responseTime: '5 min'
-  },
-  {
-    id: '3',
-    name: 'Priya Sharma',
-    rating: 4.7,
-    reviews: 89,
-    distance: '2.1 km away',
-    image: '/api/placeholder/80/80',
-    specialties: ['Waxing', 'Threading', 'Skincare'],
-    availability: 'Available today',
-    basePrice: 800,
-    experience: 3,
-    isVerified: true,
-    responseTime: '15 min'
-  },
-  {
-    id: '4',
-    name: 'Anita Patel',
-    rating: 4.9,
-    reviews: 156,
-    distance: '1.5 km away',
-    image: '/api/placeholder/80/80',
-    specialties: ['Massage Therapy', 'Reflexology', 'Wellness'],
-    availability: 'Available today',
-    basePrice: 2000,
-    experience: 10,
-    isVerified: true,
-    responseTime: '8 min'
-  }
-];
+// Providers will be fetched from database based on selected services
 
 const ProviderSelectionNew: React.FC = () => {
   const location = useLocation();
@@ -88,10 +33,96 @@ const ProviderSelectionNew: React.FC = () => {
   
   const { selectedServices = [], category = '' } = location.state || {};
 
+  const { toast } = useToast();
+
   useEffect(() => {
-    // In a real app, filter providers based on selected services
-    setProviders(mockProviders);
-  }, [selectedServices]);
+    const fetchProviders = async () => {
+      if (!selectedServices || selectedServices.length === 0) {
+        setProviders([]);
+        return;
+      }
+
+      try {
+        // Get subcategory IDs from selected services
+        const subcategoryIds = selectedServices.map((service: any) => service.subcategory_id).filter(Boolean);
+        
+        if (subcategoryIds.length === 0) {
+          setProviders([]);
+          return;
+        }
+
+        // Fetch providers who offer services in the selected subcategories
+        const { data: providerServices, error: servicesError } = await supabase
+          .from('provider_services')
+          .select(`
+            provider_id,
+            user_profiles!inner (
+              id,
+              user_id,
+              full_name,
+              business_name,
+              phone,
+              address
+            )
+          `)
+          .in('subcategory_id', subcategoryIds)
+          .eq('status', 'approved')
+          .eq('is_active', true);
+
+        if (servicesError) throw servicesError;
+
+        if (!providerServices || providerServices.length === 0) {
+          setProviders([]);
+          return;
+        }
+
+        // Get unique provider IDs
+        const uniqueProviderIds = [...new Set(providerServices.map((ps: any) => ps.provider_id))];
+
+        // Get provider details from service_providers table
+        const { data: serviceProviders, error: providersError } = await supabase
+          .from('service_providers')
+          .select('*')
+          .in('user_id', providerServices.map((ps: any) => ps.user_profiles?.user_id).filter(Boolean))
+          .eq('status', 'approved');
+
+        if (providersError) throw providersError;
+
+        // Combine data and format for UI
+        const formattedProviders: Provider[] = uniqueProviderIds.map((providerId: any) => {
+          const providerService = providerServices.find((ps: any) => ps.provider_id === providerId);
+          const userProfile = providerService?.user_profiles;
+          const serviceProvider = serviceProviders?.find((sp: any) => sp.user_id === userProfile?.user_id);
+          
+          return {
+            id: providerId,
+            business_name: userProfile?.business_name || serviceProvider?.business_name || 'Professional Service Provider',
+            contact_person: userProfile?.full_name || serviceProvider?.contact_person || 'Service Provider',
+            phone: userProfile?.phone || serviceProvider?.phone || 'N/A',
+            rating: serviceProvider?.rating || 4.5,
+            years_of_experience: serviceProvider?.years_of_experience || 2,
+            total_reviews: serviceProvider?.total_reviews || 0,
+            total_completed_jobs: serviceProvider?.total_completed_jobs || 0,
+            profile_image_url: serviceProvider?.profile_image_url || '/placeholder.svg',
+            address: userProfile?.address || serviceProvider?.address || 'Location not specified',
+            response_time_minutes: serviceProvider?.response_time_minutes || 15,
+            status: serviceProvider?.status || 'approved'
+          };
+        });
+
+        setProviders(formattedProviders);
+      } catch (error) {
+        console.error('Error fetching providers:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load providers. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchProviders();
+  }, [selectedServices, toast]);
 
   const handleProviderSelect = (providerId: string) => {
     setSelectedProvider(providerId);
@@ -206,50 +237,41 @@ const ProviderSelectionNew: React.FC = () => {
                               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                               <span className="text-sm font-medium">{provider.rating}</span>
                               <span className="text-sm text-muted-foreground">
-                                ({provider.reviews} reviews)
+                                ({provider.total_reviews} reviews)
                               </span>
                             </div>
                             <div className="flex items-center gap-1 text-muted-foreground">
                               <Award className="w-4 h-4" />
-                              <span className="text-sm">{provider.experience} years exp</span>
+                              <span className="text-sm">{provider.years_of_experience} years exp</span>
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-semibold text-foreground">
-                            ₹{provider.basePrice}
+                            {provider.total_completed_jobs} jobs
                           </p>
-                          <p className="text-sm text-muted-foreground">onwards</p>
+                          <p className="text-sm text-muted-foreground">completed</p>
                         </div>
                       </div>
 
                       <div className="space-y-2 mb-3">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <MapPin className="w-4 h-4" />
-                          <span>{provider.distance}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-green-600">
-                          <Clock className="w-4 h-4" />
-                          <span>{provider.availability}</span>
+                          <span>{provider.address}</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Clock className="w-4 h-4" />
-                          <span>Responds in {provider.responseTime}</span>
+                          <span>Responds in {provider.response_time_minutes} min</span>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Contact: {provider.contact_person}
                         </div>
                       </div>
 
                       <div>
-                        <p className="text-sm text-muted-foreground mb-2">Specialties:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {provider.specialties.map((specialty, index) => (
-                            <Badge
-                              key={index}
-                              variant="outline"
-                              className="text-xs"
-                            >
-                              {specialty}
-                            </Badge>
-                          ))}
+                        <p className="text-sm text-muted-foreground mb-2">Phone:</p>
+                        <div className="text-sm font-medium">
+                          {provider.phone}
                         </div>
                       </div>
                     </div>

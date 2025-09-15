@@ -58,7 +58,7 @@ export const SecureRouteGuard: React.FC<SecureRouteGuardProps> = ({
       }
 
       // Fetch fresh user profile to validate role
-      const { data: profileData, error: profileError } = await (supabase as any)
+      const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .select('role, auth_role')
         .eq('user_id', session.user.id)
@@ -70,8 +70,7 @@ export const SecureRouteGuard: React.FC<SecureRouteGuardProps> = ({
       }
 
       // Type-safe access to profile data
-      const profileRecord = profileData as any;
-      const serverRole = profileRecord.auth_role || profileRecord.role;
+      const serverRole = profileData.auth_role || profileData.role;
       
       // Validate role matches stored session
       if (serverRole !== sessionData.role) {
@@ -168,7 +167,7 @@ export const SecureRouteGuard: React.FC<SecureRouteGuardProps> = ({
           try {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
-              const { data: currentProfileData, error: profileError } = await (supabase as any)
+              const { data: currentProfileData, error: profileError } = await supabase
                 .from('user_profiles')
                 .select('role, auth_role')
                 .eq('user_id', session.user.id)
