@@ -599,17 +599,18 @@ export type GalleryVideo = Database['public']['Tables']['gallery_videos']['Row']
 export type GalleryVideoInsert = Database['public']['Tables']['gallery_videos']['Insert'];
 export type GalleryVideoUpdate = Database['public']['Tables']['gallery_videos']['Update'];
 
-export type ProviderCategory = Database['public']['Tables']['provider_categories']['Row'];
-export type ProviderCategoryInsert = Database['public']['Tables']['provider_categories']['Insert'];
-export type ProviderCategoryUpdate = Database['public']['Tables']['provider_categories']['Update'];
+// These types will be available after types are regenerated
+// export type ProviderCategory = Database['public']['Tables']['provider_categories']['Row'];
+// export type ProviderCategoryInsert = Database['public']['Tables']['provider_categories']['Insert'];
+// export type ProviderCategoryUpdate = Database['public']['Tables']['provider_categories']['Update'];
 
-export type ProviderNotificationPreferences = Database['public']['Tables']['provider_notification_preferences']['Row'];
-export type ProviderNotificationPreferencesInsert = Database['public']['Tables']['provider_notification_preferences']['Insert'];
-export type ProviderNotificationPreferencesUpdate = Database['public']['Tables']['provider_notification_preferences']['Update'];
+// export type ProviderNotificationPreferences = Database['public']['Tables']['provider_notification_preferences']['Row'];
+// export type ProviderNotificationPreferencesInsert = Database['public']['Tables']['provider_notification_preferences']['Insert'];
+// export type ProviderNotificationPreferencesUpdate = Database['public']['Tables']['provider_notification_preferences']['Update'];
 
-export type AdminNotification = Database['public']['Tables']['admin_notifications']['Row'];
-export type AdminNotificationInsert = Database['public']['Tables']['admin_notifications']['Insert'];
-export type AdminNotificationUpdate = Database['public']['Tables']['admin_notifications']['Update'];
+// export type AdminNotification = Database['public']['Tables']['admin_notifications']['Row'];
+// export type AdminNotificationInsert = Database['public']['Tables']['admin_notifications']['Insert'];
+// export type AdminNotificationUpdate = Database['public']['Tables']['admin_notifications']['Update'];
 
 // Extended types with relationships
 export interface CategoryWithSubcategories extends Category {

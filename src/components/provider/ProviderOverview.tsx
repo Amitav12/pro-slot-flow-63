@@ -111,7 +111,7 @@ export const ProviderOverview = () => {
   const profileCompletion = {
     hasServices: services.length > 0,
     hasApprovedServices: stats.approvedServices > 0,
-    hasWorkingHours: services.some(s => s.working_hours && Object.keys(s.working_hours).length > 0),
+    hasWorkingHours: services.some(s => (s as any).working_hours && Object.keys((s as any).working_hours).length > 0),
     hasLicense: services.some(s => s.license_document_url),
     hasDescription: !!(profile as any)?.bio,
     hasPhone: !!profile?.phone,

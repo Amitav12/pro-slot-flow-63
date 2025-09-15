@@ -79,3 +79,29 @@ export interface CreateProviderServiceData {
   license_document_url?: string;
   working_hours?: WorkingHours;
 }
+
+export interface ProviderServiceData extends ProviderService {
+  category?: Category;
+  subcategory: Subcategory;
+  provider: {
+    id: string;
+    full_name: string;
+    business_name?: string;
+  };
+}
+
+export interface Provider {
+  id: string;
+  business_name: string;
+  contact_person: string;
+  phone: string;
+  rating: number;
+  years_of_experience: number;
+  total_reviews: number;
+  total_completed_jobs: number;
+  profile_image_url: string;
+  specializations: string[];
+  certifications: string[];
+  response_time_minutes: number;
+  address: string;
+}

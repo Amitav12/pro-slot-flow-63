@@ -118,10 +118,14 @@ const ProviderSelection: React.FC = () => {
             total_reviews: serviceProvider?.total_reviews || 0,
             total_completed_jobs: serviceProvider?.total_completed_jobs || 0,
             profile_image_url: serviceProvider?.profile_image_url || '/placeholder.svg',
-            specializations: Array.isArray(serviceProvider?.specializations) ? serviceProvider.specializations : [],
-            certifications: Array.isArray(serviceProvider?.certifications) ? serviceProvider.certifications : ['Licensed'],
+            specializations: Array.isArray(serviceProvider?.specializations) 
+              ? (serviceProvider.specializations as string[]) 
+              : [],
+            certifications: Array.isArray(serviceProvider?.certifications) 
+              ? (serviceProvider.certifications as string[]) 
+              : ['Licensed'],
             response_time_minutes: serviceProvider?.response_time_minutes || 15,
-            address: userProfile?.address || serviceProvider?.business_address || 'Location not specified'
+            address: userProfile?.address || serviceProvider?.address || 'Location not specified'
           };
         }).filter(provider => provider.id);
 

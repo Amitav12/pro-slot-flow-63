@@ -166,7 +166,7 @@ export const ServiceApprovalManager = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-3">
-                        <h3 className="text-lg font-semibold">{service.category?.name} Category Request</h3>
+                        <h3 className="text-lg font-semibold">{(service as any).category?.name || service.subcategory?.category?.name} Category Request</h3>
                         <Badge className={getStatusColor(service.status)}>
                           {getStatusIcon(service.status)}
                           {service.status}
@@ -180,7 +180,7 @@ export const ServiceApprovalManager = () => {
                         </div>
                         <div>
                           <p className="text-sm text-gray-500">Requested Category</p>
-                          <p className="font-medium">{service.category?.name}</p>
+                          <p className="font-medium">{(service as any).category?.name || service.subcategory?.category?.name}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-500">License Number</p>
@@ -257,7 +257,7 @@ export const ServiceApprovalManager = () => {
                     <FileText className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">{service.category?.name} Category Request</h4>
+                    <h4 className="font-medium text-gray-900">{(service as any).category?.name || service.subcategory?.category?.name} Category Request</h4>
                     <p className="text-sm text-gray-600">
                       {service.provider?.full_name || service.provider?.business_name} • 
                       License: {service.license_number}

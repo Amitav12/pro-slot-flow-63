@@ -295,9 +295,9 @@ export const ProviderServiceManager = () => {
                   <TableCell>
                     <div>
                       <p className="font-medium text-green-600">${service.price}</p>
-                      <p className="text-xs text-gray-500">
-                        Range: ${service.subcategory?.min_price} - ${service.subcategory?.max_price}
-                      </p>
+                       <p className="text-xs text-gray-500">
+                         Range: ${(service.subcategory as any)?.min_price || 0} - ${(service.subcategory as any)?.max_price || 999999}
+                       </p>
                     </div>
                   </TableCell>
                   <TableCell>

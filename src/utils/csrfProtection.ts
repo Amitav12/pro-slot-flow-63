@@ -103,7 +103,7 @@ export const csrfProtectedSupabaseOperation = {
   // Insert operation
   insert: async <T = Record<string, unknown>>(table: string, data: T) => {
     return makeCSRFProtectedRequest(
-      async () => await supabase.from(table).insert(data),
+      async () => await (supabase as any).from(table).insert(data),
       { method: 'POST', data }
     );
   },
@@ -111,7 +111,7 @@ export const csrfProtectedSupabaseOperation = {
   // Update operation
   update: async <T = Record<string, unknown>, F = Record<string, unknown>>(table: string, data: T, filter: F) => {
     return makeCSRFProtectedRequest(
-      async () => await supabase.from(table).update(data).match(filter),
+      async () => await (supabase as any).from(table).update(data).match(filter),
       { method: 'PUT', data }
     );
   },
@@ -119,7 +119,7 @@ export const csrfProtectedSupabaseOperation = {
   // Upsert operation
   upsert: async <T = Record<string, unknown>>(table: string, data: T, options?: Record<string, unknown>) => {
     return makeCSRFProtectedRequest(
-      async () => await supabase.from(table).upsert(data, options),
+      async () => await (supabase as any).from(table).upsert(data, options),
       { method: 'POST', data }
     );
   },
@@ -127,7 +127,7 @@ export const csrfProtectedSupabaseOperation = {
   // Delete operation
   delete: async <F = Record<string, unknown>>(table: string, filter: F) => {
     return makeCSRFProtectedRequest(
-      async () => await supabase.from(table).delete().match(filter),
+      async () => await (supabase as any).from(table).delete().match(filter),
       { method: 'DELETE' }
     );
   },
