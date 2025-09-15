@@ -91,7 +91,14 @@ serve(async (req) => {
     }
 
     // Convert cart items to Stripe line items
-    const lineItems = cartItems.map((item: any) => ({
+    interface CartItem {
+      serviceName: string;
+      providerName?: string;
+      price: number;
+      quantity: number;
+    }
+    
+    const lineItems = cartItems.map((item: CartItem) => ({
       price_data: {
         currency: currency,
         product_data: {

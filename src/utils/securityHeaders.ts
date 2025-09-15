@@ -126,7 +126,7 @@ export const applySecurityHeaders = (): void => {
 export interface SecurityEvent {
   type: 'csrf_violation' | 'session_tampering' | 'unauthorized_access' | 'suspicious_activity';
   severity: 'low' | 'medium' | 'high' | 'critical';
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   timestamp: number;
   userAgent: string;
   ip?: string;
@@ -170,8 +170,8 @@ export const initializeSecurityMonitoring = (): void => {
     
     // Override console methods in production
     Object.keys(console).forEach((method) => {
-      if (typeof (console as any)[method] === 'function') {
-        (console as any)[method] = (...args: any[]) => {
+      if (typeof (console as Record<string, unknown>)[method] === 'function') {
+        (console as Record<string, unknown>)[method] = (...args: unknown[]) => {
           // Log security event for console access
           logSecurityEvent({
             type: 'suspicious_activity',
@@ -184,14 +184,14 @@ export const initializeSecurityMonitoring = (): void => {
           });
           
           // Still allow console in development builds
-          return (originalConsole as any)[method]?.apply(console, args);
+          return (originalConsole as Record<string, unknown>)[method]?.apply(console, args);
         };
       }
     });
   }
 
   // Monitor for DevTools
-  let devtools = { open: false, orientation: null };
+  const devtools = { open: false, orientation: null };
   const threshold = 160;
 
   setInterval(() => {

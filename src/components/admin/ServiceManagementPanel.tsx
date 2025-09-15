@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,11 +35,7 @@ const ServiceManagementPanel: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | 'popular' | 'new'>('all');
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadServices();
-  }, []);
-
-  const loadServices = async () => {
+  const loadServices = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -74,14 +70,18 @@ const ServiceManagementPanel: React.FC = () => {
     } catch (error) {
       console.error('Error loading services:', error);
       toast({
-        title: "Error",
-        description: "Failed to load services",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to load services',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadServices();
+  }, [loadServices]);
 
   const updateServiceFlag = async (serviceId: string, field: 'is_popular' | 'is_new', value: boolean) => {
     try {

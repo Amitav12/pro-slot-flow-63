@@ -1,4 +1,5 @@
 // Database types based on actual Supabase structure
+import { WorkingHours } from './categories';
 export interface Database {
   public: {
     Tables: {
@@ -12,39 +13,62 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-      provider_notification_preferences: {
+      provider_categories: {
         Row: {
           id: string;
           provider_id: string;
-          availability_reminder_enabled: boolean;
-          reminder_days_advance: number;
-          notification_time: string;
-          email_notifications: boolean;
-          sms_notifications: boolean;
+          category_id: string;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           provider_id: string;
-          availability_reminder_enabled?: boolean;
-          reminder_days_advance?: number;
-          notification_time?: string;
-          email_notifications?: boolean;
-          sms_notifications?: boolean;
+          category_id: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           provider_id?: string;
-          availability_reminder_enabled?: boolean;
-          reminder_days_advance?: number;
-          notification_time?: string;
-          email_notifications?: boolean;
-          sms_notifications?: boolean;
+          category_id?: string;
           created_at?: string;
           updated_at?: string;
+        };
+      };
+      admin_notifications: {
+        Row: {
+          id: string;
+          type: 'service_request' | 'provider_registration' | 'booking_issue' | 'system_alert';
+          title: string;
+          message: string;
+          data: Record<string, unknown> | null;
+          is_read: boolean;
+          created_by: string | null;
+          created_at: string;
+          read_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          type: 'service_request' | 'provider_registration' | 'booking_issue' | 'system_alert';
+          title: string;
+          message: string;
+          data?: Record<string, unknown> | null;
+          is_read?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          read_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          type?: 'service_request' | 'provider_registration' | 'booking_issue' | 'system_alert';
+          title?: string;
+          message?: string;
+          data?: Record<string, unknown> | null;
+          is_read?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          read_at?: string | null;
         };
       };
         Insert: {
@@ -217,7 +241,7 @@ export interface Database {
           price: number;
           license_number: string | null;
           license_document_url: string | null;
-          working_hours: any | null;
+          working_hours: WorkingHours | null;
           status: 'pending' | 'approved' | 'rejected';
           is_active: boolean;
           approval_notes: string | null;
@@ -235,7 +259,7 @@ export interface Database {
           price: number;
           license_number?: string | null;
           license_document_url?: string | null;
-          working_hours?: any | null;
+          working_hours?: WorkingHours | null;
           status?: 'pending' | 'approved' | 'rejected';
           is_active?: boolean;
           approval_notes?: string | null;
@@ -253,7 +277,7 @@ export interface Database {
           price?: number;
           license_number?: string | null;
           license_document_url?: string | null;
-          working_hours?: any | null;
+          working_hours?: WorkingHours | null;
           status?: 'pending' | 'approved' | 'rejected';
           is_active?: boolean;
           approval_notes?: string | null;
@@ -416,7 +440,7 @@ export interface Database {
         Row: {
           id: string;
           key: string;
-          value: any;
+          value: unknown;
           description: string | null;
           created_at: string;
           updated_at: string;
@@ -424,7 +448,7 @@ export interface Database {
         Insert: {
           id?: string;
           key: string;
-          value: any;
+          value: unknown;
           description?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -432,7 +456,7 @@ export interface Database {
         Update: {
           id?: string;
           key?: string;
-          value?: any;
+          value?: unknown;
           description?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -575,9 +599,17 @@ export type GalleryVideo = Database['public']['Tables']['gallery_videos']['Row']
 export type GalleryVideoInsert = Database['public']['Tables']['gallery_videos']['Insert'];
 export type GalleryVideoUpdate = Database['public']['Tables']['gallery_videos']['Update'];
 
+export type ProviderCategory = Database['public']['Tables']['provider_categories']['Row'];
+export type ProviderCategoryInsert = Database['public']['Tables']['provider_categories']['Insert'];
+export type ProviderCategoryUpdate = Database['public']['Tables']['provider_categories']['Update'];
+
 export type ProviderNotificationPreferences = Database['public']['Tables']['provider_notification_preferences']['Row'];
 export type ProviderNotificationPreferencesInsert = Database['public']['Tables']['provider_notification_preferences']['Insert'];
 export type ProviderNotificationPreferencesUpdate = Database['public']['Tables']['provider_notification_preferences']['Update'];
+
+export type AdminNotification = Database['public']['Tables']['admin_notifications']['Row'];
+export type AdminNotificationInsert = Database['public']['Tables']['admin_notifications']['Insert'];
+export type AdminNotificationUpdate = Database['public']['Tables']['admin_notifications']['Update'];
 
 // Extended types with relationships
 export interface CategoryWithSubcategories extends Category {

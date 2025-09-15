@@ -5,12 +5,12 @@ import {
   Edit, 
   Trash2, 
   Eye, 
-  DollarSign,
-  Clock,
   MapPin,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  FileText,
+  DollarSign
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -160,10 +160,10 @@ export const ProviderServices = () => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
-                    {service.service_name}
+                    {service.subcategory?.name}
                   </CardTitle>
                   <p className="text-sm text-gray-600">
-                    {service.subcategory?.category?.name} • {service.subcategory?.name}
+                    Category: {service.subcategory?.category?.name}
                   </p>
                 </div>
                 <div className="flex items-center space-x-1">
@@ -184,21 +184,21 @@ export const ProviderServices = () => {
                 )}
                 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1">
-                    <DollarSign className="h-4 w-4 text-green-500" />
-                    <span className="font-semibold text-green-600">${service.price}</span>
-                  </div>
                   <div className="flex items-center space-x-1 text-sm text-gray-500">
-                    <Clock className="h-4 w-4" />
-                    <span>Per service</span>
-                  </div>
-                </div>
-
-                {service.license_number && (
-                  <div className="flex items-center space-x-1 text-sm text-gray-500">
+                    <FileText className="h-4 w-4" />
                     <span>License: {service.license_number}</span>
                   </div>
-                )}
+                  {service.license_document_url && (
+                    <a 
+                      href={service.license_document_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      View Document
+                    </a>
+                  )}
+                </div>
 
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                   <div className="flex items-center space-x-2">
@@ -243,9 +243,9 @@ export const ProviderServices = () => {
         >
           <CardContent className="flex flex-col items-center justify-center h-64 text-gray-500 hover:text-blue-600">
             <Plus className="h-12 w-12 mb-4" />
-            <h3 className="text-lg font-medium mb-2">Add New Service</h3>
+            <h3 className="text-lg font-medium mb-2">Request New Category</h3>
             <p className="text-sm text-center">
-              Expand your offerings by adding a new service
+              Request approval to provide services in a new category
             </p>
           </CardContent>
         </Card>
@@ -258,13 +258,13 @@ export const ProviderServices = () => {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Eye className="h-8 w-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No services yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No category requests yet</h3>
             <p className="text-gray-600 mb-6">
-              Start by adding your first service offering to attract customers
+              Start by requesting approval for your first service category
             </p>
             <Button onClick={handleAddService} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4 mr-2" />
-              Add Your First Service
+              Request First Category
             </Button>
           </CardContent>
         </Card>

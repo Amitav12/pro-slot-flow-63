@@ -8,7 +8,7 @@ import { CSPConfigService } from "./src/config/csp";
 function cspBuildPlugin(env: Record<string, string>) {
   return {
     name: "csp-build-plugin",
-    generateBundle(this: any) {
+    generateBundle(this: { emitFile: (options: { type: string; fileName: string; source: string }) => void }) {
       const cspService = new CSPConfigService(env);
       
       // Generate netlify.toml

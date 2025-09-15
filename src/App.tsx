@@ -36,6 +36,7 @@ import { useCSP } from './hooks/useCSP';
 import ProviderSelectionNew from './pages/ProviderSelectionNew';
 import Scheduling from './pages/Scheduling';
 import ServiceCategory from './pages/ServiceCategory';
+import SubcategorySelection from './pages/SubcategorySelection';
 import DateSelection from './pages/DateSelection';
 import TimeSelection from './pages/TimeSelection';
 import { DashboardRouter } from "./components/DashboardRouter";
@@ -203,8 +204,9 @@ const App = () => {
                       <Route path="*" element={<NotFound />} />
                       
                       {/* Service booking flow routes */}
-                      <Route path="/services/:category" element={<ServiceCategory />} />
-                      <Route path="/service-category/:category" element={<ServiceCategory />} />
+                      <Route path="/services/:category" element={<SubcategorySelection />} />
+                      <Route path="/services/:category/:subcategory" element={<ServiceCategory />} />
+                      <Route path="/service-category/:category" element={<SubcategorySelection />} />
                       <Route path="/provider-selection" element={<ProviderSelectionNew />} />
                       <Route path="/provider-selection-new" element={<ProviderSelectionNew />} />
                       <Route path="/date-selection" element={<DateSelection />} />

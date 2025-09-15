@@ -11,10 +11,14 @@ import {
   Shield,
   Loader2,
   Menu,
-  X
+  X,
+  Bell,
+  CheckCircle
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export const ProviderSidebar = () => {
   const location = useLocation();
@@ -23,10 +27,26 @@ export const ProviderSidebar = () => {
   const { toast } = useToast();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showNotificationDetails, setShowNotificationDetails] = useState(false);
 
   React.useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
+
+  // Close notification dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showNotificationDetails) {
+        const target = event.target as Element;
+        if (!target.closest('.notification-dropdown') && !target.closest('.notification-button')) {
+          setShowNotificationDetails(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showNotificationDetails]);
 
   const handleSecureSignOut = async () => {
     console.log('🔐 ProviderSidebar handleSecureSignOut function called');
@@ -143,13 +163,60 @@ export const ProviderSidebar = () => {
       <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-40 flex-col hidden md:flex overflow-hidden">
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-gray-200 flex-shrink-0">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Briefcase className="h-6 w-6 text-white" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Briefcase className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">Provider Panel</h1>
+                  <p className="text-sm text-gray-500">Service Management</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Provider Panel</h1>
-                <p className="text-sm text-gray-500">Service Management</p>
+              
+              {/* Notification Button */}
+              <div className="relative">
+                <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={() => setShowNotificationDetails(!showNotificationDetails)}
+                   className="p-2 h-8 w-8 notification-button"
+                 >
+                  <Bell className="h-4 w-4" />
+                </Button>
+                
+                {/* Notification Details Dropdown */}
+                 {showNotificationDetails && (
+                   <div className="absolute right-0 top-10 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 notification-dropdown">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900">Notification System</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowNotificationDetails(false)}
+                        className="p-1 h-6 w-6"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <div>
+                          <p className="font-medium text-green-800">System Active</p>
+                          <p className="text-sm text-green-600">Automatic availability reminders are running in the background</p>
+                        </div>
+                      </div>
+                      
+                      <div className="text-xs text-gray-500">
+                        <p>• You'll receive reminders every 15 days to update your availability</p>
+                        <p>• Notifications help maintain your service schedule</p>
+                        <p>• Configure settings in Schedule → Settings tab</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -172,13 +239,59 @@ export const ProviderSidebar = () => {
       >
         <div className="flex flex-col h-full">
           <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Briefcase className="h-4 w-4 text-white" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Briefcase className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold text-gray-900">Provider Panel</h1>
+                  <p className="text-xs text-gray-500">Service Management</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">Provider Panel</h1>
-                <p className="text-xs text-gray-500">Service Management</p>
+              
+              {/* Mobile Notification Button */}
+              <div className="relative">
+                <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={() => setShowNotificationDetails(!showNotificationDetails)}
+                   className="p-1.5 h-7 w-7 notification-button"
+                 >
+                  <Bell className="h-3 w-3" />
+                </Button>
+                
+                {/* Mobile Notification Details Dropdown */}
+                 {showNotificationDetails && (
+                   <div className="absolute right-0 top-8 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-3 notification-dropdown">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900 text-sm">Notification System</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowNotificationDetails(false)}
+                        className="p-1 h-5 w-5"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <div>
+                          <p className="font-medium text-green-800 text-sm">System Active</p>
+                          <p className="text-xs text-green-600">Automatic availability reminders are running</p>
+                        </div>
+                      </div>
+                      
+                      <div className="text-xs text-gray-500">
+                        <p>• Reminders every 15 days</p>
+                        <p>• Configure in Schedule → Settings</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

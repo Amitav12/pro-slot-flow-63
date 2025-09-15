@@ -149,9 +149,9 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                   animationFillMode: 'forwards'
                 }}
                 onClick={() => {
-                  onCategorySelect(category.id);
-                  navigate(`/services/${category.id}`);
-                }}
+                   onCategorySelect(category.id);
+                   navigate(`/services/${category.id}`);
+                 }}
               >
                 <CardContent className="p-6 text-center">
                   <div className={`w-16 h-16 ${category.iconBg || 'bg-blue-100'} rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform duration-300`}>

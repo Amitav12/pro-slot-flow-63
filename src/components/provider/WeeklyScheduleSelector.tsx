@@ -56,7 +56,7 @@ export const WeeklyScheduleSelector: React.FC<WeeklyScheduleSelectorProps> = ({
     const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
     const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0);
     
-    let currentWeek = getWeekStart(firstDay);
+    const currentWeek = getWeekStart(firstDay);
     
     while (currentWeek <= lastDay) {
       weeks.push(new Date(currentWeek));

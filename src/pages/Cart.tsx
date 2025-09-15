@@ -120,11 +120,12 @@ export default function Cart() {
           duration: 10000,
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('💥 Checkout error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unexpected error occurred';
       toast({
         title: 'Payment System Error',
-        description: `Error: ${err.message || 'Unexpected error occurred'}`,
+        description: `Error: ${errorMessage}`,
         variant: 'destructive',
         duration: 15000,
       });
