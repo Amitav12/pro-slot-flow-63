@@ -27,7 +27,7 @@ export const useLocations = () => {
         .order('name');
 
       if (error) throw error;
-      setLocations(data || []);
+      setLocations((data || []) as Location[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch locations');
       console.error('Error fetching locations:', err);

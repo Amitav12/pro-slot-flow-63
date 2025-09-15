@@ -819,6 +819,45 @@ export type Database = {
           },
         ]
       }
+      provider_categories: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          id: string
+          provider_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          id?: string
+          provider_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          id?: string
+          provider_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_categories_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_notification_preferences: {
         Row: {
           availability_reminder_enabled: boolean
@@ -1352,6 +1391,7 @@ export type Database = {
           street_address: string | null
           updated_at: string | null
           user_id: string
+          working_hours: Json | null
           zip_code: string | null
         }
         Insert: {
@@ -1382,6 +1422,7 @@ export type Database = {
           street_address?: string | null
           updated_at?: string | null
           user_id: string
+          working_hours?: Json | null
           zip_code?: string | null
         }
         Update: {
@@ -1412,6 +1453,7 @@ export type Database = {
           street_address?: string | null
           updated_at?: string | null
           user_id?: string
+          working_hours?: Json | null
           zip_code?: string | null
         }
         Relationships: []
